@@ -3,6 +3,11 @@
 class FVTilmeldingOptions {
 
   static $options;
+  static $pages = ['signup', 'test'];
+  static $names = [
+    'signup' => 'tilmeldingsside',
+    'test' => 'test side',
+  ];
 
   static function init() {
     self::$options = get_option('fv_tilmelding_options');
@@ -32,61 +37,39 @@ class FVTilmeldingOptions {
           'Tilmeldingssider', // title
           function() {
             echo "<p>Instillinger for navn og status på tilmeldingssider</p>";
+            echo "<p>Den øverste side skal passe med navnet på den side der ligger i WordPress under \"Sider\"</p>";
           }, // callback
           'fv_tilmelding_settings' // page
       );
 
-      // Register settings field for signup page name
-      add_settings_field(
-        'fv_tilmelding_settings_post', // id
-        'Navn på standard tilmeldingsside', // title
-        'FVTilmeldingOptions::render_settings_field', // callback
-        'fv_tilmelding_settings', // page
-        'fv_tilmelding_settings_urls', // section
-        [
-          'type' => 'text',
-          'setting' => 'signup_name',
-        ] // args
-      );
+      // Register settings
+      foreach(self::$pages as $page) {
+        // Register settings field for signup page name
+        add_settings_field(
+          "fv_tilmelding_settings_{$page}_slug", // id
+          'Navn på '.self::$names[$page], // title
+          'FVTilmeldingOptions::render_settings_field', // callback
+          'fv_tilmelding_settings', // page
+          'fv_tilmelding_settings_urls', // section
+          [
+            'type' => 'text',
+            'setting' => "{$page}_name",
+          ] // args
+        );
 
-      // Register settings field for signup page status
-      add_settings_field(
-        'fv_tilmelding_settings_post_status', // id
-        'Tilmelding åben', // title
-        'FVTilmeldingOptions::render_settings_field', // callback
-        'fv_tilmelding_settings', // page
-        'fv_tilmelding_settings_urls', // section
-        [
-          'type' => 'checkbox',
-          'setting' => 'signup_active',
-        ] // args
-      );
-
-      // Register settings field for test signup page name
-      add_settings_field(
-        'fv_tilmelding_settings_test_url', // id
-        'Navn på testside', // title
-        'FVTilmeldingOptions::render_settings_field', // callback
-        'fv_tilmelding_settings', // page
-        'fv_tilmelding_settings_urls', // section
-        [
-          'type' => 'text',
-          'setting' => 'test_name',
-        ] // args
-      );
-
-      // Register settings field for test signup page status
-      add_settings_field(
-        'fv_tilmelding_settings_test_url_status', // id
-        'Testside åben', // title
-        'FVTilmeldingOptions::render_settings_field', // callback
-        'fv_tilmelding_settings', // page
-        'fv_tilmelding_settings_urls', // section
-        [
-          'type' => 'checkbox',
-          'setting' => 'test_active',
-        ] // args
-      );
+        // Register settings field for signup page status
+        add_settings_field(
+          "fv_tilmelding_settings_{$page}_status", // id
+          ucfirst(self::$names[$page]).' åben', // title
+          'FVTilmeldingOptions::render_settings_field', // callback
+          'fv_tilmelding_settings', // page
+          'fv_tilmelding_settings_urls', // section
+          [
+            'type' => 'checkbox',
+            'setting' => "{$page}_status",
+          ] // args
+        );
+      }
     });
   }
 
@@ -119,6 +102,23 @@ class FVTilmeldingOptions {
         </form>
       </div>
     <?php
+  }
+
+  static function is_enabled_page($slug) {
+    foreach (self::$pages as $page) {
+      // Check if slug matches the page name
+      if (self::$options[$page.'_name'] == $slug) {
+        // Return true if page is enabled
+        return isset(self::$options[$page.'_status']);
+      }
+    }
+    // No pages were found that matched the slug
+    return false;
+  }
+
+  static function default_page() {
+    // Return slug of the first page in settings
+    return self::$options[self::$pages[0].'_name'];
   }
 }
 

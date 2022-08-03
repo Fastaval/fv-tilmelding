@@ -10,6 +10,7 @@ Author URI: https://westh.it
 
 include "fv-tilmelding-options.php";
 
+FVTilmeldingOptions::init();
 
 add_action('parse_request', 'fv_tilmelding_parse_request');
 function fv_tilmelding_parse_request($wp) {
@@ -17,14 +18,12 @@ function fv_tilmelding_parse_request($wp) {
   // var_dump($wp);
   // echo "</pre>";
 
-  $setting = get_option('fv_tilmelding_option_name');
-  if ($wp->request == $setting['tilmelding_url']) {
+  if (FVTilmeldingOptions::is_enabled_page($wp->request)) {
     $wp->query_vars = [
-      "pagename" => $setting['post_name']
+      "pagename" => FVTilmeldingOptions::default_page()
     ];
 
     //TODO add scripts to page
   }
 }
 
-FVTilmeldingOptions::init();
