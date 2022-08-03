@@ -13,6 +13,9 @@ class FVTilmeldingOptions {
     self::$options = get_option('fv_tilmelding_options');
     // error_log("Options:\n".print_r(self::$options, true), 3, plugin_dir_path(__FILE__)."/debug.log");
 
+    // No need to register settings page, if not admin
+    if (!is_admin()) return;
+
     // Register settings page
     add_action( 'admin_menu', function() {
       add_menu_page(
@@ -74,12 +77,13 @@ class FVTilmeldingOptions {
   }
 
   static function render_settings_field($args) {
-    $setting = self::$options[$args['setting']];
+    $setting = self::$options[$args['setting']] ?? null;
     if ($args['type'] == 'checkbox') {
       $value = true;
       $checked = isset( $setting ) ? 'checked="checked"' : '';
     } else {
       $value = isset( $setting ) ? esc_attr( $setting ) : '';
+      $checked = '';
     }
     ?>
       <input type="<?=$args['type']?>" name="fv_tilmelding_options[<?=$args['setting']?>]" value="<?=$value?>" <?=$checked?>>
@@ -118,7 +122,7 @@ class FVTilmeldingOptions {
 
   static function default_page() {
     // Return slug of the first page in settings
-    return self::$options[self::$pages[0].'_name'];
+    return self::$options[self::$pages[0].'_name'] ?? false;
   }
 }
 
