@@ -20,7 +20,7 @@ class FVSignup {
 
   static load_page_list () {
     jQuery.getJSON({
-      url: fv_signup_settings.infosys_url+"/signup/api/getpagelist",
+      url: fv_signup_settings.infosys_url+"/api/signup/pagelist",
       success: function (pages) {
         FVSignup.parse_page_list(pages);
       }
@@ -54,7 +54,7 @@ class FVSignup {
     if (this.loaded_pages[key] !== undefined && force !== true) return;
 
     jQuery.getJSON({
-      url: fv_signup_settings.infosys_url+"/signup/api/getpage/"+key,
+      url: fv_signup_settings.infosys_url+"/api/signup/page/"+key,
       success: function (page) {
         FVSignup.loaded_pages[key] = page;
         FVSignupRender.page(page, key, FVSignup.main_content);
