@@ -59,11 +59,16 @@ class FVSignup {
       $settings = get_option('fv_signup_options');
       $settings['lang'] = apply_filters( 'wpml_current_language', NULL );
 
+      // Scripts
       wp_enqueue_script('fv-signup-script-main', plugin_dir_url(__FILE__)."scripts/main.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/main.js"));
       wp_localize_script('fv-signup-script-main', "fv_signup_settings", $settings);
       wp_enqueue_script('fv-signup-script-render', plugin_dir_url(__FILE__)."scripts/render.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/render.js"));
       wp_enqueue_script('fv-signup-script-event', plugin_dir_url(__FILE__)."scripts/event.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/event.js"));
 
+      // Load render script from Infosys
+      wp_enqueue_script('fv-signup-script-infosys-render', $settings['infosys_url']."/js/signup/render.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/event.js"));
+
+      // Styles
       wp_enqueue_style( 'fv-signup-styles-main', plugin_dir_url(__FILE__)."styles/main.css",'', filemtime(plugin_dir_path(__FILE__)."styles/main.css"));
     });
   }
