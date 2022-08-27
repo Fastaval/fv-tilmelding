@@ -1,0 +1,14 @@
+nav div {
+    display: inline-block;
+    border: 1px black solid;
+    padding: .5em 1em;
+    cursor: pointer;
+}
+
+nav div:hover {
+    background-color: dodgerblue;
+}
+
+nav div.selected {
+    text-decoration: underline;
+}
