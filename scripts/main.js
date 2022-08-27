@@ -4,6 +4,7 @@ var fv_signup_settings;
 
 jQuery(function() {
   FVSignup.init();
+  FVSignupEvent.init();
 });
 
 class FVSignup {
@@ -13,6 +14,12 @@ class FVSignup {
 
     this.main_content = jQuery(".post-content");
     this.main_content.append("<h1>Fastaval Tilmelding</h1>");
+
+    this.navigation = jQuery("<nav id='signup-navigation'></nav>");
+    this.main_content.append(this.navigation);
+    
+    this.page_wrapper = jQuery("<div id='signup-pages'></div>");
+    this.main_content.append(this.page_wrapper);
 
     this.loaded_pages = {};
     this.load_page_list();
@@ -35,10 +42,11 @@ class FVSignup {
     })
 
     // Render navigation
-    FVSignupRender.navigation(pages, this.page_keys, this.main_content);
+    FVSignupRender.navigation(pages, this.page_keys, this.navigation);
     // Setup navigation functionality
     this.main_content.find("nav div").click((evt) => {
-      FVSignupEvent.nav_click(evt, this.main_content);
+      let key = evt.target.getAttribute("page-id");
+      FVSignupEvent.nav_click(key);
     })
     // Fully load pages
     setTimeout( () => {this.load_pages(keys)});
@@ -57,7 +65,8 @@ class FVSignup {
       url: fv_signup_settings.infosys_url+"/api/signup/page/"+key,
       success: function (page) {
         FVSignup.loaded_pages[key] = page;
-        FVSignupRender.page(page, key, FVSignup.main_content);
+        FVSignupRender.page(page, key, FVSignup.page_wrapper);
+        FVSignupEvent.page_loaded(page, key);
       }
     })
   }

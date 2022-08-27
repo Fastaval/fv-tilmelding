@@ -5,6 +5,10 @@ nav div {
     cursor: pointer;
 }
 
+nav div.loading {
+    opacity: .5;
+}
+
 nav div:hover {
     background-color: dodgerblue;
 }
