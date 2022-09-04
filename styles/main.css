@@ -1,18 +1,77 @@
+/*----------------------------------------------------------------------------
+    Header
+----------------------------------------------------------------------------*/
+h1 {
+  text-align: center;
+}
+/*----------------------------------------------------------------------------
+    Navigation
+----------------------------------------------------------------------------*/
+nav {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1em;
+}
+
 nav div {
-    display: inline-block;
-    border: 1px black solid;
-    padding: .5em 1em;
-    cursor: pointer;
+  border: 1px black solid;
+  padding: .5em 1em;
+  cursor: pointer;
 }
 
 nav div.loading {
-    opacity: .5;
+  opacity: .5;
 }
 
 nav div:hover {
-    background-color: dodgerblue;
+  background-color: dodgerblue;
 }
 
 nav div.selected {
-    text-decoration: underline;
+  text-decoration: underline;
+  font-weight: bold;
+}
+/*----------------------------------------------------------------------------
+    Pages
+----------------------------------------------------------------------------*/
+div.signup-page {
+  width: 800px;
+  margin: auto;
+}
+
+div#intro.signup-page {
+  width: 100%;
+}
+/*----------------------------------------------------------------------------
+    Section Header
+----------------------------------------------------------------------------*/
+div.post-content div#signup-pages div.signup-page h2 {
+  font-size: 1.5em;
+  margin-top: 1.5em;
+}
+/*----------------------------------------------------------------------------
+    Checkbox
+----------------------------------------------------------------------------*/
+input[type='checkbox'] {
+  height: 26px;
+  width: 26px;
+  margin-right: .8em;
+}
+
+/*----------------------------------------------------------------------------
+    Text Input
+----------------------------------------------------------------------------*/
+div.input-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin: .8em 0px;
+}
+
+div.input-wrapper input[type="text"] {
+  width: 70%;
+  color: black;
+}
+
+div.input-wrapper input[type="text"]:focus {
+  border-color: blue;
 }

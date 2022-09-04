@@ -15,19 +15,17 @@ class FVSignupRender {
 
     let page_div = element.find("div#"+key);
     if (!page_div.length) {
-      page_div = jQuery("<div id='"+key+"'></div>")
+      page_div = jQuery('<div id="'+key+'" class="signup-page"></div>')
       page_div.hide();
       element.append(page_div);
     }
 
     page_div.empty();
-    page_div.append("<h2>"+page.title[lang]+"</h2>");
+    //page_div.append("<h2>"+page.title[lang]+"</h2>");
 
     page.sections && page.sections.forEach(function(section) {
-      if(section.headline) {
-        page_div.append("<h2>"+section.headline[lang]+"</h2>");
-      }
-      section.items.forEach(function(item) {
+      section.headline && page_div.append("<h2>"+section.headline[lang]+"</h2>");
+      section.items && section.items.forEach(function(item) {
         page_div.append(InfosysSignupRender.render_element(item, lang));
       })
     });

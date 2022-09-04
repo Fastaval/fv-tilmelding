@@ -11,7 +11,7 @@ class FVSignupEvent {
         FVSignup.main_content.find('nav div[page-id="'+key+'"]').addClass('selected');
 
         // Hide all pages
-        FVSignup.page_wrapper.find('div').hide();
+        FVSignup.page_wrapper.find('div.signup-page').hide();
         
         // Show current page
         FVSignup.page_wrapper.find('div#'+key).show();
