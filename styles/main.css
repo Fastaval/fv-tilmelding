@@ -64,6 +64,7 @@ input[type='checkbox'] {
 div.input-wrapper {
   display: flex;
   margin: .8em 0px;
+  flex-wrap: wrap;
 }
 /*----------------------------------------------------------------------------
     Input Text/Date/Tele/Email
@@ -79,8 +80,16 @@ div.input-wrapper.input-type-text input,
 div.input-wrapper.input-type-date input,
 div.input-wrapper.input-type-tele input,
 div.input-wrapper.input-type-email input {
-  width: 70%;
   color: black;
+  flex-basis: 70%;
+  flex-grow: 1;
+}
+
+div.input-wrapper.input-type-text label,
+div.input-wrapper.input-type-date label,
+div.input-wrapper.input-type-tele label,
+div.input-wrapper.input-type-email label {
+  min-width: 30%;
 }
 
 div.input-wrapper.input-type-text input:focus,
@@ -90,13 +99,10 @@ div.input-wrapper.input-type-email input:focus {
   border-color: blue;
 }
 /*----------------------------------------------------------------------------
-    Input Radio
+    Input Radio/Textarea
 ----------------------------------------------------------------------------*/
-div.input-wrapper.input-type-radio {
-  flex-wrap: wrap;
-}
-
-div.input-wrapper.input-type-radio-option {
+div.input-wrapper.input-type-radio-option,
+div.input-wrapper.input-type-textarea textarea{
   flex-basis: 100%;
   margin: .3em 0px;
 }
@@ -104,15 +110,28 @@ div.input-wrapper.input-type-radio-option {
 div.input-wrapper.input-type-radio-option input {
   margin: 0px 1em;
 }
+
+div.input-wrapper.input-type-textarea textarea {
+  color: black;
+  padding: .5em 15px;
+}
+
+div.input-wrapper.input-type-textarea textarea:focus {
+  border-color: blue;
+}
 /*----------------------------------------------------------------------------
-    Input Tele (Fusion theme doesn't target input type="tel")
+    Input Tele/Textarea (Fusion theme doesn't target these)
 ----------------------------------------------------------------------------*/
 input[type="tel"] {
+  height: var(--form_input_height);
+  padding: 0px 15px;
+}
+
+input[type="tel"],
+textarea {
   border: 1px solid var(--form_border_color);
   border-width: var(--form_border_width-top) var(--form_border_width-right) var(--form_border_width-bottom) var(--form_border_width-left);
   border-radius: var(--form_border_radius);
   background-color: var(--form_bg_color);
   font-size: var(--form_text_size);
-  height: var(--form_input_height);
-  padding: 0px 15px;
 }
