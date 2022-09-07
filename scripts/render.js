@@ -21,10 +21,10 @@ class FVSignupRender {
     }
 
     page_div.empty();
-    //page_div.append("<h2>"+page.title[lang]+"</h2>");
+    page.title[lang] && page_div.append("<h2>"+page.title[lang]+"</h2>");
 
     page.sections && page.sections.forEach(function(section) {
-      section.headline && page_div.append("<h2>"+section.headline[lang]+"</h2>");
+      section.headline && page_div.append("<h3>"+section.headline[lang]+"</h3>");
       section.items && section.items.forEach(function(item) {
         page_div.append(InfosysSignupRender.render_element(item, lang));
       })

@@ -43,6 +43,7 @@ class FVSignup {
     });
 
     // Change page content so people know the signup is available
+    // NOTE: all this is cleared when the Javascript is loaded
     add_filter('the_content', function($content) {
       $content = 
         "<div class='signup-placeholder'>".
@@ -65,8 +66,9 @@ class FVSignup {
       wp_enqueue_script('fv-signup-script-render', plugin_dir_url(__FILE__)."scripts/render.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/render.js"));
       wp_enqueue_script('fv-signup-script-event', plugin_dir_url(__FILE__)."scripts/event.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/event.js"));
 
-      // Load render script from Infosys
-      wp_enqueue_script('fv-signup-script-infosys-render', $settings['infosys_url']."/js/signup/render.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/event.js"));
+      // Load render scripts from Infosys
+      wp_enqueue_script('fv-signup-script-infosys-render', $settings['infosys_url']."/js/signup/render.js?", array( 'jquery' ), rand());
+      wp_enqueue_script('fv-signup-script-infosys-process', $settings['infosys_url']."/js/signup/preprocess.js", array( 'jquery' ), rand());
 
       // Styles
       wp_enqueue_style( 'fv-signup-styles-main', plugin_dir_url(__FILE__)."styles/main.css",'', filemtime(plugin_dir_path(__FILE__)."styles/main.css"));
