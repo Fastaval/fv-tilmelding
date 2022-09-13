@@ -70,4 +70,41 @@ class FVSignup {
       }
     })
   }
+
+  static add_module(module, element) {
+    switch (module) {
+      case "food":
+        FVSignupModuleFood.init(element);
+        break;
+    
+      default:
+        FVSignupRender.unknown_module(module, element);
+        break;
+    }
+  }
+
+  static days = {
+    en: [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ],
+    da: [
+      'mandag',
+      'tirsdag',
+      'onsdag',
+      'tordsag',
+      'fredag',
+      'lørdag',
+      'søndag',
+    ]
+  };
+
+  static get_day(day) {
+    return this.days[fv_signup_settings.lang][day-1];
+  }
 }

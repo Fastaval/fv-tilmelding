@@ -25,6 +25,7 @@ class FVSignupRender {
 
     page.sections && page.sections.forEach(function(section) {
       section.headline && page_div.append("<h3>"+section.headline[lang]+"</h3>");
+      section.module && FVSignup.add_module(section.module, page_div);
       section.items && section.items.forEach(function(item) {
         page_div.append(InfosysSignupRender.render_element(item, lang));
       })
@@ -33,5 +34,9 @@ class FVSignupRender {
     let nav_button = jQuery("nav div[page-id='"+key+"']");
     nav_button.removeClass('loading');
     nav_button.addClass('ready');
+  }
+
+  static unknown_module(name, element) {
+    element.append('<p><strong>Unknown module '+name+'</strong></p>');
   }
 }
