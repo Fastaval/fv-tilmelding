@@ -25,7 +25,7 @@ class FVSignup {
     //error_log("Query:".print_r($query, true), 3, plugin_dir_path(__FILE__)."/debug.log");
 
     // Check if we're trying to access an enabled signup page
-    if (!FVSignupOptions::is_enabled_page($query->query['name'])) return;
+    if (!isset($query->query['name']) || !FVSignupOptions::is_enabled_page($query->query['name'])) return;
 
     // Save page adress for later
     self::$current_slug = $query->query['name'];
