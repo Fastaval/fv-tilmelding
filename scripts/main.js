@@ -77,6 +77,10 @@ class FVSignup {
         FVSignupModuleFood.init(element);
         break;
     
+      case "activities":
+        FVSignupModuleActivities.init(element);
+        break;
+
       default:
         FVSignupRender.unknown_module(module, element);
         break;
