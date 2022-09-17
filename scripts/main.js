@@ -21,8 +21,19 @@ class FVSignup {
     this.page_wrapper = jQuery("<div id='signup-pages'></div>");
     this.main_content.append(this.page_wrapper);
 
+    this.load_infosys_config();
+
     this.loaded_pages = {};
     this.load_page_list();
+  }
+
+  static load_infosys_config () {
+    jQuery.getJSON({
+      url: fv_signup_settings.infosys_url+"/api/signup/config",
+      success: function (config) {
+        FVSignup.config = config;
+      }
+    })
   }
 
   static load_page_list () {
