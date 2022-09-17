@@ -40,12 +40,22 @@ div#signup-pages div.signup-page h2 {
 }
 
 div.signup-page {
-  width: 800px;
+  max-width: 1000px;
   margin: auto;
 }
 
 div#intro.signup-page {
   width: 100%;
+}
+
+div#welcome.signup-page,
+div#organizer.signup-page,
+div#food.signup-page {
+  max-width: 800px;
+}
+
+div#activities.signup-page {
+  max-width: 1200px;
 }
 /*----------------------------------------------------------------------------
     Section Header
@@ -139,4 +149,105 @@ textarea {
   border-radius: var(--form_border_radius);
   background-color: var(--form_bg_color);
   font-size: var(--form_text_size);
+}
+/*----------------------------------------------------------------------------
+    Activities
+----------------------------------------------------------------------------*/
+div#activities_module div.filter {
+  display: flex;
+  margin-bottom: 2px;
+}
+
+div#activities_module div.filter div {
+  border: 1px black solid;
+  padding: .5em 1em;
+  cursor: pointer;
+  background-color: gray;
+  color: white;
+}
+
+div#activities_module div.filter div.selected {
+  text-decoration: underline;
+  font-weight: bold;
+  background-color: dimgray;
+}
+
+div#activities_module div.dayheader {
+  background-color: dimgray;
+  color: white;
+  text-align: center;
+  font-size: 1.5em;
+  border: 1px black solid;
+  line-height: 2em;
+}
+
+div#activities_module table {
+  width: 100%;
+}
+
+div#activities_module table td.table-header {
+  padding: 1em;
+  width: 40%;
+}
+
+div#activities_module table td.time-section{
+  border-left: 1px solid lightgray;
+  padding: 0px;
+  vertical-align: top;
+  min-width: 1.3em;
+}
+
+div#activities_module table .time {
+  position: relative;
+  left: -50%;
+  margin-bottom: 1em;
+  text-align: center;
+}
+
+div#activities_module table .time-label {
+  background: white;
+  padding: 4px 3px;
+  display: inline-block;
+}
+
+div#activities_module table .activity-row {
+  border-top: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+}
+
+div#activities_module table td.activity-title {
+  cursor: pointer;
+  padding: 1em 0;
+}
+
+div#activities_module table .flag-wrapper,
+div#activities_module table .title-wrapper {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 1em;
+}
+
+
+div#activities_module table .activity-row .activity-choice {
+  width: 100%;
+  border: 1px solid black;
+  color: black;
+  min-width: 1em;
+  font-size: .8em;
+  height: 2em;
+  cursor: pointer;
+  display: flex;
+}
+
+div#activities_module table .activity-row.magic .activity-choice {
+  color: white;
+}
+
+div#activities_module table .activity-row .activity-choice *{
+  user-select: none;
+  margin: auto;
+}
+
+div#activities_module table td.description-cell {
+  padding: 1em;
 }

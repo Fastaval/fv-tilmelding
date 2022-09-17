@@ -59,6 +59,7 @@ class FVSignup {
     add_action('wp_enqueue_scripts', function() {
       $settings = get_option('fv_signup_options');
       $settings['lang'] = apply_filters( 'wpml_current_language', NULL );
+      $settings['plugin_root'] = plugin_dir_url(__FILE__);
 
       // Scripts
       wp_enqueue_script('fv-signup-script-main', plugin_dir_url(__FILE__)."scripts/main.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/main.js"));
@@ -67,6 +68,7 @@ class FVSignup {
       wp_enqueue_script('fv-signup-script-event', plugin_dir_url(__FILE__)."scripts/event.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/event.js"));
       wp_enqueue_script('fv-signup-script-module-food', plugin_dir_url(__FILE__)."scripts/module_food.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/module_food.js"));
       wp_enqueue_script('fv-signup-script-module-activities', plugin_dir_url(__FILE__)."scripts/module_activities.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/module_activities.js"));
+      wp_enqueue_script('fv-signup-script-logic-activities', plugin_dir_url(__FILE__)."scripts/logic_activities.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/logic_activities.js"));
 
       // Load render scripts from Infosys
       wp_enqueue_script('fv-signup-script-infosys-render', $settings['infosys_url']."/js/signup/render.js?", array( 'jquery' ), rand());
