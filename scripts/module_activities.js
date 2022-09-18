@@ -27,7 +27,7 @@ class FVSignupModuleActivities {
       this.element.append(filter.prop('outerHTML'));
       
       // Day header
-      let day_text = FVSignup.get_day(day);
+      let day_text = FVSignup.get_weekday(day);
       day_text = day_text.substr(0,1).toUpperCase() + day_text.substr(1);
       this.element.append('<div class="dayheader">'+day_text+'</div>');
 
@@ -48,6 +48,7 @@ class FVSignupModuleActivities {
         let activity = activities_info.activities[run.activity];
         let row = jQuery('<tr class="activity-row"></tr>');
         row.addClass(activity.type);
+        row.attr('activity-id', run.activity);
         
         // Flag & Title cell
         let flag = this.get_flag(activity.lang);
@@ -79,13 +80,9 @@ class FVSignupModuleActivities {
         // Description row
         let desc_row = jQuery('<tr class="description-row"></tr>');
         let desc_cell = jQuery('<td colspan="60" class="description-cell"></td>');
-        let link_text = {
-          en: "Read more on the website",
-          da: "Læs mere på hjemmesiden",
-        }
         desc_cell.append('<p>'+activity.desc[lang]+'</p>');
         if (activity.wp_id != 0) {
-          desc_cell.append('<a href="/index.php?p='+activity.wp_id+'&lang='+lang+'">'+link_text[lang]+'</a>');
+          desc_cell.append('<a href="/index.php?p='+activity.wp_id+'&lang='+lang+'">'+activities_info.link_text[lang]+'</a>');
         }
         desc_row.hide();
         desc_row.append(desc_cell);
@@ -96,7 +93,7 @@ class FVSignupModuleActivities {
 
       this.element.append(table);
     }
-    FVSignupLogicActivities.init_choices(activities_info);
+    FVSignupLogicActivities.init(activities_info);
   }
 
   static render_filter(categories) {
@@ -109,7 +106,7 @@ class FVSignupModuleActivities {
       let category = id;
       if (cat.include) category += " " + cat.include.join(" ");
 
-      let filter_button = jQuery('<div class="filter-button"></div>');
+      let filter_button = jQuery('<div class="filter-button '+category+'"></div>');
       filter_button.attr('filter-category', category)
       filter_button.text(cat[lang]);
       if(id == 'all') filter_button.addClass('selected');

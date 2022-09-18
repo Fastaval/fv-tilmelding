@@ -3,8 +3,20 @@
 class FVSignupLogicActivities {
   static activity_info;
 
-  static init_choices(activity_info) {
+  // TODO category filtering
+  // TDOD filter for days attending
+
+  static init(activity_info) {
     this.activity_info = activity_info;
+
+    this.init_choices();
+    this.init_descriptions();
+    FVSignupLogic.on_page('activity', function(){
+      FVSignupLogicActivities.on_page();
+    });
+  }
+
+  static init_choices() {
     let choices = jQuery('#activities_module .activity-choice');
     
     choices.click(function(evt) {
@@ -17,18 +29,70 @@ class FVSignupLogicActivities {
     })
   }
 
+  static init_descriptions() {
+    let titles = jQuery('#activities_module td.activity-title');
+    
+    titles.click(function(evt) {
+      let description = jQuery(evt.target).closest('.activity-row').next();
+      if (description.css('display') == 'none') {
+        jQuery('#activities_module .description-row').hide();
+        description.show();
+      } else {
+        description.hide();
+      }
+      evt.stopPropagation();
+    });
+  }
+
+  static on_page() {
+    this.participant_filter();
+    this.age_filter();
+  }
+
+  static participant_filter() {
+    let participant = FVSignup.get_input('participant').val();
+
+    // We can ignore age filter since it's applied afterwards
+    if (participant == 'junior') {
+      jQuery('#activities_module .filter').hide();
+      jQuery('.activity-row').not('.junior').hide();
+      jQuery('.activity-row').filter('.junior').show();
+    } else {
+      jQuery('#activities_module .filter .junior').hide();
+      jQuery('#activities_module .filter').show();
+      jQuery('.activity-row').filter('.junior').hide();
+      jQuery('.activity-row').not('.junior').show();
+    }
+  }
+
+  static age_filter() {
+    let age = FVSignup.get_age();
+
+    let runs = jQuery('#activities_module table .activity-row');
+    for(const run of runs) {
+      let jqrun = jQuery(run);
+      let activity_id = jqrun.attr('activity-id');
+      let activity = this.activity_info.activities[activity_id];
+      let age_appropriate = 'true';
+      if (activity.max_age && activity.max_age < age) age_appropriate = 'too old';
+      if (activity.min_age && activity.min_age > age) age_appropriate = 'too young';
+      jqrun.attr('age-appropriate', age_appropriate);
+      if (age_appropriate != 'true') jqrun.hide();
+    }
+  }
+
   static choice_click(choice) {
     let input = choice.find('input');
     let value = parseInt(input.val());
     isNaN(value) && (value = 0);
 
     let lang = fv_signup_settings.lang;
-    let gm = choice.attr('activity-gm');
+    let gm = choice.attr('activity-gm') == 'true';
     let prio_count = this.activity_info.choices.prio[lang].length;
-    let max = gm == 'true' ? prio_count + 2 : prio_count;
+    let max = gm ? prio_count + 2 : prio_count;
 
     value++
-    while (value == 1 || value == 2 || value == prio_count + 1) {
+    while (value == 1 || value == 2 || (value == prio_count + 1 && gm)) {
       // Check if we have other runs overlapping
 
       // Find all the runs with same priority within the same day
@@ -66,7 +130,7 @@ class FVSignupLogicActivities {
         break;
       }
 
-      if (overlap == false) break; // There was no overlap and we keep the current value
+      if (!overlap) break; // There was no overlap and we keep the current value
       
       value++; // There was overlap and we go with next priority
     }

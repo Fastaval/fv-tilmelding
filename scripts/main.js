@@ -4,10 +4,11 @@ var fv_signup_settings;
 
 jQuery(function() {
   FVSignup.init();
-  FVSignupEvent.init();
 });
 
 class FVSignup {
+  static config;
+
   static init () {
     let placeholder = jQuery(".signup-placeholder");
     placeholder.remove();
@@ -22,8 +23,6 @@ class FVSignup {
     this.main_content.append(this.page_wrapper);
 
     this.load_infosys_config();
-
-    this.loaded_pages = {};
     this.load_page_list();
   }
 
@@ -52,12 +51,14 @@ class FVSignup {
       return pages[a].order - pages[b].order;
     })
 
+    FVSignupLogic.page_list(pages);
+
     // Render navigation
     FVSignupRender.navigation(pages, this.page_keys, this.navigation);
     // Setup navigation functionality
     this.main_content.find("nav div").click((evt) => {
       let key = evt.target.getAttribute("page-id");
-      FVSignupEvent.nav_click(key);
+      FVSignupLogic.nav_click(key);
     })
     // Fully load pages
     setTimeout( () => {this.load_pages(keys)});
@@ -69,15 +70,12 @@ class FVSignup {
     })
   }
  
-  static load_page(key, force = false) {
-    if (this.loaded_pages[key] !== undefined && force !== true) return;
-
+  static load_page(key) {
     jQuery.getJSON({
       url: fv_signup_settings.infosys_url+"/api/signup/page/"+key,
       success: function (page) {
-        FVSignup.loaded_pages[key] = page;
         FVSignupRender.page(page, key, FVSignup.page_wrapper);
-        FVSignupEvent.page_loaded(page, key);
+        FVSignupLogic.page_ready(page, key);
       }
     })
   }
@@ -119,7 +117,26 @@ class FVSignup {
     ]
   };
 
-  static get_day(day) {
+  static get_weekday(day) {
     return this.days[fv_signup_settings.lang][day-1];
+  }
+
+  static get_input(id) {
+    return jQuery('input#'+id);
+  }
+
+  static get_age(date) {
+    let birthdate = new Date(this.get_input(this.config.birth).val() + " 00:00:00");
+    if(birthdate.toString() == 'Invalid Date') return 0;
+
+    date = date ? date : new Date(this.config.con_start);
+
+    // How many years ago?
+    let age = date.getFullYear() - birthdate.getFullYear();
+    // Did they have a birthday before the date?
+    date.setFullYear(birthdate.getFullYear());
+    if (birthdate > date) age--;
+
+    return age;
   }
 }

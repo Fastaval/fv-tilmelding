@@ -21,7 +21,7 @@ class FVSignupModuleFood {
     let element = FVSignupModuleFood.element.find('#food_module').empty();
 
     for (const [day, category] of Object.entries(food_info.days)) {
-      let headline = FVSignup.get_day(day);
+      let headline = FVSignup.get_weekday(day);
       headline = headline.substr(0,1).toUpperCase() + headline.substr(1);
       element.append('<p><strong>'+headline+'</strong><p>');
       for (const [cat, foods] of Object.entries(category)) {
