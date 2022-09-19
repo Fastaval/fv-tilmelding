@@ -164,6 +164,7 @@ div#activities_module div.filter div {
   cursor: pointer;
   background-color: gray;
   color: white;
+  user-select: none;
 }
 
 div#activities_module div.filter div.selected {
@@ -183,6 +184,7 @@ div#activities_module div.dayheader {
 
 div#activities_module table {
   width: 100%;
+  margin-bottom: 1em;
 }
 
 div#activities_module table td.table-header {

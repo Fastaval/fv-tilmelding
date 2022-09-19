@@ -11,7 +11,7 @@ class FVSignupModuleActivities {
     jQuery.getJSON({
       url: fv_signup_settings.infosys_url+"/api/signup/activities",
       success: function (activities_info) {
-        console.log("Activity Module: get activities\n", activities_info);
+        // console.log("Activity Module: get activities\n", activities_info);
         FVSignupModuleActivities.render_activities(activities_info);
       }
     })
@@ -46,8 +46,10 @@ class FVSignupModuleActivities {
 
         // Activity row
         let activity = activities_info.activities[run.activity];
+        let category = activities_info.categories[activity.type] ? activity.type : 'default';
         let row = jQuery('<tr class="activity-row"></tr>');
         row.addClass(activity.type);
+        row.addClass(category);
         row.attr('activity-id', run.activity);
         
         // Flag & Title cell
@@ -66,12 +68,11 @@ class FVSignupModuleActivities {
         
         // Selection cell
         let select_cell = jQuery('<td class="activity-cell" colspan="'+(end-start)+'"></td>');
-        let category = activities_info.categories[activity.type];
         row.append(select_cell);
 
         // Select input
-        let choice = this.render_choice(activity, run);
-        let color = (category && category.color) ? category.color : activities_info.categories['default'].color;
+        let choice = this.render_choice(activity, run, category);
+        let color = activities_info.categories[category].color;
         choice.css('background-color', color);
         select_cell.append(choice);
 

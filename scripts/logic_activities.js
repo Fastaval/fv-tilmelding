@@ -3,7 +3,6 @@
 class FVSignupLogicActivities {
   static activity_info;
 
-  // TODO category filtering
   // TDOD filter for days attending
 
   static init(activity_info) {
@@ -11,6 +10,7 @@ class FVSignupLogicActivities {
 
     this.init_choices();
     this.init_descriptions();
+    this.init_categories();
     FVSignupLogic.on_page('activity', function(){
       FVSignupLogicActivities.on_page();
     });
@@ -42,6 +42,37 @@ class FVSignupLogicActivities {
       }
       evt.stopPropagation();
     });
+  }
+
+  static init_categories() {
+    // Activate click on all filter buttons
+    let buttons = jQuery('#activities_module .filter .filter-button');
+    buttons.click(function(evt) {
+      let button = jQuery(evt.delegateTarget);
+      let categories = button.attr('filter-category').split(' ');
+
+      // Change selected buttons
+      buttons.removeClass('selected');
+      buttons.filter('.'+categories[0]).addClass('selected');
+
+      // Save button position before changing layout
+      let top = button[0].getBoundingClientRect().top;
+
+      // Hide all activity and description rows
+      let rows = jQuery('#activities_module tr').not('.header-row');
+      rows.hide();
+
+      // Filter out the rows we need to show and make them visible
+      rows = rows.filter('.activity-row')
+      if (categories[0] != 'all') {
+        rows = rows.filter('.'+categories.join(', .'));
+      }
+      rows = rows.filter('[age-appropriate="true"]');
+      rows.show();
+
+      // Scroll button back into position
+      window.scrollTo(0, button.offset().top-top);
+    })
   }
 
   static on_page() {
