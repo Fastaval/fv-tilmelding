@@ -119,6 +119,11 @@ class FVSignup {
         FVSignupModuleWear.init(element);
         break;
 
+      case "submit":
+        FVSignupModuleSubmit.init(element);
+        break;
+          
+  
       default:
         FVSignupRender.unknown_module(module, element);
         break;
