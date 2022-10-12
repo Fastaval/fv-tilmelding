@@ -14,7 +14,9 @@ class FVSignupModuleActivities {
         // console.log("Activity Module: get activities\n", activities_info);
         FVSignupModuleActivities.render_activities(activities_info);
       }
-    })
+    }).fail(function () {
+      FVSignup.com_error();
+    });
   }
 
   static render_activities(activities_info) {

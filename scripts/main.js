@@ -43,7 +43,9 @@ class FVSignup {
       success: function (config) {
         FVSignup.config = config;
       }
-    })
+    }).fail(function () {
+        FVSignup.com_error();
+    });
   }
 
   static load_page_list () {
@@ -52,7 +54,9 @@ class FVSignup {
       success: function (pages) {
         FVSignup.parse_page_list(pages);
       }
-    })
+    }).fail(function () {
+        FVSignup.com_error();
+    });
   }
 
   static parse_page_list(pages) {
@@ -88,7 +92,17 @@ class FVSignup {
         FVSignupRender.page(page, key, FVSignup.page_wrapper);
         FVSignupLogic.page_ready(page, key);
       }
-    })
+    }).fail(function () {
+        FVSignup.com_error();
+    });
+  }
+
+  static com_error() {
+    let msg = {
+      en: "There was an error communicating with Infosys\nThis may be a temporary error and you're welcome to try again.\nIf the error persist, plaease contact admin@fastaval.dk",
+      da: "Der skete en fejl i kommunikationen med Infosys\nDette kan være en midlertidig fejl og du er velkommen til at prøve igen.\nHvis fejlen fortsættter må du meget gerne kontakte admin@fastaval.dk"
+    };
+    alert(msg[this.get_lang()]);
   }
 
   static add_module(module, element) {

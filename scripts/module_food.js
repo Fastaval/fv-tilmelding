@@ -13,7 +13,9 @@ class FVSignupModuleFood {
         //console.log(food);
         FVSignupModuleFood.render_food(food);
       }
-    })
+    }).fail(function () {
+      FVSignup.com_error();
+    });
   }
 
   static render_food(food_info) {
