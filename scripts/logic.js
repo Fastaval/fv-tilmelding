@@ -21,6 +21,7 @@ class FVSignupLogic {
     
     // Show current page
     FVSignup.page_wrapper.find('div#'+key).show();
+    window.history.pushState({page:key},"", FVSignup.get_base()+key+"/");
     this.current_page = key;
     if(this.page_listeners[key]) {
       for(const callback of this.page_listeners[key]) {
@@ -38,7 +39,7 @@ class FVSignupLogic {
 
   static page_ready(page, key) {
     // Open the first page when it's ready (unless we seleted another already)
-    if (this.current_page == null && page.order == 1) {
+    if (this.current_page == null && (key == FVSignup.get_page() || ( FVSignup.get_page() == null && page.order == 1))) {
       FVSignup.main_content.find('nav div[page-id="'+key+'"]').addClass('selected');
       FVSignup.page_wrapper.find('div#'+key).show();
       this.current_page = key;

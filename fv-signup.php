@@ -12,7 +12,9 @@ include "fv-signup-options.php";
 
 add_action( 'init', 'FVSignup::init' );
 class FVSignup {
-  static $current_slug;
+  static $current_path;
+  static $base_path;
+  static $page;
 
   static function init() {
     FVSignupOptions::init();
@@ -20,15 +22,30 @@ class FVSignup {
   }
 
   static function pre_get_posts(&$query) {
+    global $wp;
+
     // Only run on main query
     if (!$query->is_main_query()) return;
     //error_log("Query:".print_r($query, true), 3, plugin_dir_path(__FILE__)."/debug.log");
 
     // Check if we're trying to access an enabled signup page
-    if (!isset($query->query['name']) || !FVSignupOptions::is_enabled_page($query->query['name'])) return;
+    if (!isset($query->query['name'])) {
+      if (!isset($query->query['attachment'])) {
+        return;
+      }
+      self::$base_path = explode('/', $wp->request)[0];
+    } else {
+      self::$base_path = $query->query['name'];
+    }
+
+    if(!FVSignupOptions::is_enabled_page(self::$base_path)) return;
+    if(isset($query->query['attachment'])) {
+      self::$page = $query->query['attachment'];
+      $query->is_attachment = "";
+    }
 
     // Save page adress for later
-    self::$current_slug = $query->query['name'];
+    self::$current_path = $wp->request;
     // Go to the signup page
     $query->query_vars['name'] = FVSignupOptions::default_page();
     
@@ -39,7 +56,7 @@ class FVSignup {
     // Correct the url for WPML language selector
     add_filter('wpml_ls_language_url', function($url) {
       // Replace slug of default page with slug of actual page
-      return str_replace(FVSignupOptions::default_page(), self::$current_slug, $url);
+      return str_replace(FVSignupOptions::default_page(), self::$current_path, $url);
     });
 
     // Change page content so people know the signup is available
@@ -60,6 +77,8 @@ class FVSignup {
       $settings = get_option('fv_signup_options');
       $settings['lang'] = apply_filters( 'wpml_current_language', NULL );
       $settings['plugin_root'] = plugin_dir_url(__FILE__);
+      $settings['base'] = "/".FVSignup::$base_path."/";
+      $settings['page'] = FVSignup::$page;
 
       // Scripts
       wp_enqueue_script('fv-signup-script-main', plugin_dir_url(__FILE__)."scripts/main.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/main.js"));

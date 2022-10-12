@@ -8,6 +8,7 @@ jQuery(function() {
 
 class FVSignup {
   static config;
+  static page_keys;
 
   static init () {
     let placeholder = jQuery(".signup-placeholder");
@@ -21,6 +22,16 @@ class FVSignup {
     
     this.page_wrapper = jQuery("<div id='signup-pages'></div>");
     this.main_content.append(this.page_wrapper);
+
+    jQuery(window).on('popstate', function(evt) {
+      FVSignupLogic.nav_click(evt.originalEvent.state.page);
+    });
+
+    for (const key in fv_signup_settings) {
+      this['get_'+ key] = function() {
+        return fv_signup_settings[key];
+      }
+    }
 
     this.load_infosys_config();
     this.load_page_list();
