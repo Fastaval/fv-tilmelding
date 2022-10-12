@@ -21,13 +21,31 @@ class FVSignupLogic {
     
     // Show current page
     FVSignup.page_wrapper.find('div#'+key).show();
-    window.history.pushState({page:key},"", FVSignup.get_base()+key+"/");
     this.current_page = key;
+    
+    // Scroll to top
+    window.scrollTo(0, 0);
+    window.dispatchEvent(new CustomEvent('scroll')) // Reset top menu
+    
+    // Set addressbar
+    window.history.pushState({page:key},"", FVSignup.get_base()+key+"/");
+
+    // Trigger listeners
     if(this.page_listeners[key]) {
       for(const callback of this.page_listeners[key]) {
         callback();
       }
     }
+  }
+
+  static next() {
+    let next = FVSignup.main_content.find('nav div.selected').next();
+    this.nav_click(next.attr('page-id'));
+  }
+
+  static prev() {
+    let prev = FVSignup.main_content.find('nav div.selected').prev();
+    this.nav_click(prev.attr('page-id'));
   }
 
   static on_page(page, callback) {
