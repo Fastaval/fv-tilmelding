@@ -80,16 +80,19 @@ class FVSignup {
       $settings['base'] = "/".FVSignup::$base_path."/";
       $settings['page'] = FVSignup::$page;
 
-      // Scripts
+      // General Scripts
       wp_enqueue_script('fv-signup-script-main', plugin_dir_url(__FILE__)."scripts/main.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/main.js"));
       wp_localize_script('fv-signup-script-main', "fv_signup_settings", $settings);
       wp_enqueue_script('fv-signup-script-render', plugin_dir_url(__FILE__)."scripts/render.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/render.js"));
       wp_enqueue_script('fv-signup-script-logic', plugin_dir_url(__FILE__)."scripts/logic.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/logic.js"));
+      
+      // Module scripts
       wp_enqueue_script('fv-signup-script-module-food', plugin_dir_url(__FILE__)."scripts/module_food.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/module_food.js"));
       wp_enqueue_script('fv-signup-script-module-activities', plugin_dir_url(__FILE__)."scripts/module_activities.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/module_activities.js"));
       wp_enqueue_script('fv-signup-script-logic-activities', plugin_dir_url(__FILE__)."scripts/logic_activities.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/logic_activities.js"));
+      wp_enqueue_script('fv-signup-script-module-wear', plugin_dir_url(__FILE__)."scripts/module_wear.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/module_wear.js"));
 
-      // Load render scripts from Infosys
+      // Render scripts from Infosys
       wp_enqueue_script('fv-signup-script-infosys-render', $settings['infosys_url']."/js/signup/render.js?", array( 'jquery' ), rand());
       wp_enqueue_script('fv-signup-script-infosys-process', $settings['infosys_url']."/js/signup/preprocess.js", array( 'jquery' ), rand());
 

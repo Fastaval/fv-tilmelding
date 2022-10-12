@@ -33,6 +33,17 @@ nav div.selected {
   font-weight: bold;
 }
 /*----------------------------------------------------------------------------
+    Footer
+----------------------------------------------------------------------------*/
+button.previous-button {
+  float: left;
+}
+
+button.next-button {
+  float: right;
+}
+
+/*----------------------------------------------------------------------------
     Pages
 ----------------------------------------------------------------------------*/
 div#signup-pages div.signup-page h2 {
@@ -252,4 +263,16 @@ div#activities_module table .activity-row .activity-choice *{
 
 div#activities_module table td.description-cell {
   padding: 1em;
+}
+/*----------------------------------------------------------------------------
+    Wear
+----------------------------------------------------------------------------*/
+#wear_module {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-row-gap: 2em;
+}
+
+#wear_module .wear-item select{
+  display: block;
 }
