@@ -25,7 +25,7 @@ class FVSignupModuleFood {
     for (const [day, category] of Object.entries(food_info.days)) {
       let headline = FVSignup.get_weekday(day);
       headline = headline.substr(0,1).toUpperCase() + headline.substr(1);
-      element.append('<p><strong>'+headline+'</strong><p>');
+      element.append('<p><strong>'+headline+'</strong></p>');
       for (const [cat, foods] of Object.entries(category)) {
         let cat_text = food_info.categories[cat][lang];
         cat_text = cat_text.substr(0,1).toUpperCase() + cat_text.substr(1);
@@ -50,6 +50,7 @@ class FVSignupModuleFood {
             ],
           }
           foods.forEach(food => {
+            food.value = food.id;
             item.options.push(food);
           })
           let radio = InfosysSignupRender.render_radio(item);
