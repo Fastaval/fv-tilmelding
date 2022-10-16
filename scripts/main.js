@@ -9,6 +9,7 @@ jQuery(function() {
 class FVSignup {
   static config;
   static page_keys;
+  static pages = {};
 
   static init () {
     let placeholder = jQuery(".signup-placeholder");
@@ -89,7 +90,9 @@ class FVSignup {
     jQuery.getJSON({
       url: fv_signup_settings.infosys_url+"/api/signup/page/"+key,
       success: function (page) {
+        FVSignup.pages[key] = page;
         FVSignupRender.page(page, key, FVSignup.page_wrapper);
+        FVSignupStorage.page_loaded(key);
         FVSignupLogic.page_ready(page, key);
       }
     }).fail(function () {
@@ -172,5 +175,13 @@ class FVSignup {
     if (birthdate > date) age--;
 
     return age;
+  }
+
+  static get_page(key) {
+    return this.pages[key];
+  }
+
+  static get_page_div(key) {
+    return this.page_wrapper.find('div.signup-page#'+key);
   }
 }

@@ -92,6 +92,11 @@ div.input-wrapper {
   margin: .8em 0px;
   flex-wrap: wrap;
 }
+
+div.input-wrapper.required label::after{
+  content: "*";
+  color: red;
+}
 /*----------------------------------------------------------------------------
     Input Text/Date/Tele/Email
 ----------------------------------------------------------------------------*/
@@ -275,4 +280,30 @@ div#activities_module table td.description-cell {
 
 #wear_module .wear-item select{
   display: block;
+}
+/*----------------------------------------------------------------------------
+    Confirm
+----------------------------------------------------------------------------*/
+div#submit_module h3 {
+  color: black;
+  text-align: center;
+  background-color: lightgray;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+}
+
+div#submit_module .errors h3 {
+  background-color: salmon;
+}
+
+div#submit_module table {
+  width: 100%;
+}
+
+div#submit_module td:nth-child(1) {
+  text-align: left;
+}
+
+div#submit_module td:nth-child(2) {
+  text-align: right;
 }

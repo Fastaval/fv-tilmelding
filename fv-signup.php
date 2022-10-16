@@ -78,13 +78,14 @@ class FVSignup {
       $settings['lang'] = apply_filters( 'wpml_current_language', NULL );
       $settings['plugin_root'] = plugin_dir_url(__FILE__);
       $settings['base'] = "/".FVSignup::$base_path."/";
-      $settings['page'] = FVSignup::$page;
+      $settings['start_page'] = FVSignup::$page;
 
       // General Scripts
       wp_enqueue_script('fv-signup-script-main', plugin_dir_url(__FILE__)."scripts/main.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/main.js"));
       wp_localize_script('fv-signup-script-main', "fv_signup_settings", $settings);
       wp_enqueue_script('fv-signup-script-render', plugin_dir_url(__FILE__)."scripts/render.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/render.js"));
       wp_enqueue_script('fv-signup-script-logic', plugin_dir_url(__FILE__)."scripts/logic.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/logic.js"));
+      wp_enqueue_script('fv-signup-script-storage', plugin_dir_url(__FILE__)."scripts/storage.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/storage.js"));
       
       // Module scripts
       wp_enqueue_script('fv-signup-script-module-food', plugin_dir_url(__FILE__)."scripts/module_food.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/module_food.js"));

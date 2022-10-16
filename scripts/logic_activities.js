@@ -3,6 +3,7 @@
 class FVSignupLogicActivities {
   static activity_info;
 
+  // TODO Multiblok
   // TDOD filter for days attending
 
   static init(activity_info) {
