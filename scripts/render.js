@@ -10,7 +10,7 @@ class FVSignupRender {
     })
   }
 
-  static page(page, key, element) {
+  static page(page, key, element, callback) {
     let lang = fv_signup_settings.lang;
 
     let page_div = element.find("div#"+key);
@@ -23,11 +23,18 @@ class FVSignupRender {
     page_div.empty();
     page.title[lang] && page_div.append("<h2>"+page.title[lang]+"</h2>");
 
+    let module = false;
     page.sections && page.sections.forEach(function(section) {
       section.headline && page_div.append("<h3>"+section.headline[lang]+"</h3>");
-      section.module && FVSignup.add_module(section.module, page_div);
+      if(section.module) {
+        FVSignup.add_module(section.module, page_div, callback);
+        module = true;
+      }
       section.items && section.items.forEach(function(item) {
-        page_div.append(InfosysSignupRender.render_element(item, lang));
+        if (item.disabled) return;
+        FVSignupLogic.require_config(function() {
+          page_div.append(InfosysSignupRender.render_element(item, lang, FVSignup.config));
+        })
       })
     });
 
@@ -51,6 +58,11 @@ class FVSignupRender {
     let nav_button = jQuery("nav div[page-id='"+key+"']");
     nav_button.removeClass('loading');
     nav_button.addClass('ready');
+
+    // If page has a module we need to wait for it to load before page is ready
+    if (!module) {
+      callback();
+    }
   }
 
   static unknown_module(name, element) {

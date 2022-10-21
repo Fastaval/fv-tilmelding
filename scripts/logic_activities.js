@@ -4,15 +4,15 @@ class FVSignupLogicActivities {
   static activity_info;
 
   // TODO Multiblok
-  // TDOD filter for days attending
-
   static init(activity_info) {
     this.activity_info = activity_info;
 
     this.init_choices();
     this.init_descriptions();
     this.init_categories();
-    FVSignupLogic.on_page('activity', function(){
+    this.init_day_select();
+
+    FVSignupLogic.add_listener('page_'+FVSignupModuleActivities.page_id, function(){
       FVSignupLogicActivities.on_page();
     });
   }
@@ -56,45 +56,44 @@ class FVSignupLogicActivities {
       buttons.removeClass('selected');
       buttons.filter('.'+categories[0]).addClass('selected');
 
-      // Save button position before changing layout
-      let top = button[0].getBoundingClientRect().top;
-
-      // Hide all activity and description rows
-      let rows = jQuery('#activities_module tr').not('.header-row');
-      rows.hide();
-
-      // Filter out the rows we need to show and make them visible
-      rows = rows.filter('.activity-row')
-      if (categories[0] != 'all') {
-        rows = rows.filter('.'+categories.join(', .'));
-      }
-      rows = rows.filter('[age-appropriate="true"]');
-      rows.show();
-
-      // Scroll button back into position
-      window.scrollTo(0, button.offset().top-top);
+      FVSignupLogicActivities.select_category(categories);
     })
   }
 
+  static init_day_select() {
+    jQuery('#activities_module .day-button').click(function(evt) {
+      let weekday = evt.delegateTarget.attributes.weekday.value;
+      FVSignupLogicActivities.select_day(weekday);
+    });
+  }
+
   static on_page() {
+    FVSignupModuleActivities.day_error.hide();
     this.participant_filter();
     this.age_filter();
+    this.day_filter();
+    this.category_filter();
   }
 
   static participant_filter() {
     let participant = FVSignup.get_input('participant').val();
 
     // We can ignore age filter since it's applied afterwards
+    let hide, show;
     if (participant == 'junior') {
       jQuery('#activities_module .filter').hide();
-      jQuery('.activity-row').not('.junior').hide();
-      jQuery('.activity-row').filter('.junior').show();
+      hide = jQuery('.activity-row').not('.junior');
+      show = jQuery('.activity-row').filter('.junior');
     } else {
       jQuery('#activities_module .filter .junior').hide();
       jQuery('#activities_module .filter').show();
-      jQuery('.activity-row').filter('.junior').hide();
-      jQuery('.activity-row').not('.junior').show();
+      hide = jQuery('.activity-row').filter('.junior');
+      show = jQuery('.activity-row').not('.junior');
     }
+    hide.hide();
+    hide.attr('participant-filtered', true);
+    show.show();
+    show.attr('participant-filtered', false);
   }
 
   static age_filter() {
@@ -109,8 +108,65 @@ class FVSignupLogicActivities {
       if (activity.max_age && activity.max_age < age) age_appropriate = 'too old';
       if (activity.min_age && activity.min_age > age) age_appropriate = 'too young';
       jqrun.attr('age-appropriate', age_appropriate);
-      if (age_appropriate != 'true') jqrun.hide();
+      if (age_appropriate != 'true') {
+        jqrun.hide();
+      }
     }
+  }
+
+  static day_filter() {
+    let current = null;
+
+    // Hide days not attending
+    for(let i = 1; i <= 5; i++) {
+      // Day 1 of con = day 3 of week
+      let weekday = i+2;
+      let day_button = jQuery('#activities_module #day-button-'+weekday);
+      if(FVSignup.attending_day(i)) {
+        day_button.show();
+        // Set current to first visible day unless another vissible day is selected
+        current = current ?? weekday;
+        if(day_button.hasClass('selected')) current = weekday;
+      } else {
+        day_button.hide();
+      }
+    }
+
+    // Select first day attending
+    if (current) {
+      this.select_day(current);
+    } else {
+      // There are no vissible days
+      FVSignupModuleActivities.day_error.show();
+    }
+  }
+
+  static select_day(weekday) {
+    jQuery('#activities_module .day-button.selected').removeClass('selected');
+    jQuery('#activities_module #day-button-'+weekday).addClass('selected');
+    jQuery('#activities_module #activity-tables-wrapper table').hide();
+    jQuery('#activities_module #activities-day-'+weekday).show();
+  }
+
+  static category_filter() {
+    let button = jQuery('#activities_module .filter .filter-button.selected');
+    let categories = button.attr('filter-category').split(' ');
+    this.select_category(categories)
+  }
+
+  static select_category(categories) {
+    // Hide all activity and description rows
+    let rows = jQuery('#activities_module tr').not('.header-row');
+    rows.hide();
+
+    // Filter out the rows we need to show and make them visible
+    rows = rows.filter('.activity-row')
+    if (categories[0] != 'all') {
+      rows = rows.filter('.'+categories.join(', .'));
+    }
+    rows = rows.filter('[age-appropriate="true"]');
+    rows = rows.filter('[participant-filtered="false"]');
+    rows.show();
   }
 
   static choice_click(choice) {
@@ -124,7 +180,7 @@ class FVSignupLogicActivities {
     let max = gm ? prio_count + 2 : prio_count;
 
     value++
-    while (value == 1 || value == 2 || (value == prio_count + 1 && gm)) {
+    while (value == 1 || value == 2 || (value == prio_count + 2 && gm)) {
       // Check if we have other runs overlapping
 
       // Find all the runs with same priority within the same day
@@ -133,11 +189,11 @@ class FVSignupLogicActivities {
       if (value == 2) { 
         same_prio = day_table.find('input[value="2"]');
       } else { // "GM - 1st" count as 1st 
-        same_prio = day_table.find('input[value="1"],input[value="'+(prio_count + 1)+'"]');
+        same_prio = day_table.find('input[value="1"],input[value="'+(prio_count + 2)+'"]');
       }
       
       // Don't count the one we clicked
-      same_prio = same_prio.not('input#'+input.attr('id'));
+      same_prio = same_prio.not('input#'+input.attr('id').replaceAll(':', '\\:'));
 
       // If we have no other runs with same priority, we're done
       if(same_prio.length == 0) break;

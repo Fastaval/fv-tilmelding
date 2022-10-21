@@ -32,6 +32,15 @@ nav div.selected {
   text-decoration: underline;
   font-weight: bold;
 }
+
+nav div.error {
+  background-color: salmon;
+}
+
+nav div.error:hover {
+  background-color: mediumorchid;
+}
+
 /*----------------------------------------------------------------------------
     Footer
 ----------------------------------------------------------------------------*/
@@ -59,14 +68,8 @@ div#intro.signup-page {
   width: 100%;
 }
 
-div#welcome.signup-page,
-div#organizer.signup-page,
-div#food.signup-page {
+div.signup-page {
   max-width: 800px;
-}
-
-div#activities.signup-page {
-  max-width: 1200px;
 }
 /*----------------------------------------------------------------------------
     Section Header
@@ -75,15 +78,6 @@ div.post-content div#signup-pages div.signup-page h3 {
   font-size: 1.5em;
   margin-top: 1.5em;
 }
-/*----------------------------------------------------------------------------
-    Checkbox
-----------------------------------------------------------------------------*/
-input[type='checkbox'] {
-  height: 26px;
-  width: 26px;
-  margin-right: .8em;
-}
-
 /*----------------------------------------------------------------------------
     Input general
 ----------------------------------------------------------------------------*/
@@ -96,6 +90,19 @@ div.input-wrapper {
 div.input-wrapper.required label::after{
   content: "*";
   color: red;
+}
+
+.error-text {
+  color: red;
+  width: 100%;
+}
+/*----------------------------------------------------------------------------
+    Checkbox
+----------------------------------------------------------------------------*/
+input[type='checkbox'] {
+  height: 26px;
+  width: 26px;
+  margin-right: .8em;
 }
 /*----------------------------------------------------------------------------
     Input Text/Date/Tele/Email
@@ -128,6 +135,14 @@ div.input-wrapper.input-type-date input:focus,
 div.input-wrapper.input-type-tele input:focus,
 div.input-wrapper.input-type-email input:focus {
   border-color: blue;
+}
+
+div.input-wrapper.input-type-text .error-text,
+div.input-wrapper.input-type-date .error-text,
+div.input-wrapper.input-type-tele .error-text,
+div.input-wrapper.input-type-email .error-text {
+  font-size: .8em;
+  text-align: right;
 }
 /*----------------------------------------------------------------------------
     Input Radio/Textarea
@@ -169,12 +184,26 @@ textarea {
 /*----------------------------------------------------------------------------
     Activities
 ----------------------------------------------------------------------------*/
-div#activities_module div.filter {
+div#activities_module {
+  position: relative;
+  width: 100vw;
+  margin-left: -50vw;
+  left: 50%;
+}
+
+div#activities_module #activities-content{
+  max-width: 1200px;
+  margin: auto;
+}
+
+div#activities_module div.filter,
+div#activities_module #activity-day-selection {
   display: flex;
   margin-bottom: 2px;
 }
 
-div#activities_module div.filter div {
+div#activities_module div.filter div,
+div#activities_module #activity-day-selection .day-button{
   border: 1px black solid;
   padding: .5em 1em;
   cursor: pointer;
@@ -183,19 +212,11 @@ div#activities_module div.filter div {
   user-select: none;
 }
 
-div#activities_module div.filter div.selected {
+div#activities_module div.filter div.selected,
+div#activities_module #activity-day-selection .day-button.selected {
   text-decoration: underline;
   font-weight: bold;
   background-color: dimgray;
-}
-
-div#activities_module div.dayheader {
-  background-color: dimgray;
-  color: white;
-  text-align: center;
-  font-size: 1.5em;
-  border: 1px black solid;
-  line-height: 2em;
 }
 
 div#activities_module table {
@@ -228,10 +249,21 @@ div#activities_module table .time-label {
   display: inline-block;
 }
 
-div#activities_module table .activity-row {
+div#activities_module table .sectioning-row.before {
+  height: 0.8em;
   border-top: 1px solid lightgray;
+}
+
+div#activities_module table .sectioning-row.after {
+  height: 0.8em;
   border-bottom: 1px solid lightgray;
 }
+
+div#activities_module table .activity-row td.odd,
+div#activities_module table .sectioning-row td.odd {
+  background-color: whitesmoke;
+}
+
 
 div#activities_module table td.activity-title {
   cursor: pointer;
@@ -245,7 +277,6 @@ div#activities_module table .title-wrapper {
   margin-left: 1em;
 }
 
-
 div#activities_module table .activity-row .activity-choice {
   width: 100%;
   border: 1px solid black;
@@ -255,6 +286,13 @@ div#activities_module table .activity-row .activity-choice {
   height: 2em;
   cursor: pointer;
   display: flex;
+  margin: -1px;
+}
+
+div#activities_module table .activity-row td {
+  height: 1em;
+  padding: 0;
+  min-width: .5em;
 }
 
 div#activities_module table .activity-row.magic .activity-choice {
@@ -275,11 +313,12 @@ div#activities_module table td.description-cell {
 #wear_module {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-row-gap: 2em;
+  row-gap: 2em;
+  column-gap: 1em;
 }
 
 #wear_module .wear-item select{
-  display: block;
+  flex: 0 0 100%;
 }
 /*----------------------------------------------------------------------------
     Confirm
@@ -306,4 +345,11 @@ div#submit_module td:nth-child(1) {
 
 div#submit_module td:nth-child(2) {
   text-align: right;
+}
+
+div#submit_module .signup-data button {
+  margin: 2em auto;
+  display: block;
+  font-size: 1.5rem;
+  padding: .3rem .7rem;
 }

@@ -43,6 +43,8 @@ class FVSignup {
       url: fv_signup_settings.infosys_url+"/api/signup/config",
       success: function (config) {
         FVSignup.config = config;
+        FVSignup.config.loaded = true;
+        FVSignupLogic.fire('config_ready');
       }
     }).fail(function () {
         FVSignup.com_error();
@@ -87,13 +89,15 @@ class FVSignup {
   }
  
   static load_page(key) {
+    let callback = function() {
+      FVSignupLogic.page_ready(key);
+    };
+
     jQuery.getJSON({
       url: fv_signup_settings.infosys_url+"/api/signup/page/"+key,
       success: function (page) {
         FVSignup.pages[key] = page;
-        FVSignupRender.page(page, key, FVSignup.page_wrapper);
-        FVSignupStorage.page_loaded(key);
-        FVSignupLogic.page_ready(page, key);
+        FVSignupRender.page(page, key, FVSignup.page_wrapper, callback);
       }
     }).fail(function () {
         FVSignup.com_error();
@@ -101,6 +105,9 @@ class FVSignup {
   }
 
   static com_error() {
+    console.log('Com error:');
+    console.trace();
+
     let msg = {
       en: "There was an error communicating with Infosys\nThis may be a temporary error and you're welcome to try again.\nIf the error persist, plaease contact admin@fastaval.dk",
       da: "Der skete en fejl i kommunikationen med Infosys\nDette kan være en midlertidig fejl og du er velkommen til at prøve igen.\nHvis fejlen fortsættter må du meget gerne kontakte admin@fastaval.dk"
@@ -108,27 +115,28 @@ class FVSignup {
     alert(msg[this.get_lang()]);
   }
 
-  static add_module(module, element) {
+  static add_module(module, element, callback) {
     switch (module) {
       case "food":
-        FVSignupModuleFood.init(element);
+        FVSignupModuleFood.init(element, callback);
         break;
     
       case "activities":
-        FVSignupModuleActivities.init(element);
+        FVSignupModuleActivities.init(element, callback);
         break;
 
       case "wear":
-        FVSignupModuleWear.init(element);
+        FVSignupModuleWear.init(element, callback);
         break;
 
       case "submit":
-        FVSignupModuleSubmit.init(element);
+        FVSignupModuleSubmit.init(element, callback);
         break;
           
   
       default:
         FVSignupRender.unknown_module(module, element);
+        callback();
         break;
     }
   }
@@ -159,7 +167,7 @@ class FVSignup {
   }
 
   static get_input(id) {
-    return jQuery('input#'+id);
+    return jQuery('input#'+id.replaceAll(':','\\:'));
   }
 
   static get_age(date) {
@@ -183,5 +191,14 @@ class FVSignup {
 
   static get_page_div(key) {
     return this.page_wrapper.find('div.signup-page#'+key);
+  }
+
+  static attending_day(day) {
+    if (this.get_input('entry:partout').prop('checked')) return true;
+    return this.get_input('entry:'+day).prop('checked');
+  }
+
+  static uc_first(text) {
+    return text.substr(0,1).toUpperCase() + text.substr(1);
   }
 }

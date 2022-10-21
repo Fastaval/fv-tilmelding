@@ -5,7 +5,7 @@ class FVSignupStorage {
   
   static page_loaded(key) {
     let page = jQuery('.signup-page#'+key);
-    let inputs = page.find('input').not('[type="radio"]');
+    let inputs = page.find('input, textarea').not('[type="radio"]');
     inputs.change(function (evt) {
       FVSignupStorage.input_changed(evt.target);
     })
@@ -38,6 +38,12 @@ class FVSignupStorage {
       for (const button of buttons) {
         if (button.value == value) button.checked = true;
       }
+    }
+    if (wrapper.hasClass('activity-choice')) {
+      FVSignupLogicActivities.choice_change(jQuery(input));
+    }
+    if (wrapper.hasClass('wear-item')) {
+      FVSignupModuleWear.load_input(jQuery(input));
     }
   }
 

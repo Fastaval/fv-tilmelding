@@ -3,7 +3,7 @@
 class FVSignupModuleFood {
   static element;
 
-  static init(element) {
+  static init(element, callback) {
     this.element = element;
     element.append('<div id="food_module"><p>Loading food module</p></div>');
 
@@ -15,6 +15,8 @@ class FVSignupModuleFood {
       }
     }).fail(function () {
       FVSignup.com_error();
+    }).always(function (){
+      callback();
     });
   }
 
@@ -24,18 +26,18 @@ class FVSignupModuleFood {
 
     for (const [day, category] of Object.entries(food_info.days)) {
       let headline = FVSignup.get_weekday(day);
-      headline = headline.substr(0,1).toUpperCase() + headline.substr(1);
+      headline = FVSignup.uc_first(headline);
       element.append('<p><strong>'+headline+'</strong></p>');
       for (const [cat, foods] of Object.entries(category)) {
         let cat_text = food_info.categories[cat][lang];
-        cat_text = cat_text.substr(0,1).toUpperCase() + cat_text.substr(1);
+        cat_text = FVSignup.uc_first(cat_text);
         if (foods.length == 1) {
           element.append('<p>'+cat_text+'<p>');
-          let checkbox = InfosysSignupRender.render_checkbox({id:foods[0].id, text:foods[0].text[lang]});
+          let checkbox = InfosysSignupRender.render_checkbox({id:"food:"+foods[0].id, text:foods[0].text[lang]});
           element.append(checkbox);
         } else {
           let item = {
-            id: cat+day,
+            id: "food:"+cat+day,
             text: cat_text,
             lang: lang,
             options: [
