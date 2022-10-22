@@ -2,6 +2,7 @@
 
 class FVSignupModuleSubmit {
   static element;
+  static config;
 
   static init(element, callback) {
     this.element = jQuery('<div id="submit_module"></div>');
@@ -20,14 +21,31 @@ class FVSignupModuleSubmit {
     this.signup_data = jQuery('<div class="signup-data"></div>');
     this.element.append(this.signup_data);
 
+    FVSignupLogic.add_listener('page_confirm', function() {FVSignupModuleSubmit.on_page();});
+    jQuery.getJSON({
+      url: fv_signup_settings.infosys_url+"/api/signup/config/submit",
+      success: function (config) {
+        FVSignupModuleSubmit.config = config;
+        FVSignupModuleSubmit.config.loaded = true;
+        FVSignupModuleSubmit.render_confirm();
+        callback();
+      }
+    }).fail(function () {
+        FVSignup.com_error();
+    });
+  }
+
+  static render_confirm() {
+    let lang = FVSignup.get_lang();
+    
     this.confirm_page = jQuery('<div class="confirm-page"></div>');
     this.element.append(this.confirm_page);
 
-    FVSignupLogic.add_listener('page_confirm', function() {FVSignupModuleSubmit.on_page();});
-    callback();
+    let text = this.config.confirmationpage[lang];
+    this.confirm_page.append('<p>'+text+'</p>');
   }
 
-  static set_info() {
+  static get_info() {
     // Set id and pass if we have them
     let id = parseInt(this.element.find('input#id').val());
     let pass = this.element.find('input#pass').val();
@@ -104,7 +122,7 @@ class FVSignupModuleSubmit {
 
     let data = {
       signup: submission,
-      info: this.set_info(),
+      info: this.get_info(),
       lang: FVSignup.get_lang(),
     }
 
@@ -138,7 +156,7 @@ class FVSignupModuleSubmit {
     let hash = this.element.find('input#hash');
     hash.val(response.hash);
     hash.change();
-    this.render_submit(response.result.categories);
+    this.render_submit(response.result.categories, response.result.total);
   }
 
   static render_errors(errors) {
@@ -173,12 +191,14 @@ class FVSignupModuleSubmit {
     }
   }
 
-  static render_submit(categories) {
+  static render_submit(categories, grand_total) {
     console.log(categories);
     let lang = FVSignup.get_lang();
     this.signup_data.empty();
     this.signup_data.show();
     
+    let totals = [];
+
     for (const page_key of FVSignup.page_keys) {
       if (!categories[page_key] || categories[page_key].length == 0) continue;
       let page = FVSignup.get_page(page_key);
@@ -218,15 +238,29 @@ class FVSignupModuleSubmit {
             if (entry.size != 1) {
               text += ", "+FVSignupModuleWear.wear_info.sizes[entry.size].name[lang];
             }
-            value = entry.amount;
+            value = entry.amount+" stk";
+            if(entry.price) value += " = "+(entry.amount*entry.price)+" kr.";
+          } else if(wrapper.hasClass('input-type-hidden')){
+            text = input.attr('text');
           } else {
             text = wrapper.find('p').text();
             let option = wrapper.find('input[value='+value+'][name="'+entry.key+'"]');
             value = jQuery('label[for='+option.attr('id').replaceAll(':', '\\:')+']').text();
           }
         } else {
-          let id = entry.key.replaceAll(':', '\\:');
-          text = jQuery('label[for='+id+']').text().replace(':','');
+          if (this.config.short_text[entry.key]) {
+            text = this.config.short_text[entry.key][lang];
+          } else {
+            let id = entry.key.replaceAll(':', '\\:');
+            text = jQuery('label[for='+id+']').text().replace(':','');
+          }
+        }
+        if (entry.price) {
+          if(entry.value == 'on') {
+            value = entry.price+" kr.";
+          } else {
+            text += ` (${entry.price} kr.)`
+          }
         }
         if (value == 'on') {
           let value_text = {
@@ -235,9 +269,32 @@ class FVSignupModuleSubmit {
           }
           value = value_text[lang];
         }
+        if (entry.key == 'sub_total') {
+          if (entry.value == 0) continue;
+          value = entry.value + " kr.";
+          text = FVSignup.config.sub_total[lang];
+          totals.push({
+            name: page.title[lang],
+            value: value,
+          })
+        }
         tbody.append('<tr><td>'+text+'</td><td>'+value+'</td></tr>');
       }
     }
+    
+    // Total
+    let total_header = jQuery('<h3>Total</h3>');
+    this.signup_data.append(total_header);
+    let table = jQuery('<table></table>');
+    this.signup_data.append(table);
+    let tbody = jQuery('<tbody></tbody>');
+    table.append(tbody);
+    for(const total of totals) {
+      tbody.append('<tr><td>'+total.name+':</td><td>'+total.value+'</td></tr>');
+    }
+    tbody.append('<tr><td>Total:</td><td>'+grand_total+' kr.</td></tr>');
+
+    // Submit
     let confirm_button = jQuery('<button>Confirm</button>');
     confirm_button.click(function() {
       FVSignupModuleSubmit.confirm();
@@ -248,7 +305,7 @@ class FVSignupModuleSubmit {
   static confirm() {
     let data = {
       hash: this.element.find('input#hash').val(),
-      info: this.set_info(),
+      info: this.get_info(),
       lang: FVSignup.get_lang(),
     };
 
@@ -272,11 +329,9 @@ class FVSignupModuleSubmit {
     })
 
     let lang = FVSignup.get_lang();
-    let text = {
-      en: 'Your signup has been submitted',
-      da: 'Din tilmelding er blevet sendt'
-    };
-    this.status.append('<p>'+text[lang]+'</p>');
+    let text = jQuery('<p>'+this.config.submit_text[lang]+'</p>');
+    this.status.append(text.clone());
+    this.signup_data.append(text);
   }
 
   static confirm_success(response) {
@@ -293,17 +348,6 @@ class FVSignupModuleSubmit {
     let pass = this.element.find('input#pass');
     pass.val(response.info.pass);
     pass.change();
-    this.render_confirm(response.result.categories);
-  }
-
-  static render_confirm() {
-    let lang = FVSignup.get_lang();
-    let text = {
-      en: 'Your signup has been recieved',
-      da: 'Din tilmelding er modtaget'
-    };
-    this.status.append('<p>'+text[lang]+'</p>');
-
     this.confirm_page.show();
   }
 }

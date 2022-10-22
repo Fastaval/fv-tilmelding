@@ -40,7 +40,7 @@ class FVSignup {
 
   static load_infosys_config () {
     jQuery.getJSON({
-      url: fv_signup_settings.infosys_url+"/api/signup/config",
+      url: fv_signup_settings.infosys_url+"/api/signup/config/main",
       success: function (config) {
         FVSignup.config = config;
         FVSignup.config.loaded = true;
