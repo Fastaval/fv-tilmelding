@@ -286,7 +286,7 @@ div#activities_module table .activity-row .activity-choice {
   height: 2em;
   cursor: pointer;
   display: flex;
-  margin: -1px;
+  margin: 0px;
 }
 
 div#activities_module table .activity-row td {
