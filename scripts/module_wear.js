@@ -102,9 +102,15 @@ class FVSignupModuleWear {
   }
 
   static load_input (input) {
-    let size = input.val().match(/size:(\d+)/)[1];
-    let amount = input.val().match(/amount:(\d+)/)[1];
-    input.attr('size', size);
+    let size, amount;
+    if (input.val()) {
+      size = input.val().match(/size:(\d+)/)[1];
+      input.attr('size', size);
+      amount = input.val().match(/amount:(\d+)/)[1];
+    } else {
+      size = input.attr('size');
+      amount = 0;
+    }
     input.attr('amount', amount);
     let wrapper = input.closest('.wear-item');
     let size_select = wrapper.find('.wear-size-select');

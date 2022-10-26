@@ -1,4 +1,23 @@
 /*----------------------------------------------------------------------------
+    Main
+----------------------------------------------------------------------------*/
+div.post-content {
+  max-width: 800px;
+  margin: auto;
+}
+
+.foldout {
+  cursor: pointer;
+}
+
+.foldout::after {
+  content: " \2B9F";
+}
+
+.foldout.open::after {
+  content: " \2B9D";
+}
+/*----------------------------------------------------------------------------
     Header
 ----------------------------------------------------------------------------*/
 h1#signup-header {
@@ -6,10 +25,40 @@ h1#signup-header {
   font-size: 3em;
 }
 /*----------------------------------------------------------------------------
+    Storage
+----------------------------------------------------------------------------*/
+div#storage-controls {
+  margin-bottom: 2rem;
+}
+
+div#storage-controls h3 {
+  font-size: 1.3rem;
+}
+
+div#load-signup-wrapper {
+  display: flex;
+  gap: 1em;
+  align-items: baseline;
+}
+
+div#load-signup-wrapper label{
+  flex-basis: content;  
+}
+div#load-signup-wrapper :nth-child(2){
+  flex-basis: 30%;
+}
+div#load-signup-wrapper :nth-child(4){
+  flex-basis: 20%;
+}
+div#load-signup-wrapper :nth-child(5){
+  flex: 0 0 8%;
+}
+/*----------------------------------------------------------------------------
     Navigation
 ----------------------------------------------------------------------------*/
 nav {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   margin-bottom: 1em;
 }
@@ -57,19 +106,6 @@ button.next-button {
 ----------------------------------------------------------------------------*/
 div#signup-pages div.signup-page h2 {
   font-size: 2em;
-}
-
-div.signup-page {
-  max-width: 1000px;
-  margin: auto;
-}
-
-div#intro.signup-page {
-  width: 100%;
-}
-
-div.signup-page {
-  max-width: 800px;
 }
 /*----------------------------------------------------------------------------
     Section Header

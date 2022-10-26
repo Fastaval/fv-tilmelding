@@ -34,7 +34,11 @@ class FVSignupLogicActivities {
     let titles = jQuery('#activities_module td.activity-title');
     
     titles.click(function(evt) {
-      let description = jQuery(evt.target).closest('.activity-row').next();
+      let description = jQuery(evt.target).closest('.activity-row');
+      while (!description.hasClass('description-row')) {
+        description = description.next()
+        if (description.length == 0) return;
+      }
       if (description.css('display') == 'none') {
         jQuery('#activities_module .description-row').hide();
         description.show();

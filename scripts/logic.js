@@ -38,7 +38,6 @@ class FVSignupLogic {
     let current = this.current_page;
     let errors = this.check_page(current);
     if (errors.length != 0) {
-      console.log(errors);
       let text = {
         en: "There some issues with the input on the current page.\nDo you still want to continue?",
         da: "Der er nogle problemer med indtastningen på den nuværende side.\nVil du fortsætte alligevel?",

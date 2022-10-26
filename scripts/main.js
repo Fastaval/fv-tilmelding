@@ -21,6 +21,9 @@ class FVSignup {
     this.navigation = jQuery("<nav id='signup-navigation'></nav>");
     this.main_content.append(this.navigation);
     
+    this.storage_controls = jQuery('<div id="storage-controls"></div>');
+    this.main_content.append(this.storage_controls);
+
     this.page_wrapper = jQuery("<div id='signup-pages'></div>");
     this.main_content.append(this.page_wrapper);
 
@@ -34,17 +37,20 @@ class FVSignup {
       }
     }
 
-    this.load_infosys_config();
+    this.load_config('main', function (config) {
+      FVSignup.config = config;
+      FVSignup.config.loaded = true;
+      FVSignupLogic.fire('config_ready');
+    });
+    FVSignupStorage.init(this.storage_controls);
     this.load_page_list();
   }
 
-  static load_infosys_config () {
+  static load_config(name, success) {
     jQuery.getJSON({
-      url: fv_signup_settings.infosys_url+"/api/signup/config/main",
+      url: fv_signup_settings.infosys_url+"/api/signup/config/"+name,
       success: function (config) {
-        FVSignup.config = config;
-        FVSignup.config.loaded = true;
-        FVSignupLogic.fire('config_ready');
+        success(config);
       }
     }).fail(function () {
         FVSignup.com_error();

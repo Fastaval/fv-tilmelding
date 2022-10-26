@@ -22,16 +22,11 @@ class FVSignupModuleSubmit {
     this.element.append(this.signup_data);
 
     FVSignupLogic.add_listener('page_confirm', function() {FVSignupModuleSubmit.on_page();});
-    jQuery.getJSON({
-      url: fv_signup_settings.infosys_url+"/api/signup/config/submit",
-      success: function (config) {
-        FVSignupModuleSubmit.config = config;
-        FVSignupModuleSubmit.config.loaded = true;
-        FVSignupModuleSubmit.render_confirm();
-        callback();
-      }
-    }).fail(function () {
-        FVSignup.com_error();
+    FVSignup.load_config('submit', function (config) {
+      FVSignupModuleSubmit.config = config;
+      FVSignupModuleSubmit.config.loaded = true;
+      FVSignupModuleSubmit.render_confirm();
+      callback();
     });
   }
 
@@ -56,6 +51,11 @@ class FVSignupModuleSubmit {
       }
     }
     return undefined;
+  }
+
+  static set_info(id, pass) {
+    this.element.find('input#id').val(id);
+    this.element.find('input#pass').val(pass);
   }
 
   static on_page() {
