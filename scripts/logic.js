@@ -33,7 +33,69 @@ class FVSignupLogic {
     }
   }
 
+  static is_page_disabled(key) {
+    return this.page_status[key] == 'disabled';
+  }
+
+  static init_page_logic(page_id) {
+    let logic = FVSignup.get_page(page_id).page_logic;
+    if(!logic) return;
+
+    if (logic.enable_if) {
+      for(const test of logic.enable_if) {
+        let input = FVSignup.get_input(test.field);
+        input.change(function() {
+          FVSignupLogic.update_page_status(page_id);
+        })
+      }
+    }
+
+    this.update_page_status(page_id);
+  }
+
+  static update_page_status(page_id) {
+    let logic = FVSignup.get_page(page_id).page_logic;
+    if (!logic) return;
+    
+    // Pages are usually enabled by default unless explicitly disabled
+    let enabled = !(logic.default && logic.default == 'disabled')
+
+    if (logic.enable_if) {
+      for(const test of logic.enable_if) {
+        let input = FVSignup.get_input(test.field);
+        let value = input.val();
+        switch (test.compare) {
+          case "equals":
+            enabled = (test.value == value) ? true : enabled;
+            break;
+          
+          default:
+            console.error('Unknown comparisson type', 'page:', page_id, 'compare:', test.compare);
+        }
+      }
+    }
+    
+    this.set_page_enabled(page_id, enabled);
+  }
+
+  static set_page_enabled(page_id, status) {
+    let nav_button = FVSignup.navigation.find('[page-id="'+page_id+'"]');
+    let page_div = FVSignup.page_wrapper.find('#'+page_id);
+
+    if (status) {
+      nav_button.removeClass('disabled');
+      page_div.removeClass('disabled');
+      this.page_status[page_id] = 'ready';
+    } else {
+      nav_button.addClass('disabled');
+      page_div.addClass('disabled');
+      this.page_status[page_id] = 'disabled';
+    }
+  }
+
   static nav_click(key) {
+    if (this.is_page_disabled(key)) return;
+
     // Check for errors before navigating
     let current = this.current_page;
     let errors = this.check_page(current);
@@ -73,12 +135,17 @@ class FVSignupLogic {
   static prev() { this.navigate('prev'); }
 
   static navigate(direction) {
-    let navto
-    if (direction == 'prev') {
-      navto = FVSignup.main_content.find('nav div.selected').prev();
-    } else {
-      navto = FVSignup.main_content.find('nav div.selected').next();
-    }
+    let navto = FVSignup.main_content.find('nav div.selected');
+    
+    do {
+      if (direction == 'prev') {
+        navto = navto.prev();
+      } else {
+        navto = navto.next();
+      }
+    } while (navto.hasClass('disabled'))
+    
+    if (navto.length == 0) return;
     this.nav_click(navto.attr('page-id'));
   }
 
@@ -98,8 +165,15 @@ class FVSignupLogic {
       this.fire('page_'+key);
     }
 
-    // Mark page as ready and check if all pages are done
-    this.page_status[key] = 'ready';
+    // Mark page status
+    let logic = FVSignup.get_page(key).page_logic;
+    if (logic && logic.default == 'disabled') {
+      this.page_status[key] = 'disabled';
+    } else {
+      this.page_status[key] = 'ready';
+    }
+
+    // Check if all pages are done
     let waiting = this.missing_pages();
     if (waiting.length == 0) {
       this.all_loaded();
@@ -108,13 +182,17 @@ class FVSignupLogic {
 
   static missing_pages() {
     return Object.values(this.page_status).filter(function(value) {
-      return value != 'ready';
+      // Return true if page is missing
+      return !(value == 'ready' || value == 'disabled');
     })
   }
 
   static all_loaded() {
     this.init_radio_logic();
     this.init_exclude_logic();
+    for(const page_id of FVSignup.page_keys) {
+      this.init_page_logic(page_id);
+    }
     this.fire('all_loaded');
   }
 

@@ -82,6 +82,12 @@ nav div.selected {
   font-weight: bold;
 }
 
+nav div.disabled,
+nav div.disabled:hover {
+  background-color: lightgray;
+  cursor: not-allowed;
+}
+
 nav div.error {
   background-color: salmon;
 }

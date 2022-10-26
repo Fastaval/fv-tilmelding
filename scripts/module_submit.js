@@ -92,6 +92,7 @@ class FVSignupModuleSubmit {
     // Collect data and check for errors
     for(const key of FVSignup.page_keys) {
       if(key == 'confirm') continue; // Don't send data from the confirm page
+      if(FVSignupLogic.is_page_disabled(key)) continue;
 
       submission[key] = {};
       errors[key] = FVSignupLogic.check_page(key);
@@ -118,7 +119,6 @@ class FVSignupModuleSubmit {
       this.render_errors(errors);
       return;
     }
-    //console.log('Submission: ', submission);
 
     let data = {
       signup: submission,

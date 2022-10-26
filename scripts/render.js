@@ -12,10 +12,15 @@ class FVSignupRender {
 
   static page(page, key, element, callback) {
     let lang = fv_signup_settings.lang;
+    
+    let disabled = false;
+    let logic = FVSignup.get_page(key).page_logic;
+    if (logic && logic.default == 'disabled') disabled = true;
 
     let page_div = element.find("div#"+key);
     if (!page_div.length) {
-      page_div = jQuery('<div id="'+key+'" class="signup-page"></div>')
+      page_div = jQuery('<div id="'+key+'" class="signup-page"></div>');
+      if (disabled) page_div.addClass('disabled');
       page_div.hide();
       element.append(page_div);
     }
@@ -56,6 +61,7 @@ class FVSignupRender {
     }
 
     let nav_button = jQuery("nav div[page-id='"+key+"']");
+    if (disabled) nav_button.addClass('disabled');
     nav_button.removeClass('loading');
     nav_button.addClass('ready');
 

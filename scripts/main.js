@@ -10,6 +10,11 @@ class FVSignup {
   static config;
   static page_keys;
   static pages = {};
+  
+  static main_content;
+  static navigation;
+  static storage_controls;
+  static page_wrapper;
 
   static init () {
     let placeholder = jQuery(".signup-placeholder");
