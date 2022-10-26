@@ -3,6 +3,7 @@
 class FVSignupModuleSubmit {
   static element;
   static config;
+  static page_header;
 
   static init(element, callback) {
     this.element = jQuery('<div id="submit_module"></div>');
@@ -21,6 +22,8 @@ class FVSignupModuleSubmit {
     this.signup_data = jQuery('<div class="signup-data"></div>');
     this.element.append(this.signup_data);
 
+    this.page_header = element.closest('.signup-page').find('h2').first();
+
     FVSignupLogic.add_listener('page_confirm', function() {FVSignupModuleSubmit.on_page();});
     FVSignup.load_config('submit', function (config) {
       FVSignupModuleSubmit.config = config;
@@ -37,6 +40,8 @@ class FVSignupModuleSubmit {
     this.element.append(this.confirm_page);
 
     let text = this.config.confirmationpage[lang];
+    text = text.replaceAll('[ID]', '<span id="display-id"></span>');
+    text = text.replaceAll('[TOTAL]', '<span id="display-total"></span>');
     this.confirm_page.append('<p>'+text+'</p>');
   }
 
@@ -63,18 +68,13 @@ class FVSignupModuleSubmit {
     this.errors.empty();
     this.signup_data.empty();
     this.confirm_page.hide();
+    this.page_header.show();
 
     if (FVSignupLogic.missing_pages().length == 0) {
-      let text = {
-        en: 'Processing your submission',
-        da: 'Behandler din tilmelding',
-      }
+      let text = this.config.processing_text;
       this.status.append('<p>'+text[FVSignup.get_lang()]+'</p>');
     } else {
-      let text = {
-        en: 'Waiting for all pages to load',
-        da: 'Venter på at alle sider er hentet',
-      }
+      let text = this.config.waiting_for_pages
       this.status.append('<p>'+text[FVSignup.get_lang()]+'</p>');
       FVSignupLogic.add_listener('all_loaded', function() {
         if (FVSignupLogic.current_page == 'confirm') {
@@ -163,10 +163,7 @@ class FVSignupModuleSubmit {
     let lang = FVSignup.get_lang();
     this.errors.empty();
     this.errors.show();
-    let text = {
-      en: 'There are the following issues with your submission',
-      da: 'Der er følgende problemer med din indtastning'
-    };
+    let text = this.config.error_text;
     this.errors.append('<p>'+text[lang]+'</p>');
     
     for (const page_key of FVSignup.page_keys) {
@@ -238,8 +235,8 @@ class FVSignupModuleSubmit {
             if (entry.size != 1) {
               text += ", "+FVSignupModuleWear.wear_info.sizes[entry.size].name[lang];
             }
-            value = entry.amount+" stk";
-            if(entry.price) value += " = "+(entry.amount*entry.price)+" kr.";
+            value = entry.amount+" "+FVSignup.config.pieces[lang];
+            if(entry.price) value += " = "+(entry.price)+" "+FVSignup.config.dkk[lang];
           } else if(wrapper.hasClass('input-type-hidden')){
             text = input.attr('text');
           } else {
@@ -257,9 +254,13 @@ class FVSignupModuleSubmit {
         }
         if (entry.price) {
           if(entry.value == 'on') {
-            value = entry.price+" kr.";
+            value = entry.price+" "+FVSignup.config.dkk[lang];
           } else {
-            text += ` (${entry.price} kr.)`
+            if (entry.single_price) {
+              text += ` (${entry.single_price} ${FVSignup.config.dkk[lang]})`
+            } else {
+              text += ` (${entry.price} ${FVSignup.config.dkk[lang]})`
+            }
           }
         }
         if (value == 'on') {
@@ -271,7 +272,7 @@ class FVSignupModuleSubmit {
         }
         if (entry.key == 'sub_total') {
           if (entry.value == 0) continue;
-          value = entry.value + " kr.";
+          value = entry.value + " "+FVSignup.config.dkk[lang];
           text = FVSignup.config.sub_total[lang];
           totals.push({
             name: page.title[lang],
@@ -292,10 +293,11 @@ class FVSignupModuleSubmit {
     for(const total of totals) {
       tbody.append('<tr><td>'+total.name+':</td><td>'+total.value+'</td></tr>');
     }
-    tbody.append('<tr><td>Total:</td><td>'+grand_total+' kr.</td></tr>');
+    tbody.append('<tr><td>Total:</td><td>'+grand_total+' '+FVSignup.config.dkk[lang]+'</td></tr>');
 
     // Submit
-    let confirm_button = jQuery('<button>Confirm</button>');
+    let button_text = this.config.button_text;
+    let confirm_button = jQuery('<button id="confirm-submission-button">'+button_text[lang]+'</button>');
     confirm_button.click(function() {
       FVSignupModuleSubmit.confirm();
     });
@@ -303,6 +305,9 @@ class FVSignupModuleSubmit {
   }
 
   static confirm() {
+    let button = jQuery('#confirm-submission-button');
+    button.prop('disabled', true);
+    
     let data = {
       hash: this.element.find('input#hash').val(),
       info: this.get_info(),
@@ -326,6 +331,8 @@ class FVSignupModuleSubmit {
           FVSignup.com_error();
         }
       }
+    }).always(function () {
+      button.prop('disabled', false);
     })
 
     let lang = FVSignup.get_lang();
@@ -348,6 +355,9 @@ class FVSignupModuleSubmit {
     let pass = this.element.find('input#pass');
     pass.val(response.info.pass);
     pass.change();
+    this.confirm_page.find('#display-id').text(response.info.id);
+    this.confirm_page.find('#display-total').text(response.result.total);
     this.confirm_page.show();
+    this.page_header.hide();
   }
 }

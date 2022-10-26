@@ -181,6 +181,11 @@ class FVSignup {
     return jQuery('input#'+id.replaceAll(':','\\:'));
   }
 
+  static get_base_url() {
+    let prefix = fv_signup_settings.lang == 'en' ? '/en' : '';
+    return prefix+fv_signup_settings.base;
+  }
+
   static get_age(date) {
     let birthdate = new Date(this.get_input(this.config.birth).val() + " 00:00:00");
     if(birthdate.toString() == 'Invalid Date') return 0;

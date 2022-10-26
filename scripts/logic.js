@@ -125,7 +125,7 @@ class FVSignupLogic {
     window.dispatchEvent(new CustomEvent('scroll')) // Reset top menu
     
     // Set addressbar
-    window.history.pushState({page:key},"", FVSignup.get_base()+key+"/");
+    window.history.pushState({page:key},"", FVSignup.get_base_url()+key+"/");
 
     // Fire listeners
     this.fire('page_'+key);
