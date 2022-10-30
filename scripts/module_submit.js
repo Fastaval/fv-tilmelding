@@ -176,6 +176,13 @@ class FVSignupModuleSubmit {
       let tbody = jQuery('<tbody></tbody>');
       table.append(tbody);
       for(const error of errors[page_key]) {
+        // TODO remove after rework of wear module
+        if (error.type == 'no_wear_price') {
+          let label = jQuery('#wear-item-'+error.wear_id).find('p').text();
+          tbody.append('<tr><td>'+label+'</td><td>Not available to current participant type</td></tr>');
+          continue;
+        }
+
         let msg = FVSignupLogic.find_error(error.id, error.type).text();
         if(msg) {
           let id = error.id.replaceAll(':', '\\:');

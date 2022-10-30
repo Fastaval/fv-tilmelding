@@ -210,6 +210,11 @@ class FVSignup {
   }
 
   static attending_day(day) {
+    // Regular junior participants only attend Saturday
+    if (this.get_input('participant').val() == 'Juniordeltager' && !this.get_input('junior:plus').prop('checked')) {
+      return day == 4;
+    }
+
     if (this.get_input('entry:partout').prop('checked')) return true;
     return this.get_input('entry:'+day).prop('checked');
   }

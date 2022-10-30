@@ -84,7 +84,7 @@ class FVSignupLogicActivities {
 
     // We can ignore age filter since it's applied afterwards
     let hide, show;
-    if (participant == 'junior') {
+    if (participant == 'Juniordeltager') {
       jQuery('#activities_module .filter').hide();
       hide = jQuery('.activity-row').not('.junior');
       show = jQuery('.activity-row').filter('.junior');

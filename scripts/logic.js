@@ -20,7 +20,7 @@ class FVSignupLogic {
   }
 
   static require_config(callback) {
-    if (FVSignup.config.loaded == true) {
+    if (FVSignup.config && FVSignup.config.loaded == true) {
       callback();
     } else {
       this.add_listener('config_ready', callback);
@@ -41,13 +41,13 @@ class FVSignupLogic {
     let logic = FVSignup.get_page(page_id).page_logic;
     if(!logic) return;
 
-    if (logic.enable_if) {
-      for(const test of logic.enable_if) {
-        let input = FVSignup.get_input(test.field);
-        input.change(function() {
-          FVSignupLogic.update_page_status(page_id);
-        })
-      }
+    for(const rule of logic) {
+      if (!rule.input) continue;
+
+      // Update page status when any input that's part of the rule changes
+      FVSignup.get_input(rule.input).change(function() {
+        FVSignupLogic.update_page_status(page_id);
+      });
     }
 
     this.update_page_status(page_id);
@@ -56,25 +56,37 @@ class FVSignupLogic {
   static update_page_status(page_id) {
     let logic = FVSignup.get_page(page_id).page_logic;
     if (!logic) return;
-    
-    // Pages are usually enabled by default unless explicitly disabled
-    let enabled = !(logic.default && logic.default == 'disabled')
+    let enabled = true;
+    for(const rule of logic) {
+      let input;
+      if (rule.input) input = FVSignup.get_input(rule.input);
 
-    if (logic.enable_if) {
-      for(const test of logic.enable_if) {
-        let input = FVSignup.get_input(test.field);
-        let value = input.val();
-        switch (test.compare) {
-          case "equals":
-            enabled = (test.value == value) ? true : enabled;
-            break;
+      switch(rule.type) {
+        case 'default':
+          enabled = rule.enabled;
+          break;
+        
+        case 'field_compare':
           
-          default:
-            console.error('Unknown comparisson type', 'page:', page_id, 'compare:', test.compare);
-        }
+          switch (rule.compare) {
+            case 'equals':
+              enabled = input.val() == rule.value ? rule.enabled : enabled;
+              break;
+
+            default:
+              console.error("Page Logic, Unknown comparisson", "Rule:", rule);
+          }
+          break;
+
+        case 'checkbox':
+          enabled = input.prop('checked') ? rule.enabled : enabled;
+          break;
+
+        default:
+          console.error("Page Logic, Unknown rule type", "Rule:", rule);
       }
     }
-    
+
     this.set_page_enabled(page_id, enabled);
   }
 
@@ -206,6 +218,9 @@ class FVSignupLogic {
     });
   }
 
+  /**
+   * Logic for excluding other choices
+   */
   static init_exclude_logic() {
     let keys = FVSignup.page_keys;
     for(const key of keys) {

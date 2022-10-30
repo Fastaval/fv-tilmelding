@@ -65,8 +65,10 @@ nav {
 
 nav div {
   border: 1px black solid;
-  padding: .5em 1em;
+  padding: .5em;
   cursor: pointer;
+  flex-grow: 1;
+  text-align: center;
 }
 
 nav div.loading {
