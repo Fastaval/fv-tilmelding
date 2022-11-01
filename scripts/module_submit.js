@@ -183,7 +183,8 @@ class FVSignupModuleSubmit {
           continue;
         }
 
-        let msg = FVSignupLogic.find_error(error.id, error.type).text();
+        let msg;
+        if (error.id) msg = FVSignupLogic.find_error(error.id, error.type).text();
         if(msg) {
           let id = error.id.replaceAll(':', '\\:');
           let label = jQuery('label[for='+id+']').text().replace(':','');
@@ -251,7 +252,9 @@ class FVSignupModuleSubmit {
             let option = wrapper.find('input[value='+value+'][name="'+entry.key+'"]');
             value = jQuery('label[for='+option.attr('id').replaceAll(':', '\\:')+']').text();
           }
-        } else {
+        } else if (input.attr('submit-text')) {
+          text = input.attr('submit-text');
+        }else {
           if (this.config.short_text[entry.key]) {
             text = this.config.short_text[entry.key][lang];
           } else {
@@ -368,3 +371,5 @@ class FVSignupModuleSubmit {
     this.page_header.hide();
   }
 }
+
+FVSignup.register_module('submit', FVSignupModuleSubmit);

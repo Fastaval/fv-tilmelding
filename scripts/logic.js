@@ -37,6 +37,130 @@ class FVSignupLogic {
     return this.page_status[key] == 'disabled';
   }
 
+  static nav_click(key) {
+    if (this.is_page_disabled(key)) return;
+
+    // Check for errors before navigating
+    let current = this.current_page;
+    let errors = this.check_page(current);
+    if (errors.length != 0) {
+      let text = {
+        en: "There some issues with the input on the current page.\nDo you still want to continue?",
+        da: "Der er nogle problemer med indtastningen på den nuværende side.\nVil du fortsætte alligevel?",
+      }
+      if (!confirm(text[FVSignup.get_lang()])) {
+        return;
+      }
+    }
+
+    // Move selection
+    FVSignup.main_content.find('nav div.selected').removeClass('selected');
+    FVSignup.main_content.find('nav div[page-id="'+key+'"]').addClass('selected');
+
+    // Hide all pages
+    FVSignup.page_wrapper.find('div.signup-page').hide();
+    
+    // Show current page
+    FVSignup.page_wrapper.find('div#'+key).show();
+    this.current_page = key;
+    
+    // Scroll to top
+    window.scrollTo(0, 0);
+    window.dispatchEvent(new CustomEvent('scroll')) // Reset top menu
+    
+    // Set addressbar
+    window.history.pushState({page:key},"", FVSignup.get_base_url()+key+"/");
+
+    // Fire listeners
+    this.fire('page_'+key);
+  }
+
+  static next() { this.navigate('next'); }
+  static prev() { this.navigate('prev'); }
+
+  static navigate(direction) {
+    let navto = FVSignup.main_content.find('nav div.selected');
+    
+    do {
+      if (direction == 'prev') {
+        navto = navto.prev();
+      } else {
+        navto = navto.next();
+      }
+    } while (navto.hasClass('disabled'))
+    
+    if (navto.length == 0) return;
+    this.nav_click(navto.attr('page-id'));
+  }
+
+  static refresh_page() {
+    this.fire('page_'+this.current_page);
+  }
+
+  static page_ready(key) {
+    // Load data from storage for page
+    // FVSignupStorage.page_loaded(key);
+
+    let page = FVSignup.get_page(key);
+
+    // Open the first page when it's ready (unless we seleted another already)
+    if (this.current_page == null && (key == FVSignup.get_start_page() || ( FVSignup.get_start_page() == null && page.order == 1))) {
+      FVSignup.main_content.find('nav div[page-id="'+key+'"]').addClass('selected');
+      FVSignup.page_wrapper.find('div#'+key).show();
+      this.current_page = key;
+
+      // Fire listeners
+      this.fire('page_'+key);
+    }
+
+    // Mark page status
+    let logic = FVSignup.get_page(key).page_logic;
+    if (logic && logic.default == 'disabled') {
+      this.page_status[key] = 'disabled';
+    } else {
+      this.page_status[key] = 'ready';
+    }
+
+    // Check if all pages are done
+    let waiting = this.missing_pages();
+    if (waiting.length == 0) {
+      this.all_loaded();
+    }
+  }
+
+  static missing_pages() {
+    return Object.values(this.page_status).filter(function(value) {
+      // Return true if page is missing
+      return !(value == 'ready' || value == 'disabled');
+    })
+  }
+
+  static all_loaded() {
+    this.init_radio_logic();
+    for(const page_id of FVSignup.page_keys) {
+      this.init_page_logic(page_id);
+      let page = FVSignup.get_page(page_id);
+      if (!Array.isArray(page.sections)) continue;
+      for (const [index, section] of page.sections.entries()) {
+        this.init_section_logic(page_id, index, section);
+        for (const item of section.items ?? []) {
+          this.init_item_logic(item);
+        }
+      }
+    }
+    this.fire('all_loaded');
+  }
+
+  static init_radio_logic() {
+    jQuery('input[type="radio"]').change(function (evt){
+      let radio = jQuery(evt.target);
+      let wrapper = radio.closest('.input-wrapper.input-type-radio');
+      let hidden = wrapper.find('input#'+radio.attr('name').replaceAll(':', '\\:'));
+      hidden.val(radio.val());
+      hidden.change();
+    });
+  }
+
   static init_page_logic(page_id) {
     let logic = FVSignup.get_page(page_id).page_logic;
     if(!logic) return;
@@ -105,134 +229,44 @@ class FVSignupLogic {
     }
   }
 
-  static nav_click(key) {
-    if (this.is_page_disabled(key)) return;
+  static init_section_logic(page_id, index, section_info) {
+    if (section_info.show_if) {
+      let section_wrapper = jQuery('.signup-page#'+page_id+' .section-wrapper:nth-of-type('+(index+1)+')');
 
-    // Check for errors before navigating
-    let current = this.current_page;
-    let errors = this.check_page(current);
-    if (errors.length != 0) {
-      let text = {
-        en: "There some issues with the input on the current page.\nDo you still want to continue?",
-        da: "Der er nogle problemer med indtastningen på den nuværende side.\nVil du fortsætte alligevel?",
+      // Set initial section state
+      FVSignupLogic.update_section_status(section_info, section_wrapper);
+
+      // Update section when input change
+      let input = FVSignup.get_input(section_info.show_if.field);
+      input.change(function(evt) {
+        FVSignupLogic.update_section_status(section_info, section_wrapper);
+      });
+    }
+  }
+
+  static update_section_status(info, element) {
+    if (info.show_if) {
+      let show = false;
+      // Update section when input change
+      let input = FVSignup.get_input(info.show_if.field);
+      switch (info.show_if.logic) {
+        case "checked":
+          show = input.prop('checked') ? true : show;
+          break;
+
+        default:
+          console.error("Unknown section logic", info)
       }
-      if (!confirm(text[FVSignup.get_lang()])) {
-        return;
-      }
+
+      show ? element.show() : element.hide();
     }
-
-    // Move selection
-    FVSignup.main_content.find('nav div.selected').removeClass('selected');
-    FVSignup.main_content.find('nav div[page-id="'+key+'"]').addClass('selected');
-
-    // Hide all pages
-    FVSignup.page_wrapper.find('div.signup-page').hide();
-    
-    // Show current page
-    FVSignup.page_wrapper.find('div#'+key).show();
-    this.current_page = key;
-    
-    // Scroll to top
-    window.scrollTo(0, 0);
-    window.dispatchEvent(new CustomEvent('scroll')) // Reset top menu
-    
-    // Set addressbar
-    window.history.pushState({page:key},"", FVSignup.get_base_url()+key+"/");
-
-    // Fire listeners
-    this.fire('page_'+key);
-  }
-
-  static next() { this.navigate('next'); }
-  static prev() { this.navigate('prev'); }
-
-  static navigate(direction) {
-    let navto = FVSignup.main_content.find('nav div.selected');
-    
-    do {
-      if (direction == 'prev') {
-        navto = navto.prev();
-      } else {
-        navto = navto.next();
-      }
-    } while (navto.hasClass('disabled'))
-    
-    if (navto.length == 0) return;
-    this.nav_click(navto.attr('page-id'));
-  }
-
-  static page_ready(key) {
-    // Load data from storage for page
-    FVSignupStorage.page_loaded(key);
-
-    let page = FVSignup.get_page(key);
-
-    // Open the first page when it's ready (unless we seleted another already)
-    if (this.current_page == null && (key == FVSignup.get_start_page() || ( FVSignup.get_start_page() == null && page.order == 1))) {
-      FVSignup.main_content.find('nav div[page-id="'+key+'"]').addClass('selected');
-      FVSignup.page_wrapper.find('div#'+key).show();
-      this.current_page = key;
-
-      // Fire listeners
-      this.fire('page_'+key);
-    }
-
-    // Mark page status
-    let logic = FVSignup.get_page(key).page_logic;
-    if (logic && logic.default == 'disabled') {
-      this.page_status[key] = 'disabled';
-    } else {
-      this.page_status[key] = 'ready';
-    }
-
-    // Check if all pages are done
-    let waiting = this.missing_pages();
-    if (waiting.length == 0) {
-      this.all_loaded();
-    }
-  }
-
-  static missing_pages() {
-    return Object.values(this.page_status).filter(function(value) {
-      // Return true if page is missing
-      return !(value == 'ready' || value == 'disabled');
-    })
-  }
-
-  static all_loaded() {
-    this.init_radio_logic();
-    this.init_exclude_logic();
-    for(const page_id of FVSignup.page_keys) {
-      this.init_page_logic(page_id);
-    }
-    this.fire('all_loaded');
-  }
-
-  static init_radio_logic() {
-    jQuery('input[type="radio"]').change(function (evt){
-      let radio = jQuery(evt.target);
-      let wrapper = radio.closest('.input-wrapper.input-type-radio');
-      let hidden = wrapper.find('input#'+radio.attr('name').replaceAll(':', '\\:'));
-      hidden.val(radio.val());
-      hidden.change();
-    });
   }
 
   /**
    * Logic for excluding other choices
    */
-  static init_exclude_logic() {
-    let keys = FVSignup.page_keys;
-    for(const key of keys) {
-      let page = FVSignup.get_page(key);
-      if(!page.sections) continue;
-      for (const section of page.sections) {
-        if(!section.items) continue;
-        for(const item of section.items) {
-          if (item.excludes) this.init_exclude_item(item);
-        }
-      }
-    }
+  static init_item_logic(item) {
+    if (item.excludes) this.init_exclude_item(item);
   }
 
   static init_exclude_item(item) {

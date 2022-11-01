@@ -119,3 +119,5 @@ class FVSignupModuleWear {
     amount_select.val(amount);
   }
 }
+
+FVSignup.register_module('wear', FVSignupModuleWear);

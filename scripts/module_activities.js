@@ -8,7 +8,7 @@ class FVSignupModuleActivities {
     this.element.append('<p>Loading activities module</p>');
     element.append(this.element);
 
-    this.page_id = element.attr('id');
+    this.page_id = element.closest('.signup-page').attr('id');
 
     jQuery.getJSON({
       url: fv_signup_settings.infosys_url+"/api/signup/activities",
@@ -222,3 +222,5 @@ class FVSignupModuleActivities {
     return '<div class="flag-wrapper" style="width:24px; height:16px"><img src="'+root+'/flags/'+file_name+'"></div>';
   }
 }
+
+FVSignup.register_module('activities', FVSignupModuleActivities);

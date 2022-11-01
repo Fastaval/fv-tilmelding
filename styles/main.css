@@ -226,6 +226,21 @@ textarea {
   font-size: var(--form_text_size);
 }
 /*----------------------------------------------------------------------------
+    Together
+----------------------------------------------------------------------------*/
+div#hero_module table.hero-table {
+  width: 100%;
+}
+
+div#hero_module table.hero-table td{
+  border: 1px black solid;
+  padding: .4em;
+}
+
+div#hero_module table.hero-table td.hero-time-cell {
+  text-align: center;
+}
+/*----------------------------------------------------------------------------
     Activities
 ----------------------------------------------------------------------------*/
 div#activities_module {

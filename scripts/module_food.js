@@ -63,3 +63,5 @@ class FVSignupModuleFood {
     }
   }
 }
+
+FVSignup.register_module('food', FVSignupModuleFood);

@@ -30,15 +30,19 @@ class FVSignupRender {
 
     let module = false;
     page.sections && page.sections.forEach(function(section) {
-      section.headline && page_div.append("<h3>"+section.headline[lang]+"</h3>");
+      let section_wrapper = jQuery('<div class="section-wrapper"></div>');
+      page_div.append(section_wrapper);
+
+      section.headline && section_wrapper.append("<h3>"+section.headline[lang]+"</h3>");
       if(section.module) {
-        FVSignup.add_module(section.module, page_div, callback);
+        section_wrapper.addClass('module-wrapper');
+        FVSignup.add_module(section.module, section_wrapper, callback);
         module = true;
       }
       section.items && section.items.forEach(function(item) {
         if (item.disabled) return;
         FVSignupLogic.require_config(function() {
-          page_div.append(InfosysSignupRender.render_element(item, lang, FVSignup.config));
+          section_wrapper.append(InfosysSignupRender.render_element(item, lang, FVSignup.config));
         })
       })
     });

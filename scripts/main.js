@@ -10,6 +10,7 @@ class FVSignup {
   static config;
   static page_keys;
   static pages = {};
+  static modules = {};
   
   static main_content;
   static navigation;
@@ -126,29 +127,16 @@ class FVSignup {
     alert(msg[this.get_lang()]);
   }
 
+  static register_module(id, definition){
+    this.modules[id] = definition;
+  }
+
   static add_module(module, element, callback) {
-    switch (module) {
-      case "food":
-        FVSignupModuleFood.init(element, callback);
-        break;
-    
-      case "activities":
-        FVSignupModuleActivities.init(element, callback);
-        break;
-
-      case "wear":
-        FVSignupModuleWear.init(element, callback);
-        break;
-
-      case "submit":
-        FVSignupModuleSubmit.init(element, callback);
-        break;
-          
-  
-      default:
-        FVSignupRender.unknown_module(module, element);
-        callback();
-        break;
+    if (this.modules[module] == undefined) {
+      FVSignupRender.unknown_module(module, element);
+      callback();
+    } else {
+      this.modules[module].init(element, callback);
     }
   }
 

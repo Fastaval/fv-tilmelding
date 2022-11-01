@@ -85,9 +85,16 @@ class FVSignupLogicActivities {
     // We can ignore age filter since it's applied afterwards
     let hide, show;
     if (participant == 'Juniordeltager') {
-      jQuery('#activities_module .filter').hide();
-      hide = jQuery('.activity-row').not('.junior');
-      show = jQuery('.activity-row').filter('.junior');
+      if (FVSignup.get_input('junior:plus').prop('checked')) {
+        jQuery('#activities_module .filter *').show();
+        jQuery('#activities_module .filter').show();
+        show = jQuery('.activity-row');
+        hide = jQuery();
+      } else {
+        jQuery('#activities_module .filter').hide();
+        hide = jQuery('.activity-row').not('.junior');
+        show = jQuery('.activity-row').filter('.junior');
+      }
     } else {
       jQuery('#activities_module .filter .junior').hide();
       jQuery('#activities_module .filter').show();

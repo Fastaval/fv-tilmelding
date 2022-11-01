@@ -99,7 +99,9 @@ class FVSignupStorage {
         default:
           input.value = value;
       }
+      jQuery(input).change();
     }
+    FVSignupLogic.refresh_page();
   }
   
   static page_loaded(key) {
