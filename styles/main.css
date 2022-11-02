@@ -115,6 +115,10 @@ button.next-button {
 div#signup-pages div.signup-page h2 {
   font-size: 2em;
 }
+
+div#signup-pages div.signup-page::after {
+  clear: both;
+}
 /*----------------------------------------------------------------------------
     Section Header
 ----------------------------------------------------------------------------*/
