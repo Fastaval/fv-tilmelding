@@ -1,9 +1,10 @@
 /*----------------------------------------------------------------------------
     Main
 ----------------------------------------------------------------------------*/
-div.post-content {
+div.page-content {
   max-width: 800px;
   margin: auto;
+  line-height: 1.7;
 }
 
 .foldout {
@@ -101,6 +102,11 @@ nav div.error:hover {
 /*----------------------------------------------------------------------------
     Footer
 ----------------------------------------------------------------------------*/
+button.previous-button,
+button.next-button {
+  margin-top: 1em;
+}
+
 button.previous-button {
   float: left;
 }
@@ -118,9 +124,9 @@ div#signup-pages div.signup-page h2 {
 /*----------------------------------------------------------------------------
     Section Header
 ----------------------------------------------------------------------------*/
-div.post-content div#signup-pages div.signup-page h3 {
+div.page-content div#signup-pages div.signup-page h3 {
   font-size: 1.5em;
-  margin-top: 1.5em;
+  margin: 1.5rem 0;
 }
 /*----------------------------------------------------------------------------
     Input general
@@ -129,6 +135,10 @@ div.input-wrapper {
   display: flex;
   margin: .8em 0px;
   flex-wrap: wrap;
+}
+
+div.input-wrapper label {
+  line-height: 1.5em;
 }
 
 div.input-wrapper.required label::after{
@@ -165,6 +175,8 @@ div.input-wrapper.input-type-email input {
   color: black;
   flex-basis: 70%;
   flex-grow: 1;
+  padding: 0 1em;
+  height: 2rem;
 }
 
 div.input-wrapper.input-type-text label,
@@ -208,22 +220,6 @@ div.input-wrapper.input-type-textarea textarea {
 
 div.input-wrapper.input-type-textarea textarea:focus {
   border-color: blue;
-}
-/*----------------------------------------------------------------------------
-    Input Tele/Textarea (Fusion theme doesn't target these)
-----------------------------------------------------------------------------*/
-input[type="tel"] {
-  height: var(--form_input_height);
-  padding: 0px 15px;
-}
-
-input[type="tel"],
-textarea {
-  border: 1px solid var(--form_border_color);
-  border-width: var(--form_border_width-top) var(--form_border_width-right) var(--form_border_width-bottom) var(--form_border_width-left);
-  border-radius: var(--form_border_radius);
-  background-color: var(--form_bg_color);
-  font-size: var(--form_text_size);
 }
 /*----------------------------------------------------------------------------
     Together
@@ -283,6 +279,11 @@ div#activities_module table {
   margin-bottom: 1em;
 }
 
+div#activities_module table td {
+  background-color: white;
+  border: none;
+}
+
 div#activities_module table td.table-header {
   padding: 1em;
   width: 40%;
@@ -324,7 +325,7 @@ div#activities_module table .sectioning-row td.odd {
 }
 
 
-div#activities_module table td.activity-title {
+div#activities_module table .activity-row td.activity-title {
   cursor: pointer;
   padding: 1em 0;
 }
