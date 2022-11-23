@@ -121,6 +121,10 @@ button.next-button {
 div#signup-pages div.signup-page h2 {
   font-size: 2em;
 }
+
+div#signup-pages div.signup-page::after {
+  clear: both;
+}
 /*----------------------------------------------------------------------------
     Section Header
 ----------------------------------------------------------------------------*/
@@ -370,16 +374,63 @@ div#activities_module table td.description-cell {
 /*----------------------------------------------------------------------------
     Wear
 ----------------------------------------------------------------------------*/
-#wear_module {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  row-gap: 2em;
-  column-gap: 1em;
+#wear_module table {
+  width: 100%;
+}
+
+#wear_module table th,
+#wear_module .wear-item h3 {
+  border-bottom: 1px solid black;
+  margin-bottom: .5em;
+}
+
+#wear_module .wear-item-content {
+  position: relative;
+}
+
+#wear_module .wear-item-image-wrapper {
+  display: inline-block;
+  background-color: lightgray;
+  border: 1px solid black;
+  width: 200px;
+  height: 200px;
+}
+
+#wear_module .wear-selection-wrapper {
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 1em;
 }
 
 #wear_module .wear-item select{
   flex: 0 0 100%;
 }
+
+#wear_module .basket-section {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+#wear_module .basket-section label {
+  flex: 0 0 100%;
+}
+
+#wear_module .basket-section input {
+  appearance: textfield;
+  width: 2.5rem;
+}
+
+#wear_module .basket-section .wear-ammount-button {
+  width: 2rem;
+}
+
+#wear_module .basket-section input::-webkit-outer-spin-button,
+#wear_module .basket-section input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
 /*----------------------------------------------------------------------------
     Confirm
 ----------------------------------------------------------------------------*/
