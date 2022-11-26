@@ -5,7 +5,6 @@ class FVSignupModuleWear {
   static element;
   static wear_info;
   static wear_items = {};
-  static order_list;
 
   static init(element, callback) {
     this.element = jQuery('<div id="wear_module"></div>');
@@ -28,6 +27,10 @@ class FVSignupModuleWear {
       FVSignupModuleWear.config = config;
       if (FVSignupModuleWear.wear_info) FVSignupModuleWear.render_wear();
     });
+
+    FVSignupLogic.add_listener('page_wear', function(){
+      FVSignupModuleWear.update_prices();
+    })
   }
 
   static render_wear() {
@@ -41,6 +44,7 @@ class FVSignupModuleWear {
         '</thead>' +
         '<tbody>' + 
           '<tr class="no-orders"><td>' + this.config.no_orders[lang] + '</td></tr>'+
+          '<tr class="orders-total"><td class="total-text-cell">Total:</td><td class="total-cell"> 0 ' + FVSignup.config.dkk[lang] + '</td></tr>'+
         '</tbody>' +
       '</table>'
     );
@@ -56,7 +60,12 @@ class FVSignupModuleWear {
 
       let wear_header = jQuery('<h3 class="foldout">'+wear.name[lang]+' <span class="wear-price"></span> '+FVSignup.config.dkk[lang]+'</h3>');
       wear_div.append(wear_header);
-      
+
+      if (wear.max_order) {
+        wear_header.append(` (Max ${wear.max_order})`);
+        wear_div.attr('max-order', wear.max_order);
+      }
+
       let wear_content = jQuery('<div class="wear-item-content"></div>');
       wear_content.hide();
       wear_div.append(wear_content);
@@ -79,6 +88,7 @@ class FVSignupModuleWear {
       let image_wrapper = jQuery('<div class="wear-item-image-wrapper"></div>');
       wear_content.append(image_wrapper);
 
+      image_wrapper.append('<img>');
       //------------------------------------------------------------------------------
       // Attribute selection
       //------------------------------------------------------------------------------
@@ -134,7 +144,15 @@ class FVSignupModuleWear {
         }
         wear_content.append(selection_wrapper);
         first_select.change();
+      } else {
+        this.update_picture(wear_div);
       }
+
+      // Set header width to match number of attributes
+      let attribute_count = this.wear_info.max_attribute_type;
+      this.element.find('table#wear-orders th').attr('colspan', attribute_count + 4);
+      this.element.find('table#wear-orders tr.no-orders td').attr('colspan', attribute_count + 4);
+      this.element.find('table#wear-orders td.total-text-cell').attr('colspan', attribute_count + 2);
 
       //------------------------------------------------------------------------------
       // Basket section
@@ -143,25 +161,29 @@ class FVSignupModuleWear {
       wear_content.append(basket_section);
 
       // Amount selection
-      let amount_wrapper = jQuery('<div class="input-wrapper wear-amount"></div>');
-      amount_wrapper.append(`<label for="wear-amount-${wear.id}">${this.config.amount[lang]}:</label>`);
-      amount_wrapper.append('<button class="wear-amount-button decrease">-</button>');
-      amount_wrapper.append(`<input class="wear-amount" id="wear-amount-${wear.id}" type="number" min="1" max="10" step="1" value="1" size="2">`);
-      amount_wrapper.append('<button class="wear-amount-button increase">+</button>');
-      basket_section.append(amount_wrapper);
-
-      let amount = amount_wrapper.find('input');
-      amount_wrapper.find('button').click(function(evt) {
-        let button = jQuery(evt.delegateTarget);
-        let value = parseInt(amount.val());
-        value = isNaN(value) ? 1 : value;
-        if (button.hasClass('increase')) {
-          value = Math.min(value + 1, 10);
-        } else {
-          value = Math.max(value - 1, 1);
-        }
-        amount.val(value);
-      })
+      if (wear.max_order == 1) {
+        basket_section.append(`<input class="wear-amount" id="wear-amount-${wear.id}" type="hidden" value="1">`);
+      } else {
+        let amount_wrapper = jQuery('<div class="input-wrapper wear-amount"></div>');
+        amount_wrapper.append(`<label for="wear-amount-${wear.id}">${this.config.amount[lang]}:</label>`);
+        amount_wrapper.append('<button class="wear-amount-button decrease">-</button>');
+        amount_wrapper.append(`<input class="wear-amount" id="wear-amount-${wear.id}" type="number" min="1" max="10" step="1" value="1" size="2">`);
+        amount_wrapper.append('<button class="wear-amount-button increase">+</button>');
+        basket_section.append(amount_wrapper);
+  
+        let amount = amount_wrapper.find('input');
+        amount_wrapper.find('button').click(function(evt) {
+          let button = jQuery(evt.delegateTarget);
+          let value = parseInt(amount.val());
+          value = isNaN(value) ? 1 : value;
+          if (button.hasClass('increase')) {
+            value = Math.min(value + 1, 10);
+          } else {
+            value = Math.max(value - 1, 1);
+          }
+          amount.val(value);
+        })
+      }
 
       // Add order button
       basket_section.append(`<button class="wear-add-button">${this.config.add[lang]}</button>`);
@@ -169,8 +191,6 @@ class FVSignupModuleWear {
         FVSignupModuleWear.add_wear_order(wear_div);
       })
     }
-    let column_count = this.wear_info.max_attribute_type + 3;
-    this.element.find('table#wear-orders th').attr('colspan', column_count);
   }
 
   static render_attribute_select(wear, type, attributes) {
@@ -186,6 +206,52 @@ class FVSignupModuleWear {
     input_wrapper.append(select);
 
     return input_wrapper;
+  }
+
+  static update_prices() {
+    let participant_type = FVSignup.get_participant_type();
+
+    this.element.find('.wear-item').each(function() {
+      let wear_element = jQuery(this);
+      let id = wear_element.attr('wear-id');
+      let wear_item = FVSignupModuleWear.wear_items[id];
+      let price_type, price_value;
+      
+      // Find the cheapest valid price
+      for(const price of wear_item.prices) {
+        let price_valid;
+        switch(price.user_category) {
+          case 0:
+            price_valid = participant_type == 'organizer';
+            break;
+
+          case 1:
+            price_valid = participant_type == 'deltager' || participant_type == 'junior-plus';
+            break;
+
+          case 10:
+            price_valid = participant_type == 'junior';
+            break;
+
+          default:
+            let category = parseInt(FVSignup.get_input('organizercategory').val());
+            price_valid = price.user_category == category;
+        }
+        if (price_valid && (!price_value || price.price < price_value)) {
+          price_type = price.user_category;
+          price_value = price.price;
+        }
+      }
+
+      // Update price for item
+      if (price_value !== undefined) {
+        wear_element.find('h3 span.wear-price').text(price_value);
+        wear_element.attr('price-category', price_type);
+        wear_element.show();
+      } else {
+        wear_element.hide();
+      }
+    })
   }
 
   static select_update(select) {
@@ -230,17 +296,34 @@ class FVSignupModuleWear {
 
   static update_picture(wear_element) {
     let wear_id = wear_element.attr('wear-id');
-    let wear_item = this.wear_items[wear_id]
-    console.log(wear_item);
+    let wear_item = this.wear_items[wear_id];
+
+    let selections = {};
+    wear_element.find('select').each(function() {
+      selections[jQuery(this).attr('wear-attribute')] = parseInt(jQuery(this).val());
+    })
+
+    for(const [id, image] of Object.entries(wear_item.images)) {
+      let diff = false;
+      for(const type in image.attributes) {
+        if(type == 'special') continue;
+        if (!image.attributes[type].includes(selections[type])) diff = true;
+      }
+      if (diff == false) {
+        wear_element.find('.wear-item-image-wrapper img').attr('src', FVSignup.get_infosys_url() + encodeURI(image.image_file));
+        return;
+      }
+    }
   }
 
   static add_wear_order(wear_element) {
+    let lang = FVSignup.get_lang();
+    let wear_id = wear_element.attr('wear-id');
+    let max_order = this.wear_items[wear_id].max_order;
+    let name = wear_element.find('h3').text();
     let order_list = this.element.find('table#wear-orders tbody');
 
-    let wear_id = wear_element.attr('wear-id');
     let new_row = jQuery(`<tr class="wear-order" wear-id="${wear_id}"></tr>`);
-
-    let name = wear_element.find('h3').text();
     new_row.append(`<td class="wear-name">${name}</td>`);
 
     // Add attribute cells
@@ -257,7 +340,12 @@ class FVSignupModuleWear {
     // Check for duplicates
     let same_id = order_list.find(`tr[wear-id=${wear_id}]`);
     let same_attributes;
+    let same_count = 0;
     if (same_id.length > 0) {
+      if (max_order == 1) {
+        alert(`${this.config.max_error[lang]} 1 ${name}`);
+        return;
+      }
       same_id.each(function() {
         let diff = false;
         jQuery(this).find('td.wear-attribute').each(function() {
@@ -269,10 +357,15 @@ class FVSignupModuleWear {
           }
         })
         if (!diff) same_attributes = jQuery(this);
+        same_count += parseInt(jQuery(this).find('input.wear-amount').val());
       })
     }
 
     let amount = wear_element.find('input.wear-amount').val();
+    if (same_count + parseInt(amount) > max_order) {
+      alert(`${this.config.max_error[lang]} ${max_order} ${name}`);
+      return;
+    }
 
     if (same_attributes) {
       // We have an existing order with same attributes
@@ -294,39 +387,87 @@ class FVSignupModuleWear {
     }
 
     // We have a new unique order
+    // Amount cell
     let amount_cell = jQuery(`<td class="wear-amount"></td>`)
     new_row.append(amount_cell);
 
-    let amount_wrapper = jQuery('<div class="input-wrapper wear-order-amount"></div>');
-    amount_cell.append(amount_wrapper);
+    let amount_input;
+    if (max_order == 1) {
+      amount_cell.text(amount);
+    } else {
+      let amount_wrapper = jQuery('<div class="input-wrapper wear-order-amount"></div>');
+      amount_cell.append(amount_wrapper);
+  
+      amount_wrapper.append('<button class="wear-amount-button decrease">-</button>');
+      amount_wrapper.append(`<input class="wear-amount" type="number" min="1" max="10" step="1" value="${amount}" size="2">`);
+      amount_wrapper.append('<button class="wear-amount-button increase">+</button>');
+  
+      amount_input = amount_cell.find('input');
+      amount_cell.find('button').click(function(evt) {
+        let button = jQuery(evt.delegateTarget);
+        let value = parseInt(amount_input.val());
+        value = isNaN(value) ? 1 : value;
+        if (button.hasClass('increase')) {
+          value = Math.min(value + 1, 10);
+        } else {
+          value = Math.max(value - 1, 1);
+        }
+        // Check for max
+        if (max_order) {
+          // Check for duplicates
+          let same_id = order_list.find(`tr[wear-id=${wear_id}]`).not(new_row);
+          let same_count = 0;
+          same_id.each(function() {
+            same_count += parseInt(jQuery(this).find('input.wear-amount').val());
+          })
 
-    amount_wrapper.append('<button class="wear-amount-button decrease">-</button>');
-    amount_wrapper.append(`<input class="wear-amount" type="number" min="1" max="10" step="1" value="${amount}" size="2">`);
-    amount_wrapper.append('<button class="wear-amount-button increase">+</button>');
+          if (same_count + value > max_order) {
+            alert(`${FVSignupModuleWear.config.max_error[lang]} ${max_order} ${name}`);
+            return;
+          }
+        }
+        amount_input.val(value);
+        amount_input.change();
+      })
+    }
 
-    let amount_input = amount_cell.find('input');
-    amount_cell.find('button').click(function(evt) {
-      let button = jQuery(evt.delegateTarget);
-      let value = parseInt(amount_input.val());
-      value = isNaN(value) ? 1 : value;
-      if (button.hasClass('increase')) {
-        value = Math.min(value + 1, 10);
-      } else {
-        value = Math.max(value - 1, 1);
-      }
-      amount_input.val(value);
-    })
+    // Price cell
+    let price =  parseInt(wear_element.find('h3 span.wear-price').text());
+    let subtotal = parseInt(amount) * price;
+    let price_category = wear_element.attr('price-category');
+    let price_cell = jQuery(`<td class="price-cell" price-category="${price_category}">${subtotal} ${FVSignup.config.dkk[lang]}</td>`);
+    new_row.append(price_cell)
 
-    let lang = FVSignup.get_lang();
+    if (amount_input) {
+      amount_input.change(function() {
+        let amount = parseInt(amount_input.val());
+        let subtotal = amount * price;
+        price_cell.text(`${subtotal} ${FVSignup.config.dkk[lang]}`);
+        FVSignupModuleWear.update_total();
+      })
+    }
+
+    // Delete button
     new_row.append(`<td class="wear-delete-order"><button class="delete-order-button">${this.config.delete[lang]}</button></td>`);
     new_row.find('button.delete-order-button').click(function() {
       new_row.remove();
+      FVSignupModuleWear.update_total();
       if (order_list.find('tr.wear-order').length == 0) {
         order_list.find('.no-orders').show();    
       }
     })
-    order_list.append(new_row);
+    order_list.find('tr.orders-total').before(new_row)
     order_list.find('.no-orders').hide();
+    this.update_total();
+  }
+
+  static update_total() {
+    let total = 0;
+    this.element.find('table#wear-orders .wear-order').each(function() {
+      total += parseInt(jQuery(this).find('td.price-cell').text());
+    })
+    let lang = FVSignup.get_lang();
+    this.element.find('table#wear-orders .total-cell').text(`${total} ${FVSignup.config.dkk[lang]}`);
   }
 
   static load_input (input) {

@@ -388,7 +388,8 @@ div#activities_module table td.description-cell {
 }
 
 #wear_module table td.wear-amount {
-  border-right: none;
+  min-width: 3rem;
+  text-align: center;
 }
 
 #wear_module table td.wear-amount,
@@ -430,10 +431,6 @@ div#activities_module table td.description-cell {
   margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
 }
 
-#wear_module table td.wear-delete-order {
-  border-left: none;
-}
-
 #wear_module .wear-item-content {
   position: relative;
   display: flex;
@@ -445,11 +442,10 @@ div#activities_module table td.description-cell {
 }
 
 #wear_module .wear-item-image-wrapper {
-  display: inline-block;
+  display: inline-flex;
   background-color: lightgray;
   border: 1px solid black;
   width: 240px;
-  height: 240px;
 }
 
 #wear_module .wear-selection-wrapper {
