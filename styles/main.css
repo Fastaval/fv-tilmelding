@@ -421,6 +421,7 @@ div#activities_module table td.description-cell {
 #wear_module .basket-section input {
   appearance: textfield;
   text-align: center;
+  width: 3.5rem;
 }
 
 #wear_module table td.wear-amount input::-webkit-outer-spin-button,
@@ -499,7 +500,7 @@ div#submit_module td:nth-child(2) {
 }
 
 div#submit_module .signup-data button {
-  margin: 2em auto;
+  margin: 2rem auto 0 auto;
   display: block;
   font-size: 1.5rem;
   padding: .3rem .7rem;

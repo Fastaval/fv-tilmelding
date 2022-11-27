@@ -102,6 +102,19 @@ class FVSignupModuleSubmit {
       // Collect data from inputs
       let inputs = jQuery('div#'+key+' input, div#'+key+' textarea');
       inputs = inputs.not('[type="radio"]'); // Radio buttons are tracked with hidden inputs
+
+      // Deal with special modules
+      let module_div = jQuery(`div#${key} .special-submit`);
+      module_div.each(function() {
+        // Don't handle inputs inside the module
+        inputs = inputs.not(`#${this.id} *`);
+
+        // Get the submission from the module
+        let module_id = jQuery(this).attr('module');
+        let module = FVSignup.get_module(module_id)
+        if(module) module.get_submission(submission[key]);
+      })
+
       for(const input of inputs) {
         if(
           input.value != "" 
@@ -217,7 +230,10 @@ class FVSignupModuleSubmit {
         let input = FVSignup.get_input(entry.key);
         let text;
         let value = entry.value
-        if (input.attr('type') == 'hidden') {
+
+        if (entry.special_module) {
+          [text, value] = FVSignup.get_module(entry.special_module).get_confirm(entry);
+        } else if (input.attr('type') == 'hidden') {
           let wrapper = input.closest('.input-wrapper');
           if(wrapper.hasClass('activity-choice')) {
             let activity_row = wrapper.closest('.activity-row').prev();
@@ -238,13 +254,6 @@ class FVSignupModuleSubmit {
                 value += " "+choices.prio[lang][index-2];
               }
             }
-          } else if(wrapper.hasClass('wear-item')){
-            text = wrapper.find('p').text();
-            if (entry.size != 1) {
-              text += ", "+FVSignupModuleWear.wear_info.sizes[entry.size].name[lang];
-            }
-            value = entry.amount+" "+FVSignup.config.pieces[lang];
-            if(entry.price) value += " = "+(entry.price)+" "+FVSignup.config.dkk[lang];
           } else if(wrapper.hasClass('input-type-hidden')){
             text = input.attr('text');
           } else {
@@ -262,6 +271,8 @@ class FVSignupModuleSubmit {
             text = jQuery('label[for='+id+']').text().replace(':','');
           }
         }
+
+        // Extra stuff for special values and summing totals
         if (entry.price) {
           if(entry.value == 'on') {
             value = entry.price+" "+FVSignup.config.dkk[lang];

@@ -140,6 +140,10 @@ class FVSignup {
     }
   }
 
+  static get_module(id) {
+    return this.modules[id];
+  }
+
   static days = {
     en: [
       'Monday',
