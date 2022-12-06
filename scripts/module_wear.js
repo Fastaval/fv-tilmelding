@@ -224,12 +224,12 @@ class FVSignupModuleWear {
       for(const price of wear_item.prices) {
         let price_valid;
         switch(price.user_category) {
-          case 0: // Price for all organizers
-            price_valid = participant_type == 'organizer';
-            break;
-
           case 1: // Normal participant
             price_valid = participant_type != 'junior';
+            break;
+
+          case 2: // Price for organizers
+            price_valid = participant_type == 'organizer';
             break;
 
           case 10: // Junior participant
