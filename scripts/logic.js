@@ -292,6 +292,16 @@ class FVSignupLogic {
     let errors = [];
     if(!page.sections) return errors;
     for(const section of page.sections) {
+      
+      // Check for module errors
+      if (section.module) {
+        let module = FVSignup.get_module(section.module);
+        if (module.check_errors) {
+          errors = errors.concat(module.check_errors());
+        } 
+      }
+
+      // Check input errors
       if(!section.items) continue;
       for(const item of section.items) {
         // Conditional required - like Alea for organizers

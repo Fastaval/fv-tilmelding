@@ -344,7 +344,7 @@ class FVSignupModuleWear {
     let price =  parseInt(wear_element.find('h3 span.wear-price').text());
     let price_category = wear_element.attr('price-category');
     
-    let new_row = this.create_order_row(id, name, attributes, amount, price, price_category);
+    let new_row = this.create_order_row(wear_id, name, attributes, amount, price, price_category);
 
     // Check for duplicates
     let same_id = order_list.find(`tr[wear-id=${wear_id}]`);

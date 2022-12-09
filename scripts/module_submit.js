@@ -189,15 +189,14 @@ class FVSignupModuleSubmit {
       let tbody = jQuery('<tbody></tbody>');
       table.append(tbody);
       for(const error of errors[page_key]) {
-        // TODO remove after rework of wear module
-        if (error.type == 'no_wear_price') {
-          let label = jQuery('#wear-item-'+error.wear_id).find('p').text();
-          tbody.append('<tr><td>'+label+'</td><td>Not available to current participant type</td></tr>');
-          continue;
-        }
-
         let msg;
-        if (error.id) msg = FVSignupLogic.find_error(error.id, error.type).text();
+        if (error.module) {
+          let module = FVSignup.get_module(error.module);
+          if (module.get_error_msg) msg = module.get_error_msg(error);
+        } else if (error.id) {
+          msg = FVSignupLogic.find_error(error.id, error.type).text();
+        } 
+
         if(msg) {
           let id = error.id.replaceAll(':', '\\:');
           let label = jQuery('label[for='+id+']').text().replace(':','');
@@ -210,7 +209,6 @@ class FVSignupModuleSubmit {
   }
 
   static render_submit(categories, grand_total) {
-    console.log(categories);
     let lang = FVSignup.get_lang();
     this.signup_data.empty();
     this.signup_data.show();
@@ -242,7 +240,7 @@ class FVSignupModuleSubmit {
             text += " - "+FVSignup.uc_first(FVSignup.get_weekday(day))+" ";
             let time = new Date(parseInt(wrapper.attr('run-start'))*1000);
             text += (time.getHours()+"").padStart(2, '0')+":"+(time.getMinutes()+"").padStart(2, '0');
-            let choices = FVSignupLogicActivities.activity_info.choices;
+            let choices = FVSignupLogicActivities.config.choices;
             if (entry.value <= choices.prio[lang].length) {
               value = choices.prio[lang][entry.value-1];
             } else {

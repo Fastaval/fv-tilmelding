@@ -2,10 +2,12 @@
 
 class FVSignupLogicActivities {
   static activity_info;
+  static config;
 
   // TODO Multiblok
-  static init(activity_info) {
-    this.activity_info = activity_info;
+  static init(info, config) {
+    this.activity_info = info;
+    this.config = config;
 
     this.init_choices();
     this.init_descriptions();
@@ -149,6 +151,7 @@ class FVSignupLogicActivities {
     } else {
       // There are no vissible days
       FVSignupModuleActivities.day_error.show();
+      jQuery('#activities_module #activity-tables-wrapper table').hide();
     }
   }
 
@@ -187,7 +190,7 @@ class FVSignupLogicActivities {
 
     let lang = fv_signup_settings.lang;
     let gm = choice.attr('activity-gm') == 'true';
-    let prio_count = this.activity_info.choices.prio[lang].length;
+    let prio_count = this.config.choices.prio[lang].length;
     let max = gm ? prio_count + 2 : prio_count;
 
     value++
@@ -242,10 +245,10 @@ class FVSignupLogicActivities {
     let lang = fv_signup_settings.lang;
     let label = input.next();
     let value = input.val();
-    let choices = this.activity_info.choices;
+    let choices = this.config.choices;
     let type = input.closest('.activity-choice').attr('activity-type');
     let gm_text = choices.gm[type] ? choices.gm[type][lang] : choices.gm.default[lang];
-    let prio_count = this.activity_info.choices.prio[lang].length;
+    let prio_count = choices.prio[lang].length;
     
     switch (true) {
       case value == 0:
@@ -267,5 +270,65 @@ class FVSignupLogicActivities {
       default:
         break;
     }
+  }
+
+  static check_errors() {
+    let lang = FVSignup.get_lang();
+    let prio_count = this.config.choices.prio[lang].length;
+
+    let errors = [];
+    let error_div = FVSignupModuleActivities.element.find('#activity-errors');
+    error_div.empty();
+    
+    // Check if we selected GM or Rules duties on the together page
+    let need_gm = FVSignup.get_input("together:gm").prop('checked');
+    let need_rules = FVSignup.get_input("together:rules").prop('checked');
+
+    // Return no errors if we don't need either
+    if (!(need_gm || need_rules)) return errors;
+
+    // Check if we have selected any GM or Rules duties
+    let choices = jQuery('#activities_module .activity-choice');
+    choices.each(function() {
+      let choice = jQuery(this);
+      let input = choice.find('input');
+
+      // If we have a choice with GM/Rules (where allowed)
+      if (parseInt(input.val()) > prio_count && choice.attr('activity-gm') == 'true') {
+        // If the activity is board game, then it's rules
+        if (choice.attr('activity-type') == 'braet') {
+          need_rules = false;
+        } else {
+          need_gm = false;
+        }
+      }
+
+      return need_gm || need_rules; // End loop if we have both GM and Rules
+    })
+
+    if (need_gm) {
+      errors.push({
+        id: 'together:gm',
+        type: 'missing_task',
+        category: 'gm',
+        module: 'activities',
+      })
+    }
+
+    if (need_rules) {
+      errors.push({
+        id: 'together:rules',
+        type: 'missing_task',
+        category: 'rules',
+        module: 'activities',
+      })
+    }
+
+    errors.forEach(function(element) {
+      let errors = FVSignupLogicActivities.config.errors;
+      error_div.append(`<p>${errors.missing_task[element.category][lang]}</p>`);
+    })
+
+    return errors;
   }
 }
