@@ -58,7 +58,6 @@ class FVSignup {
     add_filter('the_content', function($content) {
       $content = 
         "<div class='signup-placeholder'>".
-        "  <h1>Fastaval Signup</h1>".
         "  <h2>Loading signup plugin</h2>".
         "  <p>If this message doesn´t go away, there might have been a script error.<br>".
         "  You may need to use a different browser and/or make sure javascript is enabled</p>".

@@ -22,7 +22,6 @@ class FVSignup {
     placeholder.remove();
 
     this.main_content = jQuery(".page-content");
-    this.main_content.append("<h1 id='signup-header'>Fastaval Tilmelding</h1>");
 
     this.navigation = jQuery("<nav id='signup-navigation'></nav>");
     this.main_content.append(this.navigation);
