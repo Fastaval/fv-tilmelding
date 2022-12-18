@@ -195,7 +195,7 @@ class FVSignupModuleSubmit {
       let tbody = jQuery('<tbody></tbody>');
       table.append(tbody);
       for(const error of errors[page_key]) {
-        let msg;
+        let msg, label;
         if (error.module) {
           let module = FVSignup.get_module(error.module);
           if (module.get_error_msg) msg = module.get_error_msg(error);
@@ -203,11 +203,28 @@ class FVSignupModuleSubmit {
           msg = FVSignupLogic.find_error(error.id, error.type).text();
         } 
 
-        if(msg) {
-          let id = error.id.replaceAll(':', '\\:');
-          let label = jQuery('label[for='+id+']').text().replace(':','');
+        if (error.id) {
+          if (this.config.short_text[error.id]) {
+            label = this.config.short_text[error.id][lang];
+          } else {
+            let id = error.id.replaceAll(':', '\\:');
+            label = jQuery('label[for='+id+']').text().replace(':','');
+          }
+        }
+
+        if(msg && label) {
           tbody.append('<tr><td>'+label+'</td><td>'+msg+'</td></tr>');
         } else {
+          let text = this.config.unknown[lang];
+          let col="";
+          if (label) {
+            text = label+'</td><td>'+text;
+          } else if (msg) {
+            text += '</td><td>'+msg;
+          } else {
+            col = 'colspan="2"';
+          }
+          tbody.append(`<tr><td ${col}>${text}</td></tr>`);
           console.log(error);
         }
       }
