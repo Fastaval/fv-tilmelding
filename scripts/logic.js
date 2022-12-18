@@ -114,7 +114,7 @@ class FVSignupLogic {
     }
 
     // Mark page status
-    let logic = FVSignup.get_page(key).page_logic;
+    let logic = FVSignup.get_page(key).display_logic;
     if (logic && logic.default == 'disabled') {
       this.page_status[key] = 'disabled';
     } else {
@@ -138,11 +138,12 @@ class FVSignupLogic {
   static all_loaded() {
     this.init_radio_logic();
     for(const page_id of FVSignup.page_keys) {
-      this.init_page_logic(page_id);
       let page = FVSignup.get_page(page_id);
+      this.init_display_logic({ page: page_id}, page);
+      
       if (!Array.isArray(page.sections)) continue;
       for (const [index, section] of page.sections.entries()) {
-        this.init_section_logic(page_id, index, section);
+        this.init_display_logic( { page: page_id, section: index}, section);
         for (const item of section.items ?? []) {
           this.init_item_logic(item);
         }
@@ -161,8 +162,8 @@ class FVSignupLogic {
     });
   }
 
-  static init_page_logic(page_id) {
-    let logic = FVSignup.get_page(page_id).page_logic;
+  static init_display_logic(item_id, item) {
+    let logic = item.display_logic;
     if(!logic) return;
 
     for(const rule of logic) {
@@ -170,95 +171,98 @@ class FVSignupLogic {
 
       // Update page status when any input that's part of the rule changes
       FVSignup.get_input(rule.input).change(function() {
-        FVSignupLogic.update_page_status(page_id);
+        FVSignupLogic.update_display_status(item_id, logic);
       });
     }
 
-    this.update_page_status(page_id);
+    this.update_display_status(item_id, logic);
   }
 
-  static update_page_status(page_id) {
-    let logic = FVSignup.get_page(page_id).page_logic;
-    if (!logic) return;
-    let enabled = true;
+  static update_display_status(item_id, logic) {
+
+    let status = "normal";
     for(const rule of logic) {
       let input;
       if (rule.input) input = FVSignup.get_input(rule.input);
 
       switch(rule.type) {
         case 'default':
-          enabled = rule.enabled;
+          status = rule.status;
           break;
         
         case 'field_compare':
           
           switch (rule.compare) {
             case 'equals':
-              enabled = input.val() == rule.value ? rule.enabled : enabled;
+              status = input.val() == rule.value ? rule.status : status;
               break;
 
             default:
-              console.error("Page Logic, Unknown comparisson", "Rule:", rule);
+              console.error("Display Logic, Unknown comparisson", "Rule:", rule);
           }
           break;
 
         case 'checkbox':
-          enabled = input.prop('checked') ? rule.enabled : enabled;
+          status = input.prop('checked') ? rule.status : status;
           break;
 
         default:
-          console.error("Page Logic, Unknown rule type", "Rule:", rule);
+          console.error("Display Logic, Unknown rule type", "Rule:", rule);
       }
     }
 
-    this.set_page_enabled(page_id, enabled);
+    this.set_display_status(item_id, status);
   }
 
-  static set_page_enabled(page_id, status) {
-    let nav_button = FVSignup.navigation.find('[page-id="'+page_id+'"]');
-    let page_div = FVSignup.page_wrapper.find('#'+page_id);
+  static set_display_status(item_id, status) {
+    // Check if item is an input
+    if(item_id.input) {
+      input = FVSignup.get_input(item_id.input);
+      status === "hidden" ? input.hide() : input.show();
+      status === "disabled" ? input.attr('disabled', 'true') : input.removeAttr('disabled');
+      return;
+    }
 
-    if (status) {
+    // If item isn't an input, we need a page
+    if (!item_id.page) return;
+    
+    let page_div = FVSignup.page_wrapper.find('#'+item_id.page);
+    if(page_div.length !== 1) {
+      console.error("Display status, wrong or ambiguous page ID", "ID:", item_id, "Status:", status);
+      return;
+    }
+
+    // Check if we have a section
+    if (item_id.section) {
+      let section_div = jQuery(page_div.find('.section-wrapper')[item_id.section]);
+  
+      status === "hidden" ? section_div.hide() : section_div.show();
+  
+      let input = section_div.find('input');
+      if (status === "disabled") {
+        section_div.addClass('disabled');
+      } else {
+        section_div.removeClass('disabled');
+      }
+
+      if (status == "normal") {
+        input.removeAttr('disabled');
+      } else {
+        input.attr('disabled', 'true');
+      }
+      return;
+    }
+
+    // There was no section specified, so status relates to whole page
+    let nav_button = FVSignup.navigation.find('[page-id="'+item_id.page+'"]');
+    if (status == "normal") {
       nav_button.removeClass('disabled');
       page_div.removeClass('disabled');
-      this.page_status[page_id] = 'ready';
+      this.page_status[item_id.page] = 'ready';
     } else {
       nav_button.addClass('disabled');
       page_div.addClass('disabled');
-      this.page_status[page_id] = 'disabled';
-    }
-  }
-
-  static init_section_logic(page_id, index, section_info) {
-    if (section_info.show_if) {
-      let section_wrapper = jQuery('.signup-page#'+page_id+' .section-wrapper:nth-of-type('+(index+1)+')');
-
-      // Set initial section state
-      FVSignupLogic.update_section_status(section_info, section_wrapper);
-
-      // Update section when input change
-      let input = FVSignup.get_input(section_info.show_if.field);
-      input.change(function(evt) {
-        FVSignupLogic.update_section_status(section_info, section_wrapper);
-      });
-    }
-  }
-
-  static update_section_status(info, element) {
-    if (info.show_if) {
-      let show = false;
-      // Update section when input change
-      let input = FVSignup.get_input(info.show_if.field);
-      switch (info.show_if.logic) {
-        case "checked":
-          show = input.prop('checked') ? true : show;
-          break;
-
-        default:
-          console.error("Unknown section logic", info)
-      }
-
-      show ? element.show() : element.hide();
+      this.page_status[item_id.page] = 'disabled';
     }
   }
 
@@ -266,11 +270,15 @@ class FVSignupLogic {
    * Logic for excluding other choices
    */
   static init_item_logic(item) {
-    if (item.excludes) this.init_exclude_item(item);
+    if (!item.infosys_id) return;
+
+    let input = FVSignup.get_input(item.infosys_id);
+
+    if (item.excludes) this.init_exclude_item(item, input);
+    this.init_display_logic({input: item.infosys_id}, input);
   }
 
-  static init_exclude_item(item) {
-    let input = FVSignup.get_input(item.infosys_id);
+  static init_exclude_item(item, input) {
     if(input.attr('type') == 'checkbox') {
       input.click(function() {
         if (input.prop('checked')) {
