@@ -70,7 +70,7 @@ class FVSignupStorage {
             return;  
           }
           FVSignupStorage.load_from_server(result.signup);
-          FVSignupModuleSubmit.set_info(id, pass);
+          FVSignupModuleSubmit.set_info(result.signup.id, pass);
           alert(FVSignupStorage.config.load_success[lang]);
           controls_content.hide();
           controls_header.removeClass('open');
@@ -82,7 +82,21 @@ class FVSignupStorage {
             FVSignupLogic.check_page(key);
           }      
         }
-      }).fail(function () {
+      }).fail(function (data) {
+          if (data.responseJSON && data.responseJSON.errors) {
+            let processed = false;
+            data.responseJSON.errors.forEach(function(error) {
+              let msg = FVSignupStorage.config.errors[error.type];
+              if (msg) {
+                alert(msg[lang]);
+                processed = true;
+                return false;
+              }
+            })
+
+            if (processed) return;
+          }
+        
           FVSignup.com_error();
       });
     })
@@ -95,7 +109,7 @@ class FVSignupStorage {
     inputs = inputs.not('.special-submit *');
 
     for(const input of inputs) {
-      if (input.id == 'gdpr_accept') continue;
+      if (jQuery(input).attr('no-load') == 'true') continue;
       let value = '';
       if (signup_data[input.id]) {
         value = signup_data[input.id];
