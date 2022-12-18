@@ -116,14 +116,20 @@ class FVSignupModuleSubmit {
       })
 
       for(const input of inputs) {
-        if(
-          input.value != "" 
-          && parseInt(input.value) != 0 
-          && (input.type != 'checkbox' || input.checked == true)
-          && !input.attributes['no-submit']
-        ) {
-          submission[key][input.id] = input.value;
+        // Ignore "no-submit" and disabled inputs
+        if (input.attributes['no-submit'] || input.attributes['disabled']) continue;
+
+        // Submit checkbox
+        if (input.type == 'checkbox' ) {
+          submission[key][input.id] = input.checked ? input.value : 'off';
+          continue;
         }
+
+        // Check if input is empty and whether we need to submit it anyway
+        let no_empty = input.attributes['no-submit-empty'];
+        if(no_empty && no_empty.value == 'true' && (input.value == "" || parseInt(input.value) === 0)) continue;
+
+        submission[key][input.id] = input.value;
       }
     }
 
