@@ -146,6 +146,11 @@ class FVSignupLogic {
         this.init_display_logic( { page: page_id, section: index}, section);
         for (const item of section.items ?? []) {
           this.init_item_logic(item);
+
+          if (!Array.isArray(item.options)) continue;
+          for (const [index, option] of item.options.entries()) {
+            this.init_display_logic({input: `${item.infosys_id}-${index}`}, option);
+          }
         }
       }
     }
