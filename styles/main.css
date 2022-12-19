@@ -144,6 +144,10 @@ div.input-wrapper label {
   line-height: 1.5em;
 }
 
+div.input-wrapper.disabled label {
+  opacity: .5;
+}
+
 div.input-wrapper.required label::after{
   content: "*";
   color: red;

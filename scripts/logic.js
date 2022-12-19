@@ -167,10 +167,15 @@ class FVSignupLogic {
     if(!logic) return;
 
     for(const rule of logic) {
-      if (!rule.input) continue;
+      let input = rule.input;
+      if (rule.type == "age") {
+        input = "birthdate";
+      }
 
-      // Update page status when any input that's part of the rule changes
-      FVSignup.get_input(rule.input).change(function() {
+      if (!input) continue;
+
+      // Update page status when an input that's part of the rule changes
+      FVSignup.get_input(input).change(function() {
         FVSignupLogic.update_display_status(item_id, logic);
       });
     }
@@ -182,8 +187,8 @@ class FVSignupLogic {
 
     let status = "normal";
     for(const rule of logic) {
-      let input;
-      if (rule.input) input = FVSignup.get_input(rule.input);
+      let input = rule.input ? FVSignup.get_input(rule.input) : undefined;
+      let compare_value;
 
       switch(rule.type) {
         case 'default':
@@ -191,23 +196,34 @@ class FVSignupLogic {
           break;
         
         case 'field_compare':
-          
-          switch (rule.compare) {
-            case 'equals':
-              status = input.val() == rule.value ? rule.status : status;
-              break;
-
-            default:
-              console.error("Display Logic, Unknown comparisson", "Rule:", rule);
-          }
+          compare_value = input.val();           
           break;
 
         case 'checkbox':
           status = input.prop('checked') ? rule.status : status;
           break;
 
+        case 'age':
+          compare_value = FVSignup.get_age();
+          break;
+
         default:
           console.error("Display Logic, Unknown rule type", "Rule:", rule);
+      }
+
+      if (rule.compare) {
+        switch (rule.compare) {
+          case 'equals':
+            status = compare_value == rule.value ? rule.status : status;
+            break;
+
+          case 'greater': 
+            status = compare_value > rule.value ? rule.status : status;
+            break;
+
+          default:
+            console.error("Display Logic, Unknown comparisson", "Rule:", rule);
+        }
       }
     }
 
@@ -217,9 +233,24 @@ class FVSignupLogic {
   static set_display_status(item_id, status) {
     // Check if item is an input
     if(item_id.input) {
-      input = FVSignup.get_input(item_id.input);
-      status === "hidden" ? input.hide() : input.show();
-      status === "disabled" ? input.attr('disabled', 'true') : input.removeAttr('disabled');
+      let input = FVSignup.get_input(item_id.input);
+      let wrapper = input.closest('.input-wrapper');
+
+      if (status === "hidden") {
+        input.hide();
+        wrapper.hide();
+      } else {
+        input.show();
+        wrapper.show();
+      }
+      
+      if (status === "disabled") {
+        input.attr('disabled', 'true');
+        wrapper.addClass('disabled');
+      } else {
+        input.removeAttr('disabled');
+        wrapper.removeClass('disabled');
+      }
       return;
     }
 
@@ -238,7 +269,7 @@ class FVSignupLogic {
   
       status === "hidden" ? section_div.hide() : section_div.show();
   
-      let input = section_div.find('input');
+      let inputs = section_div.find('input');
       if (status === "disabled") {
         section_div.addClass('disabled');
       } else {
@@ -246,9 +277,13 @@ class FVSignupLogic {
       }
 
       if (status == "normal") {
-        input.removeAttr('disabled');
+        inputs.each(function() {
+          // only enable inputs that haven't been individually disabled
+          let wrapper = jQuery(this).closest('.input-wrapper');
+          if (!wrapper.hasClass('disabled')) jQuery(this).removeAttr('disabled');
+        })
       } else {
-        input.attr('disabled', 'true');
+        inputs.attr('disabled', 'true');
       }
       return;
     }
@@ -270,12 +305,11 @@ class FVSignupLogic {
    * Logic for excluding other choices
    */
   static init_item_logic(item) {
+    this.init_display_logic({input: item.infosys_id}, item);
+
     if (!item.infosys_id) return;
-
     let input = FVSignup.get_input(item.infosys_id);
-
     if (item.excludes) this.init_exclude_item(item, input);
-    this.init_display_logic({input: item.infosys_id}, input);
   }
 
   static init_exclude_item(item, input) {
