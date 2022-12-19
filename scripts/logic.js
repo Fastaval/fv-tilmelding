@@ -44,11 +44,8 @@ class FVSignupLogic {
     let current = this.current_page;
     let errors = this.check_page(current);
     if (errors.length != 0) {
-      let text = {
-        en: "There some issues with the input on the current page.\nDo you still want to continue?",
-        da: "Der er nogle problemer med indtastningen på den nuværende side.\nVil du fortsætte alligevel?",
-      }
-      if (!confirm(text[FVSignup.get_lang()])) {
+      let lang = FVSignup.get_lang();
+      if (confirm(FVSignup.config.input_error[lang])) {
         return;
       }
     }
@@ -260,6 +257,13 @@ class FVSignupLogic {
         input.removeAttr('disabled');
         wrapper.removeClass('disabled');
       }
+
+      if (status === "required") {
+        wrapper.addClass('required');
+      } else {
+        wrapper.removeClass('required');
+      }
+
       return;
     }
 
