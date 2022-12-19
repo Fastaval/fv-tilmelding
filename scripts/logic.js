@@ -221,6 +221,10 @@ class FVSignupLogic {
             status = compare_value > rule.value ? rule.status : status;
             break;
 
+          case 'less': 
+            status = compare_value < rule.value ? rule.status : status;
+            break;
+
           default:
             console.error("Display Logic, Unknown comparisson", "Rule:", rule);
         }
