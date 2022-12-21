@@ -53,14 +53,11 @@ class FVSignup {
     $query->is_page = 1;
     $query->is_single = '';
 
-    // Correct the url for WPML language selector
-
     // Change page content so people know the signup is available
     // NOTE: all this is cleared when the Javascript is loaded
     add_filter('the_content', function($content) {
       $content = 
         "<div class='signup-placeholder'>".
-        "  <h1>Fastaval Signup</h1>".
         "  <h2>Loading signup plugin</h2>".
         "  <p>If this message doesn´t go away, there might have been a script error.<br>".
         "  You may need to use a different browser and/or make sure javascript is enabled</p>".
@@ -76,11 +73,6 @@ class FVSignup {
       $settings['base'] = "/".FVSignup::$base_path."/";
       $settings['start_page'] = FVSignup::$page;
 
-      // Language
-      // $locale = get_locale();
-      // $custom_ls_array = trp_custom_language_switcher();
-      // $settings['lang'] = $custom_ls_array[$locale]['short_language_name'];
-      
       // General Scripts
       wp_enqueue_script('fv-signup-script-main', plugin_dir_url(__FILE__)."scripts/main.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/main.js"));
       wp_localize_script('fv-signup-script-main', "fv_signup_settings", $settings);

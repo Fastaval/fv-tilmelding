@@ -22,7 +22,6 @@ class FVSignup {
     placeholder.remove();
 
     this.main_content = jQuery(".page-content");
-    this.main_content.append("<h1 id='signup-header'>Fastaval Tilmelding</h1>");
 
     this.navigation = jQuery("<nav id='signup-navigation'></nav>");
     this.main_content.append(this.navigation);
@@ -140,6 +139,10 @@ class FVSignup {
     }
   }
 
+  static get_module(id) {
+    return this.modules[id];
+  }
+
   static days = {
     en: [
       'Monday',
@@ -198,13 +201,32 @@ class FVSignup {
   }
 
   static attending_day(day) {
-    // Regular junior participants only attend Saturday
-    if (this.get_input('participant').val() == 'Juniordeltager' && !this.get_input('junior:plus').prop('checked')) {
-      return day == 4;
+    if (this.get_input('participant').val() == 'Juniordeltager') {
+      // Junior participants are always attending Saturday
+      if (day == 4) return true;
+      // Regular juinor participants are not attending any other days
+      if (!this.get_input('junior:plus').prop('checked')) return false;
     }
 
     if (this.get_input('entry:partout').prop('checked')) return true;
     return this.get_input('entry:'+day).prop('checked');
+  }
+
+  static get_participant_type() {
+    switch (this.get_input('participant').val()) {
+      case 'Juniordeltager':
+        let plus = this.get_input('junior:plus').prop('checked');
+        return plus ? 'junior-plus' : 'junior';
+      
+      case 'Deltager':
+        return 'deltager';
+
+      case 'Organizer':
+        return 'organizer';
+
+      default:
+        return 'unknown';
+    }
   }
 
   static uc_first(text) {

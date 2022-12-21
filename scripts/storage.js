@@ -70,10 +70,33 @@ class FVSignupStorage {
             return;  
           }
           FVSignupStorage.load_from_server(result.signup);
-          FVSignupModuleSubmit.set_info(id, pass);
+          FVSignupModuleSubmit.set_info(result.signup.id, pass);
           alert(FVSignupStorage.config.load_success[lang]);
+          controls_content.hide();
+          controls_header.removeClass('open');
+          
+          // Clear possible errors
+          for(const key of FVSignup.page_keys) {
+            if(key == 'confirm') continue;
+            if(FVSignupLogic.is_page_disabled(key)) continue;
+            FVSignupLogic.check_page(key);
+          }      
         }
-      }).fail(function () {
+      }).fail(function (data) {
+          if (data.responseJSON && data.responseJSON.errors) {
+            let processed = false;
+            data.responseJSON.errors.forEach(function(error) {
+              let msg = FVSignupStorage.config.errors[error.type];
+              if (msg) {
+                alert(msg[lang]);
+                processed = true;
+                return false;
+              }
+            })
+
+            if (processed) return;
+          }
+        
           FVSignup.com_error();
       });
     })
@@ -81,8 +104,12 @@ class FVSignupStorage {
 
   static load_from_server(signup_data) {
     let inputs = jQuery('#signup-pages').find('input, textarea').not('[type="radio"]');
+
+    // Remove special module inputs
+    inputs = inputs.not('.special-submit *');
+
     for(const input of inputs) {
-      if (input.id == 'gdpr_accept') continue;
+      if (jQuery(input).attr('no-load') == 'true') continue;
       let value = '';
       if (signup_data[input.id]) {
         value = signup_data[input.id];
@@ -101,6 +128,14 @@ class FVSignupStorage {
       }
       jQuery(input).change();
     }
+
+    // Handle special modules
+    jQuery('.special-submit').each(function() {
+      let module_id = jQuery(this).attr('module');
+      let module = FVSignup.get_module(module_id)
+      if(module) module.load_from_server(signup_data);
+    })
+
     FVSignupLogic.refresh_page();
   }
   

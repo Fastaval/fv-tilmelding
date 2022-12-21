@@ -2,9 +2,12 @@
 
 class FVSignupModuleActivities {
   static element;
+  static logic;
+  static info;
+  static config;
 
   static init(element, callback) {
-    this.element = jQuery('<div id="activities_module"></div>');
+    this.element = jQuery('<div id="activities_module" class="special-errors"></div>');
     this.element.append('<p>Loading activities module</p>');
     element.append(this.element);
 
@@ -13,20 +16,28 @@ class FVSignupModuleActivities {
     jQuery.getJSON({
       url: fv_signup_settings.infosys_url+"/api/signup/activities",
       success: function (activities_info) {
-        // console.log("Activity Module: get activities\n", activities_info);
-        FVSignupModuleActivities.render_activities(activities_info);
+        FVSignupModuleActivities.info = activities_info;
+        if (FVSignupModuleActivities.config) FVSignupModuleActivities.render_activities();
       }
     }).fail(function () {
       FVSignup.com_error();
     }).always(function (){
       callback();
     });
+
+    FVSignup.load_config('activities', function (config) {
+      FVSignupModuleActivities.config = config;
+      if (FVSignupModuleActivities.info) FVSignupModuleActivities.render_activities();
+    });
   }
 
-  static render_activities(activities_info) {
+  static render_activities() {
     let lang = fv_signup_settings.lang;
+    let activities_info = this.info;
 
     this.element.empty();
+    this.element.append('<div id="activity-errors"></div>');
+
     let content_wrapper = jQuery('<div id="activities-content"></div>');
     this.element.append(content_wrapper);
 
@@ -39,12 +50,8 @@ class FVSignupModuleActivities {
     content_wrapper.append(day_header);
 
     // Error for no day attending
-    let text = {
-      en: 'You have not selected any day to attend Fastaval',
-      da: 'Du har ikke valgt hvilke dage du er på Fastaval'
-    }
     this.day_error = jQuery('<div id="activity-day-error"></div>');
-    this.day_error.text(text[lang]);
+    this.day_error.text(this.config.errors.no_days[lang]);
     content_wrapper.append(this.day_error);
 
     // Activity table wrapper
@@ -152,7 +159,8 @@ class FVSignupModuleActivities {
         table_body.append(desc_row);
       }
     }
-    FVSignupLogicActivities.init(activities_info);
+    this.logic = FVSignupLogicActivities;
+    this.logic.init(activities_info, this.config);
   }
 
   static render_filter(categories) {
@@ -194,7 +202,7 @@ class FVSignupModuleActivities {
     choice.attr('activity-gm', activity.gm);
     choice.attr('run-start', run.start.stamp);
     choice.attr('run-end', run.end.stamp);
-    choice.append('<input type="hidden" id="activity:'+run.id+'" value="0">');
+    choice.append('<input type="hidden" id="activity:'+run.id+'" no-submit-empty="true" value="0">');
     choice.append('<div class="choice-text"></div>');
     return choice;
   }
@@ -220,6 +228,22 @@ class FVSignupModuleActivities {
 
     let root = fv_signup_settings.plugin_root;
     return '<div class="flag-wrapper" style="width:24px; height:16px"><img src="'+root+'/flags/'+file_name+'"></div>';
+  }
+
+  static check_errors() {
+    return this.logic.check_errors();
+  }
+
+  static get_error_msg(error) {
+    if (!this.config.errors[error.type]) return null;
+
+    let lang = FVSignup.get_lang();
+    let error_text = this.config.errors[error.type];
+    if (error.category) {
+      error_text = error_text[error.category];
+    }
+
+    return error_text[lang] ?? null;
   }
 }
 

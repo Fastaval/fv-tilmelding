@@ -64,6 +64,8 @@ class FVSignupRender {
       page_div.append(next_button);
     }
 
+    page_div.append('<div class="bottom-page-spacer"></div>');
+
     let nav_button = jQuery("nav div[page-id='"+key+"']");
     if (disabled) nav_button.addClass('disabled');
     nav_button.removeClass('loading');

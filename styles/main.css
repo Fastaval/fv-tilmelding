@@ -21,7 +21,7 @@ div.page-content {
 /*----------------------------------------------------------------------------
     Header
 ----------------------------------------------------------------------------*/
-h1#signup-header {
+h1.entry-title {
   text-align: center;
   font-size: 3em;
 }
@@ -85,12 +85,6 @@ nav div.selected {
   font-weight: bold;
 }
 
-nav div.disabled,
-nav div.disabled:hover {
-  background-color: lightgray;
-  cursor: not-allowed;
-}
-
 nav div.error {
   background-color: salmon;
 }
@@ -99,6 +93,11 @@ nav div.error:hover {
   background-color: mediumorchid;
 }
 
+nav div.disabled,
+nav div.disabled:hover {
+  background-color: lightgray;
+  cursor: not-allowed;
+}
 /*----------------------------------------------------------------------------
     Footer
 ----------------------------------------------------------------------------*/
@@ -143,6 +142,10 @@ div.input-wrapper {
 
 div.input-wrapper label {
   line-height: 1.5em;
+}
+
+div.input-wrapper.disabled label {
+  opacity: .5;
 }
 
 div.input-wrapper.required label::after{
@@ -250,7 +253,12 @@ div#activities_module {
   left: 50%;
 }
 
-div#activities_module #activities-content{
+div#activities_module #activity-errors {
+  color: red;
+}
+
+div#activities_module #activities-content,
+div#activities_module #activity-errors {
   max-width: 1200px;
   margin: auto;
 }
@@ -388,7 +396,8 @@ div#activities_module table td.description-cell {
 }
 
 #wear_module table td.wear-amount {
-  border-right: none;
+  min-width: 3rem;
+  text-align: center;
 }
 
 #wear_module table td.wear-amount,
@@ -420,6 +429,7 @@ div#activities_module table td.description-cell {
 #wear_module .basket-section input {
   appearance: textfield;
   text-align: center;
+  width: 3.5rem;
 }
 
 #wear_module table td.wear-amount input::-webkit-outer-spin-button,
@@ -428,10 +438,6 @@ div#activities_module table td.description-cell {
 #wear_module .basket-section input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
-}
-
-#wear_module table td.wear-delete-order {
-  border-left: none;
 }
 
 #wear_module .wear-item-content {
@@ -445,11 +451,10 @@ div#activities_module table td.description-cell {
 }
 
 #wear_module .wear-item-image-wrapper {
-  display: inline-block;
+  display: inline-flex;
   background-color: lightgray;
   border: 1px solid black;
   width: 240px;
-  height: 240px;
 }
 
 #wear_module .wear-selection-wrapper {
@@ -503,7 +508,7 @@ div#submit_module td:nth-child(2) {
 }
 
 div#submit_module .signup-data button {
-  margin: 2em auto;
+  margin: 2rem auto 0 auto;
   display: block;
   font-size: 1.5rem;
   padding: .3rem .7rem;

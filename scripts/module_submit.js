@@ -102,15 +102,34 @@ class FVSignupModuleSubmit {
       // Collect data from inputs
       let inputs = jQuery('div#'+key+' input, div#'+key+' textarea');
       inputs = inputs.not('[type="radio"]'); // Radio buttons are tracked with hidden inputs
+
+      // Deal with special modules
+      let module_div = jQuery(`div#${key} .special-submit`);
+      module_div.each(function() {
+        // Don't handle inputs inside the module
+        inputs = inputs.not(`#${this.id} *`);
+
+        // Get the submission from the module
+        let module_id = jQuery(this).attr('module');
+        let module = FVSignup.get_module(module_id)
+        if(module) module.get_submission(submission[key]);
+      })
+
       for(const input of inputs) {
-        if(
-          input.value != "" 
-          && parseInt(input.value) != 0 
-          && (input.type != 'checkbox' || input.checked == true)
-          && !input.attributes['no-submit']
-        ) {
-          submission[key][input.id] = input.value;
+        // Ignore "no-submit" and disabled inputs
+        if (input.attributes['no-submit'] || input.attributes['disabled']) continue;
+
+        // Submit checkbox
+        if (input.type == 'checkbox' ) {
+          submission[key][input.id] = input.checked ? input.value : 'off';
+          continue;
         }
+
+        // Check if input is empty and whether we need to submit it anyway
+        let no_empty = input.attributes['no-submit-empty'];
+        if(no_empty && no_empty.value == 'true' && (input.value == "" || parseInt(input.value) === 0)) continue;
+
+        submission[key][input.id] = input.value;
       }
     }
 
@@ -176,20 +195,36 @@ class FVSignupModuleSubmit {
       let tbody = jQuery('<tbody></tbody>');
       table.append(tbody);
       for(const error of errors[page_key]) {
-        // TODO remove after rework of wear module
-        if (error.type == 'no_wear_price') {
-          let label = jQuery('#wear-item-'+error.wear_id).find('p').text();
-          tbody.append('<tr><td>'+label+'</td><td>Not available to current participant type</td></tr>');
-          continue;
+        let msg, label;
+        if (error.module) {
+          let module = FVSignup.get_module(error.module);
+          if (module.get_error_msg) msg = module.get_error_msg(error);
+        } else if (error.id) {
+          msg = FVSignupLogic.find_error(error.id, error.type).text();
+        } 
+
+        if (error.id) {
+          if (this.config.short_text[error.id]) {
+            label = this.config.short_text[error.id][lang];
+          } else {
+            let id = error.id.replaceAll(':', '\\:');
+            label = jQuery('label[for='+id+']').text().replace(':','');
+          }
         }
 
-        let msg;
-        if (error.id) msg = FVSignupLogic.find_error(error.id, error.type).text();
-        if(msg) {
-          let id = error.id.replaceAll(':', '\\:');
-          let label = jQuery('label[for='+id+']').text().replace(':','');
+        if(msg && label) {
           tbody.append('<tr><td>'+label+'</td><td>'+msg+'</td></tr>');
         } else {
+          let text = this.config.unknown[lang];
+          let col="";
+          if (label) {
+            text = label+'</td><td>'+text;
+          } else if (msg) {
+            text += '</td><td>'+msg;
+          } else {
+            col = 'colspan="2"';
+          }
+          tbody.append(`<tr><td ${col}>${text}</td></tr>`);
           console.log(error);
         }
       }
@@ -197,7 +232,6 @@ class FVSignupModuleSubmit {
   }
 
   static render_submit(categories, grand_total) {
-    console.log(categories);
     let lang = FVSignup.get_lang();
     this.signup_data.empty();
     this.signup_data.show();
@@ -217,7 +251,10 @@ class FVSignupModuleSubmit {
         let input = FVSignup.get_input(entry.key);
         let text;
         let value = entry.value
-        if (input.attr('type') == 'hidden') {
+
+        if (entry.special_module) {
+          [text, value] = FVSignup.get_module(entry.special_module).get_confirm(entry);
+        } else if (input.attr('type') == 'hidden') {
           let wrapper = input.closest('.input-wrapper');
           if(wrapper.hasClass('activity-choice')) {
             let activity_row = wrapper.closest('.activity-row').prev();
@@ -226,7 +263,7 @@ class FVSignupModuleSubmit {
             text += " - "+FVSignup.uc_first(FVSignup.get_weekday(day))+" ";
             let time = new Date(parseInt(wrapper.attr('run-start'))*1000);
             text += (time.getHours()+"").padStart(2, '0')+":"+(time.getMinutes()+"").padStart(2, '0');
-            let choices = FVSignupLogicActivities.activity_info.choices;
+            let choices = FVSignupLogicActivities.config.choices;
             if (entry.value <= choices.prio[lang].length) {
               value = choices.prio[lang][entry.value-1];
             } else {
@@ -238,13 +275,6 @@ class FVSignupModuleSubmit {
                 value += " "+choices.prio[lang][index-2];
               }
             }
-          } else if(wrapper.hasClass('wear-item')){
-            text = wrapper.find('p').text();
-            if (entry.size != 1) {
-              text += ", "+FVSignupModuleWear.wear_info.sizes[entry.size].name[lang];
-            }
-            value = entry.amount+" "+FVSignup.config.pieces[lang];
-            if(entry.price) value += " = "+(entry.price)+" "+FVSignup.config.dkk[lang];
           } else if(wrapper.hasClass('input-type-hidden')){
             text = input.attr('text');
           } else {
@@ -262,6 +292,8 @@ class FVSignupModuleSubmit {
             text = jQuery('label[for='+id+']').text().replace(':','');
           }
         }
+
+        // Extra stuff for special values and summing totals
         if (entry.price) {
           if(entry.value == 'on') {
             value = entry.price+" "+FVSignup.config.dkk[lang];
