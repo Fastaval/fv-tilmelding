@@ -297,18 +297,27 @@ class FVSignupLogic {
         // Conditional required - like Alea for organizers
         let con_req = false;
         if (item.required_if) {
-          let input = jQuery("#"+item.required_if.field);
-          switch(item.required_if.logic) {
-            case 'equals':
-              con_req = input.val() == item.required_if.value;
-              break;
+          if(!Array.isArray(item.required_if)) {
+            item.required_if = [item.required_if];
+          }
+          for (const [index, element] of item.required_if.entries()) {
+            let input = jQuery("#"+element.field);
+            switch(element.logic) {
+              case 'equals':
+                con_req = input.val() == element.value;
+                break;
 
-            default:
-            errors.push({
-              id: item.infosys_id,
-              type: 'unknown_logic',
-              logic: item.required_if.logic,
-            });
+              case 'checkbox':
+                con_req = input.prop('checked');
+                break;
+
+              default:
+              errors.push({
+                id: item.infosys_id,
+                type: 'unknown_logic',
+                logic: element.logic,
+              });
+            }
           }
         }
         // Required input
