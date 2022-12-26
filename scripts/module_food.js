@@ -10,7 +10,6 @@ class FVSignupModuleFood {
     jQuery.getJSON({
       url: fv_signup_settings.infosys_url+"/api/signup/food",
       success: function (food) {
-        //console.log(food);
         FVSignupModuleFood.render_food(food);
       }
     }).fail(function () {
@@ -33,13 +32,15 @@ class FVSignupModuleFood {
         cat_text = FVSignup.uc_first(cat_text);
         if (foods.length == 1) {
           element.append('<p>'+cat_text+'<p>');
-          let checkbox = InfosysSignupRender.render_checkbox({id:"food:"+foods[0].id, text:foods[0].text[lang]});
+          let checkbox = InfosysSignupRender.render_checkbox({
+            infosys_id: "food:"+foods[0].id, 
+            processed: foods[0].text[lang]
+          });
           element.append(checkbox);
         } else {
           let item = {
-            id: "food:"+cat+day,
-            text: cat_text,
-            lang: lang,
+            infosys_id: "food:"+cat+day,
+            processed: cat_text,
             options: [
               {
                 value: 0,
@@ -55,7 +56,7 @@ class FVSignupModuleFood {
             food.value = food.id;
             item.options.push(food);
           })
-          let radio = InfosysSignupRender.render_radio(item);
+          let radio = InfosysSignupRender.render_radio(item, lang);
           element.append(radio);
         }
       }

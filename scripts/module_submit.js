@@ -277,7 +277,10 @@ class FVSignupModuleSubmit {
             }
           } else if(wrapper.hasClass('input-type-hidden')){
             text = input.attr('text');
-          } else {
+          } else if (wrapper.hasClass('autocomplete')) {
+            text = wrapper.find('label').text();
+            value = wrapper.find('input[type=text]').val();
+          } else { // Radio buttons
             text = wrapper.find('p').text();
             let option = wrapper.find('input[value='+value+'][name="'+entry.key+'"]');
             value = jQuery('label[for='+option.attr('id').replaceAll(':', '\\:')+']').text();
@@ -350,6 +353,9 @@ class FVSignupModuleSubmit {
     let button = jQuery('#confirm-submission-button');
     button.prop('disabled', true);
     
+    let lang = FVSignup.get_lang();
+    let text = jQuery('<p>'+this.config.submit_text[lang]+'</p>');
+
     let data = {
       hash: this.element.find('input#hash').val(),
       info: this.get_info(),
@@ -369,6 +375,7 @@ class FVSignupModuleSubmit {
         if (request.responseJSON) {
           FVSignupModuleSubmit.status.empty();
           FVSignupModuleSubmit.render_errors(request.responseJSON.result.errors);
+          FVSignupModuleSubmit.signup_data.empty();
         } else {
           FVSignup.com_error();
         }
@@ -377,8 +384,6 @@ class FVSignupModuleSubmit {
       button.prop('disabled', false);
     })
 
-    let lang = FVSignup.get_lang();
-    let text = jQuery('<p>'+this.config.submit_text[lang]+'</p>');
     this.status.append(text.clone());
     this.signup_data.append(text);
   }

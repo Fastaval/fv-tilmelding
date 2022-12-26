@@ -44,6 +44,7 @@ class FVSignupLogic {
     let current = this.current_page;
     let errors = this.check_page(current);
     if (errors.length != 0) {
+      console.log(errors);
       let lang = FVSignup.get_lang();
       if (confirm(FVSignup.config.input_error[lang])) {
         return;
@@ -250,7 +251,7 @@ class FVSignupLogic {
         wrapper.show();
       }
       
-      if (status === "disabled") {
+      if (status === "disabled" || status == "hidden") {
         input.attr('disabled', 'true');
         wrapper.addClass('disabled');
       } else {
@@ -318,11 +319,14 @@ class FVSignupLogic {
    * Logic for excluding other choices
    */
   static init_item_logic(item) {
+    if (!item.infosys_id) return;
+
     this.init_display_logic({input: item.infosys_id}, item);
 
-    if (!item.infosys_id) return;
     let input = FVSignup.get_input(item.infosys_id);
     if (item.excludes) this.init_exclude_item(item, input);
+
+    if (item.autocomplete) this.init_autocomplete(item, input);
   }
 
   static init_exclude_item(item, input) {
@@ -337,6 +341,112 @@ class FVSignupLogic {
     } else {
       console.error('Unsupported input type for exclude', item);
     }
+  }
+
+  static init_autocomplete(item, input) {
+    let lang = FVSignup.get_lang();
+    let wrapper = input.closest('.input-wrapper');
+    let list_element = wrapper.find('.autocomplete-list').hide();
+    let option_value = item.autocomplete.value;
+
+    let list = FVSignup.config.autocomplete[item.autocomplete.list];
+    list = Object.values(list);
+    list.sort(function (a, b) {
+      if (a[lang] === b[lang]) return 0;
+      return a[lang] > b[lang] ? 1 : -1;
+    });
+
+
+    let text_input = input;
+    if (item.autocomplete.mode === 'exhaustive') {
+      text_input = wrapper.find('input[type=text]');
+    }
+
+    text_input.focusout(function(evt) {
+      list_element.hide();
+    });
+
+    text_input.on('input', function() {
+      list_element.empty();
+      
+      let value = text_input.val();
+      for(const option of list) {
+        let text = option[lang].toLowerCase();
+        if (text.includes(value.toLowerCase())) {
+          let option_element = jQuery(`<p class="auto-option">${option[lang]}</p>`);
+          if (option_value) option_element.attr('value', option[option_value]);
+          list_element.append(option_element);
+        }
+      }
+      
+      // Init logic on each list element
+      let options = list_element.find('p');
+      if (options.length == 0) {
+        list_element.append(`<p>${FVSignup.config.errors.no_match[lang]}</p>`);
+      }
+
+      options.first().addClass('selected');
+
+      options.mouseenter(function(evt) {
+        jQuery(evt.delegateTarget).addClass('selected');
+      });
+      options.mouseleave(function(evt) {
+        jQuery(evt.delegateTarget).removeClass('selected');
+      });
+      options.mousedown(function(evt) {
+        FVSignupLogic.select_auto_option(jQuery(evt.delegateTarget));
+      });
+
+      // Position and display the list
+      list_element.css({
+        top: text_input.offset().top + text_input.outerHeight(),
+        left: text_input.offset().left,
+      })
+      list_element.show();
+    })
+
+    text_input.keydown(function(evt) {
+      let selected = list_element.find('.selected');
+      if (evt.key == 'Enter') {
+        evt.preventDefault();
+        if (selected.length == 0) return;
+        FVSignupLogic.select_auto_option(selected);
+      }
+
+      selected.removeClass('selected');
+      if (evt.key == 'ArrowUp') {
+        evt.preventDefault();
+        selected = selected.prev();
+        if (selected.length == 0) {
+          selected = list_element.find('.auto-option').last();
+        }
+      }
+
+      if (evt.key == 'ArrowDown') {
+        evt.preventDefault();
+        selected = selected.next();
+        if (selected.length == 0) {
+          selected = list_element.find('.auto-option').first();
+        }
+      }
+
+      selected.addClass('selected');
+    })
+  }
+
+  static select_auto_option(option) {
+    let wrapper = option.closest('.input-wrapper');
+    let text_input = wrapper.find('input[type=text]');
+    let hidden = wrapper.find('input[type=hidden]');
+
+    // Set values needed
+    text_input.val(option.text());
+    if (hidden.length > 0) {
+      hidden.val(option.attr('value'))
+    }
+
+    // Clear the selection list
+    wrapper.find('.autocomplete-list').hide().empty();
   }
 
   // TODO
