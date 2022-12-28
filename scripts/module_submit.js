@@ -112,7 +112,7 @@ class FVSignupModuleSubmit {
         // Get the submission from the module
         let module_id = jQuery(this).attr('module');
         let module = FVSignup.get_module(module_id)
-        if(module) module.get_submission(submission[key]);
+        if(module) Object.assign(submission[key], module.get_submission());
       })
 
       for(const input of inputs) {

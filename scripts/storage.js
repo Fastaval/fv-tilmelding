@@ -182,6 +182,12 @@ class FVSignupStorage {
     if (wrapper.hasClass('wear-item')) {
       FVSignupModuleWear.load_input(jQuery(input));
     }
+    if (wrapper.hasClass('autocomplete')) {
+      let text_input = wrapper.find('input[type=text]');
+      let list = FVSignup.config.autocomplete[wrapper.attr('autocomplete-list')];
+      let lang = FVSignup.get_lang();
+      text_input.val(list[value][lang]);
+    }
   }
 
   static input_changed(input) {

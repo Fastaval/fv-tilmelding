@@ -44,7 +44,6 @@ class FVSignupLogic {
     let current = this.current_page;
     let errors = this.check_page(current);
     if (errors.length != 0) {
-      console.log(errors);
       let lang = FVSignup.get_lang();
       if (confirm(FVSignup.config.input_error[lang])) {
         return;
@@ -190,51 +189,55 @@ class FVSignupLogic {
 
     let status = "normal";
     for(const rule of logic) {
-      let input = rule.input ? FVSignup.get_input(rule.input) : undefined;
-      let compare_value;
-
-      switch(rule.type) {
-        case 'default':
-          status = rule.status;
-          break;
-        
-        case 'field_compare':
-          compare_value = input.val();           
-          break;
-
-        case 'checkbox':
-          status = input.prop('checked') ? rule.status : status;
-          break;
-
-        case 'age':
-          compare_value = FVSignup.get_age();
-          break;
-
-        default:
-          console.error("Display Logic, Unknown rule type", "Rule:", rule);
-      }
-
-      if (rule.compare) {
-        switch (rule.compare) {
-          case 'equals':
-            status = compare_value == rule.value ? rule.status : status;
-            break;
-
-          case 'greater': 
-            status = compare_value > rule.value ? rule.status : status;
-            break;
-
-          case 'less': 
-            status = compare_value < rule.value ? rule.status : status;
-            break;
-
-          default:
-            console.error("Display Logic, Unknown comparisson", "Rule:", rule);
-        }
-      }
+      status = this.check_rule(rule, status);
     }
 
     this.set_display_status(item_id, status);
+  }
+
+  static check_rule(rule, status = false) {
+    rule.status = rule.status ?? true;
+    let input = rule.input ? FVSignup.get_input(rule.input) : undefined;
+    let compare_value;
+
+    switch(rule.type) {
+      case 'default':
+        return rule.status;
+      
+      case 'field_compare':
+        compare_value = input.val();           
+        break;
+
+      case 'checkbox':
+        return input.prop('checked') ? rule.status : status;
+
+      case 'age':
+        compare_value = FVSignup.get_age();
+        break;
+
+      default:
+        console.error("Rule Logic, Unknown rule type", "Rule:", rule);
+    }
+
+    if (rule.compare) {
+      switch (rule.compare) {
+        case 'equals':
+          return compare_value == rule.value ? rule.status : status;
+
+        case 'not_equals':
+          return compare_value != rule.value ? rule.status : status;
+
+        case 'greater': 
+          return compare_value > rule.value ? rule.status : status;
+
+        case 'less': 
+          return compare_value < rule.value ? rule.status : status;
+
+        default:
+          console.error("Rule Logic, Unknown comparisson", "Rule:", rule);
+      }
+    }
+    return null;
   }
 
   static set_display_status(item_id, status) {
@@ -466,38 +469,59 @@ class FVSignupLogic {
         } 
       }
 
+      // Check section errors
+      let con_req_one = false; // Condinitional require one
+      if (section.require_one_if) {
+        con_req_one = this.check_rule(section.require_one_if)
+      }
+
+      if (section.require_one || con_req_one) {
+        let missing = true;
+        let required = section.require_one ?? section.require_one_if.required;
+        required.every(function(id) {
+          let input = FVSignup.get_input(id);
+          if (input.attr('type') == 'checkbox') {
+            if (input.prop('checked')) {
+              missing = false;
+              return false;
+            }
+          } else {
+            if (input.val() !== '') {
+              missing = false;
+              return false;
+            }
+          }
+          return true;
+        });
+
+        if (missing) {
+          errors.push({
+            id: section.section_id,
+            type: 'require_one',
+          });
+        }
+      }
+
       // Check input errors
       if(!section.items) continue;
       for(const item of section.items) {
+        if(!item.infosys_id) continue;
+
+        let input = FVSignup.get_input(item.infosys_id);
+        if (input.attr('disabled')) continue;
+
         // Conditional required - like Alea for organizers
         let con_req = false;
         if (item.required_if) {
           if(!Array.isArray(item.required_if)) {
             item.required_if = [item.required_if];
           }
-          for (const [index, element] of item.required_if.entries()) {
-            let input = jQuery("#"+element.field);
-            switch(element.logic) {
-              case 'equals':
-                con_req = input.val() == element.value;
-                break;
-
-              case 'checkbox':
-                con_req = input.prop('checked');
-                break;
-
-              default:
-              errors.push({
-                id: item.infosys_id,
-                type: 'unknown_logic',
-                logic: element.logic,
-              });
-            }
+          for (const rule of item.required_if.values()) {
+            con_req = this.check_rule(rule, con_req);
           }
         }
         // Required input
         if (item.required || con_req) {
-          let input = FVSignup.get_input(item.infosys_id);
           let status = item.type == 'checkbox' ? input.prop('checked') : input.val();
           if (!status) {
             errors.push({
@@ -508,7 +532,6 @@ class FVSignupLogic {
         }
         // Matching input like Email confirm
         if (item.equals) {
-          let input = FVSignup.get_input(item.infosys_id);
           let compare = FVSignup.get_input(item.equals);
           if (input.val() != compare.val()) {
             errors.push({
@@ -519,7 +542,6 @@ class FVSignupLogic {
         }
         // Exclusive picks like entry partout and entry single days
         if (item.excludes) {
-          let input = FVSignup.get_input(item.infosys_id);
           let enabled = false;
           switch (item.type) {
             case 'checkbox':
@@ -556,6 +578,28 @@ class FVSignupLogic {
             }
           }
         }
+        if (item.autocomplete && item.autocomplete.mode == "exhaustive") {
+          let list = FVSignup.config.autocomplete[item.autocomplete.list];
+          let lang = FVSignup.get_lang();
+          let input_text = input.closest('.input-wrapper').find('input[type=text]');
+
+          let match = false;
+          for(const option of Object.values(list)) {
+            let text = option[lang].toLowerCase();
+            if (text == input_text.val().toLowerCase()) {
+              match = true;
+              input.val(option[item.autocomplete.value]);
+              break;
+            }
+          }
+    
+          if (!match) {
+            errors.push({
+              id: item.infosys_id,
+              type: 'not_on_list',
+            });
+          }
+        }
       }
     }
     this.mark_errors(page_id, errors);
@@ -585,8 +629,16 @@ class FVSignupLogic {
   }
 
   static find_error(id, type) {
-    let wrapper = FVSignup.get_input(id).closest('.input-wrapper');
+    let wrapper;
+    if (type == 'require_one') {
+      wrapper = FVSignup.main_content.find('.section-wrapper#page-section-'+id);
+    } else {
+      wrapper = FVSignup.get_input(id).closest('.input-wrapper');
+    }
+    
     wrapper.addClass('error');
-    return wrapper.find('.error-text[error-type='+type+']');
+    let error = wrapper.find('.error-text[error-type='+type+']');
+    if (error.length == 0) console.log('No error text ID: ', id, ' Type: ', type);
+    return error;
   }
 }

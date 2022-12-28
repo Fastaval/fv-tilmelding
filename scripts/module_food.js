@@ -1,11 +1,12 @@
 "using strict";
 
 class FVSignupModuleFood {
-  static element;
+  static div;
 
   static init(element, callback) {
-    this.element = element;
-    element.append('<div id="food_module"><p>Loading food module</p></div>');
+    this.div = jQuery('<div id="food_module" class="module-div special-submit" module="food"></div>');
+    this.div.append('<p>Loading food module</p>');
+    element.append(this.div);
 
     jQuery.getJSON({
       url: fv_signup_settings.infosys_url+"/api/signup/food",
@@ -21,22 +22,22 @@ class FVSignupModuleFood {
 
   static render_food(food_info) {
     let lang = fv_signup_settings.lang;
-    let element = FVSignupModuleFood.element.find('#food_module').empty();
+    this.div.empty();
 
     for (const [day, category] of Object.entries(food_info.days)) {
       let headline = FVSignup.get_weekday(day);
       headline = FVSignup.uc_first(headline);
-      element.append('<p><strong>'+headline+'</strong></p>');
+      this.div.append('<p><strong>'+headline+'</strong></p>');
       for (const [cat, foods] of Object.entries(category)) {
         let cat_text = food_info.categories[cat][lang];
         cat_text = FVSignup.uc_first(cat_text);
         if (foods.length == 1) {
-          element.append('<p>'+cat_text+'<p>');
+          this.div.append('<p>'+cat_text+'<p>');
           let checkbox = InfosysSignupRender.render_checkbox({
             infosys_id: "food:"+foods[0].id, 
             processed: foods[0].text[lang]
           });
-          element.append(checkbox);
+          this.div.append(checkbox);
         } else {
           let item = {
             infosys_id: "food:"+cat+day,
@@ -57,11 +58,42 @@ class FVSignupModuleFood {
             item.options.push(food);
           })
           let radio = InfosysSignupRender.render_radio(item, lang);
-          element.append(radio);
+          this.div.append(radio);
         }
       }
-      //console.log(`${key}: ${value}`);
     }
+  }
+
+  static get_submission() {
+    let submission = {};
+    let inputs = this.div.find('input').not('[type=radio]');
+    inputs.each(function () {
+      let input = jQuery(this);
+      if (input.attr('type') == 'hidden' && input.val() != '0') {
+        submission[input.attr('id')] = input.val();
+      }
+      if (input.attr('type') == 'checkbox' && input.prop('checked')) {
+        submission[input.attr('id')] = input.val();
+      }
+    })
+    return submission;
+  }
+
+  static load_from_server(signup_data) {
+    let food_data = signup_data.food;
+    food_data.forEach(function(food_id) {
+      let input = FVSignupModuleFood.div.find('input#food\\:'+food_id);
+      if (input.length !== 0) {
+        input.prop('checked', true);
+        return;
+      }
+      input = FVSignupModuleFood.div.find(`input[type=radio][value=${food_id}]`);
+      if (input.length !== 0) {
+        input.prop('checked', true);
+        input.change();
+        return;
+      }
+    })
   }
 }
 

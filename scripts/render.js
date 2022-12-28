@@ -33,7 +33,16 @@ class FVSignupRender {
       let section_wrapper = jQuery('<div class="section-wrapper"></div>');
       page_div.append(section_wrapper);
 
-      section.headline && section_wrapper.append("<h3>"+section.headline[lang]+"</h3>");
+      if(section.section_id) section_wrapper.attr('id', 'page-section-'+section.section_id);
+      if(section.headline) section_wrapper.append("<h3>"+section.headline[lang]+"</h3>");
+
+      if(section.require_one || section.require_one_if) {
+        let error_div = jQuery('<div class="error-text" error-type="require_one"></div>');
+        error_div.text(FVSignup.config.errors["require_one"][lang]);
+        error_div.hide();
+        section_wrapper.append(error_div);
+      }
+
       if(section.module) {
         section_wrapper.addClass('module-wrapper');
         FVSignup.add_module(section.module, section_wrapper, callback);

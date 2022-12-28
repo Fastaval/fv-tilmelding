@@ -491,8 +491,8 @@ class FVSignupModuleWear {
     this.element.find('table#wear-orders .total-cell').text(`${total} ${FVSignup.config.dkk[lang]}`);
   }
 
-  static get_submission(submission) {
-    if (!submission.wear_orders) submission.wear_orders = [];
+  static get_submission() {
+    let submission = []
     this.element.find('table#wear-orders tbody tr.wear-order').each(function() {
       let order = {};
       let row = jQuery(this);
@@ -503,8 +503,9 @@ class FVSignupModuleWear {
         let cell = jQuery(this);
         order.attributes[cell.attr('type')] = cell.attr('attribute-id');
       })
-      submission.wear_orders.push(order);
+      submission.push(order);
     })
+    return {'wear_orders' : submission};
   }
 
   static get_confirm(entry) {
