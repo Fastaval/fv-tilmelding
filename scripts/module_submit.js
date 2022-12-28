@@ -188,7 +188,7 @@ class FVSignupModuleSubmit {
     for (const page_key of FVSignup.page_keys) {
       if (!errors[page_key] || errors[page_key].length == 0) continue;
       let page = FVSignup.get_page(page_key);
-      let page_header = jQuery('<h3>'+page.title[lang]+'</h3>');
+      let page_header = jQuery('<h3 class="category-header">'+page.title[lang]+'</h3>');
       this.errors.append(page_header);
       let table = jQuery('<table></table>');
       this.errors.append(table);
@@ -241,7 +241,7 @@ class FVSignupModuleSubmit {
     for (const page_key of FVSignup.page_keys) {
       if (!categories[page_key] || categories[page_key].length == 0) continue;
       let page = FVSignup.get_page(page_key);
-      let page_header = jQuery('<h3>'+page.title[lang]+'</h3>');
+      let page_header = jQuery('<h3 class="category-header">'+page.title[lang]+'</h3>');
       this.signup_data.append(page_header);
       let table = jQuery('<table></table>');
       this.signup_data.append(table);
@@ -329,7 +329,7 @@ class FVSignupModuleSubmit {
     }
     
     // Total
-    let total_header = jQuery('<h3>Total</h3>');
+    let total_header = jQuery('<h3 class="category-header">Total</h3>');
     this.signup_data.append(total_header);
     let table = jQuery('<table></table>');
     this.signup_data.append(table);

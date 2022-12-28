@@ -18,6 +18,7 @@ div.page-content {
 .foldout.open::after {
   content: " \2B9D";
 }
+
 /*----------------------------------------------------------------------------
     Header
 ----------------------------------------------------------------------------*/
@@ -25,6 +26,7 @@ h1.entry-title {
   text-align: center;
   font-size: 3em;
 }
+
 /*----------------------------------------------------------------------------
     Storage
 ----------------------------------------------------------------------------*/
@@ -42,18 +44,22 @@ div#load-signup-wrapper {
   align-items: baseline;
 }
 
-div#load-signup-wrapper label{
-  flex-basis: content;  
+div#load-signup-wrapper label {
+  flex-basis: content;
 }
-div#load-signup-wrapper :nth-child(2){
+
+div#load-signup-wrapper :nth-child(2) {
   flex-basis: 30%;
 }
-div#load-signup-wrapper :nth-child(4){
+
+div#load-signup-wrapper :nth-child(4) {
   flex-basis: 20%;
 }
-div#load-signup-wrapper :nth-child(5){
+
+div#load-signup-wrapper :nth-child(5) {
   flex: 0 0 8%;
 }
+
 /*----------------------------------------------------------------------------
     Navigation
 ----------------------------------------------------------------------------*/
@@ -98,6 +104,7 @@ div#load-signup-wrapper :nth-child(5){
   background-color: lightgray;
   cursor: not-allowed;
 }
+
 /*----------------------------------------------------------------------------
     Footer
 ----------------------------------------------------------------------------*/
@@ -106,17 +113,18 @@ button.next-button {
   margin-top: 1em;
 }
 
-button.previous-button {
-  float: left;
-}
-
 button.next-button {
-  float: right;
+  position: absolute;
+  right: 0;
 }
 
 /*----------------------------------------------------------------------------
     Pages
 ----------------------------------------------------------------------------*/
+div#signup-pages div.signup-page {
+  position: relative;
+}
+
 div#signup-pages div.signup-page h2 {
   font-size: 2em;
 }
@@ -124,6 +132,7 @@ div#signup-pages div.signup-page h2 {
 div#signup-pages div.signup-page::after {
   clear: both;
 }
+
 /*----------------------------------------------------------------------------
     Section Header
 ----------------------------------------------------------------------------*/
@@ -131,6 +140,7 @@ div.page-content div#signup-pages div.signup-page h3 {
   font-size: 1.5em;
   margin: 1.5rem 0;
 }
+
 /*----------------------------------------------------------------------------
     Input general
 ----------------------------------------------------------------------------*/
@@ -148,7 +158,7 @@ div.input-wrapper.disabled label {
   opacity: .5;
 }
 
-div.input-wrapper.required label::after{
+div.input-wrapper.required label::after {
   content: "*";
   color: red;
 }
@@ -162,7 +172,7 @@ div.input-wrapper.required label::after{
   position: absolute;
   border: 1px solid black;
   background-color: white;
-  z-index: 1;  
+  z-index: 1;
 }
 
 .input-wrapper .autocomplete-list p {
@@ -174,6 +184,7 @@ div.input-wrapper.required label::after{
 .input-wrapper .autocomplete-list p.selected {
   background-color: dodgerblue;
 }
+
 /*----------------------------------------------------------------------------
     Checkbox
 ----------------------------------------------------------------------------*/
@@ -182,6 +193,7 @@ input[type='checkbox'] {
   width: 26px;
   margin-right: .8em;
 }
+
 /*----------------------------------------------------------------------------
     Input Text/Date/Tele/Email
 ----------------------------------------------------------------------------*/
@@ -224,11 +236,12 @@ div.input-wrapper.input-type-email .error-text {
   font-size: .8em;
   text-align: right;
 }
+
 /*----------------------------------------------------------------------------
     Input Radio/Textarea
 ----------------------------------------------------------------------------*/
 div.input-wrapper.input-type-radio-option,
-div.input-wrapper.input-type-textarea textarea{
+div.input-wrapper.input-type-textarea textarea {
   flex-basis: 100%;
   margin: .3em 0px;
 }
@@ -245,6 +258,7 @@ div.input-wrapper.input-type-textarea textarea {
 div.input-wrapper.input-type-textarea textarea:focus {
   border-color: blue;
 }
+
 /*----------------------------------------------------------------------------
     Together
 ----------------------------------------------------------------------------*/
@@ -252,7 +266,7 @@ div#hero_module table.hero-table {
   width: 100%;
 }
 
-div#hero_module table.hero-table td{
+div#hero_module table.hero-table td {
   border: 1px black solid;
   padding: .4em;
 }
@@ -260,6 +274,7 @@ div#hero_module table.hero-table td{
 div#hero_module table.hero-table td.hero-time-cell {
   text-align: center;
 }
+
 /*----------------------------------------------------------------------------
     Activities
 ----------------------------------------------------------------------------*/
@@ -287,7 +302,7 @@ div#activities_module #activity-day-selection {
 }
 
 div#activities_module div.filter div,
-div#activities_module #activity-day-selection .day-button{
+div#activities_module #activity-day-selection .day-button {
   border: 1px black solid;
   padding: .5em 1em;
   cursor: pointer;
@@ -318,7 +333,7 @@ div#activities_module table td.table-header {
   width: 40%;
 }
 
-div#activities_module table td.time-section{
+div#activities_module table td.time-section {
   border-left: 1px solid lightgray;
   padding: 0px;
   vertical-align: top;
@@ -388,7 +403,7 @@ div#activities_module table .activity-row.magic .activity-choice {
   color: white;
 }
 
-div#activities_module table .activity-row .activity-choice *{
+div#activities_module table .activity-row .activity-choice * {
   user-select: none;
   margin: auto;
 }
@@ -396,6 +411,7 @@ div#activities_module table .activity-row .activity-choice *{
 div#activities_module table td.description-cell {
   padding: 1em;
 }
+
 /*----------------------------------------------------------------------------
     Wear
 ----------------------------------------------------------------------------*/
@@ -454,7 +470,8 @@ div#activities_module table td.description-cell {
 #wear_module .basket-section input::-webkit-outer-spin-button,
 #wear_module .basket-section input::-webkit-inner-spin-button {
   -webkit-appearance: none;
-  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+  margin: 0;
+  /* <-- Apparently some margin are still there even though it's hidden */
 }
 
 #wear_module .wear-item-content {
@@ -480,7 +497,7 @@ div#activities_module table td.description-cell {
   margin-bottom: .2rem;
 }
 
-#wear_module .wear-item select{
+#wear_module .wear-item select {
   flex: 0 0 100%;
 }
 
@@ -497,10 +514,11 @@ div#activities_module table td.description-cell {
 #wear_module .basket-section .wear-add-button {
   width: 100%;
 }
+
 /*----------------------------------------------------------------------------
     Confirm
 ----------------------------------------------------------------------------*/
-div#submit_module h3 {
+div#submit_module h3.category-header {
   color: black;
   text-align: center;
   background-color: lightgray;
