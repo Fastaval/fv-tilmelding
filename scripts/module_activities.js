@@ -228,7 +228,7 @@ class FVSignupModuleActivities {
     }
 
     let root = fv_signup_settings.plugin_root;
-    return '<div class="flag-wrapper" style="width:24px; height:16px"><img src="'+root+'/flags/'+file_name+'"></div>';
+    return '<div class="flag-wrapper" style="width:24px; height:16px"><img src="'+root+'/img/flags/'+file_name+'"></div>';
   }
 
   static check_errors() {
