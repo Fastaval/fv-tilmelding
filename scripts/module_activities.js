@@ -127,10 +127,15 @@ class FVSignupModuleActivities {
         row_middle.append(select_cell);
 
         // Select input
-        let choice = this.render_choice(activity, run, category);
         let color = this.config.categories[category].color;
-        choice.css('background-color', color);
-        select_cell.append(choice);
+        if (activity.can_sign_up) {
+          let choice = this.render_choice(activity, run, category);
+          choice.css('background-color', color);
+          select_cell.append(choice);
+        } else {
+          select_cell.css('background-color', color);
+          select_cell.addClass('no-select');
+        }
 
         // Spacing cells after (for coloring purpose)
         if (end < 36) {

@@ -412,6 +412,11 @@ div#activities_module table td.description-cell {
   padding: 1em;
 }
 
+div#activities_module table .activity-row .activity-cell.no-select {
+  border: 1px solid black;
+  background-image: url('../img/stripe.png');
+}
+
 /*----------------------------------------------------------------------------
     Wear
 ----------------------------------------------------------------------------*/
