@@ -42,7 +42,7 @@ class FVSignupModuleActivities {
     this.element.append(content_wrapper);
 
     // Filter
-    let filter = this.render_filter(activities_info.categories);
+    let filter = this.render_filter(this.config.categories);
     content_wrapper.append(filter);
 
     // Day selection
@@ -59,7 +59,7 @@ class FVSignupModuleActivities {
     content_wrapper.append(activity_content);
 
     // Time header for each table
-    let time_header = this.render_time_header(activities_info.table_headline[lang]);
+    let time_header = this.render_time_header(this.config.table_headline[lang]);
 
     // Sectioning row
     let gray_width = 4;
@@ -87,12 +87,12 @@ class FVSignupModuleActivities {
 
       for (const run of activities_info.runs[day]) {
         // normalize times within time table
-        if(run.start.hour < activities_info.day_cutoff) run.start.hour += 24;
-        if(run.end.hour < activities_info.day_cutoff) run.end.hour += 24;
+        if(run.start.hour < this.config.day_cutoff) run.start.hour += 24;
+        if(run.end.hour < this.config.day_cutoff) run.end.hour += 24;
 
         // Activity row
         let activity = activities_info.activities[run.activity];
-        let category = activities_info.categories[activity.type] ? activity.type : 'default';
+        let category = this.config.categories[activity.type] ? activity.type : 'default';
         let row_middle = jQuery('<tr class="activity-row"></tr>');
         row_middle.addClass(activity.type).addClass(category).attr('activity-id', run.activity);
         
@@ -128,7 +128,7 @@ class FVSignupModuleActivities {
 
         // Select input
         let choice = this.render_choice(activity, run, category);
-        let color = activities_info.categories[category].color;
+        let color = this.config.categories[category].color;
         choice.css('background-color', color);
         select_cell.append(choice);
 
@@ -151,7 +151,7 @@ class FVSignupModuleActivities {
         let desc_cell = jQuery('<td colspan="60" class="description-cell"></td>');
         desc_cell.append('<p>'+activity.desc[lang]+'</p>');
         if (activity.wp_id != 0) {
-          desc_cell.append('<a href="/index.php?p='+activity.wp_id+'&lang='+lang+'" target="_blank">'+activities_info.link_text[lang]+'</a>');
+          desc_cell.append('<a href="/index.php?p='+activity.wp_id+'&lang='+lang+'" target="_blank">'+this.config.link_text[lang]+'</a>');
         }
         desc_row.hide();
         desc_row.append(desc_cell);
