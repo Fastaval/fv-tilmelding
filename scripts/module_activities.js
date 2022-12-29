@@ -202,6 +202,7 @@ class FVSignupModuleActivities {
     choice.attr('activity-gm', activity.gm);
     choice.attr('run-start', run.start.stamp);
     choice.attr('run-end', run.end.stamp);
+    choice.attr('exclusive', activity.exclusive);
     choice.append('<input type="hidden" id="activity:'+run.id+'" no-submit-empty="true" value="0">');
     choice.append('<div class="choice-text"></div>');
     return choice;

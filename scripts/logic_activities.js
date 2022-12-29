@@ -186,7 +186,7 @@ class FVSignupLogicActivities {
   static choice_click(choice) {
     let input = choice.find('input');
     let value = parseInt(input.val());
-    isNaN(value) && (value = 0);
+    if (isNaN(value)) (value = 0);
 
     let lang = fv_signup_settings.lang;
     let gm = choice.attr('activity-gm') == 'true';
@@ -194,18 +194,18 @@ class FVSignupLogicActivities {
     let max = gm ? prio_count + 2 : prio_count;
 
     value++
-    while (value == 1 || value == 2 || (value == prio_count + 2 && gm)) {
+    if(choice.attr('exclusive') == 'true') while (value == 1 || value == 2 || (value == prio_count + 2 && gm)) {
       // Check if we have other runs overlapping
 
-      // Find all the runs with same priority within the same day
+      // Find all the time exclusive runs with same priority within the same day
       let day_table = choice.closest('table')
       let same_prio;
       if (value == 2) { 
-        same_prio = day_table.find('input[value="2"]');
+        same_prio = day_table.find('.input-wrapper[exclusive=true] input[value="2"]');
       } else { // "GM - 1st" count as 1st 
-        same_prio = day_table.find('input[value="1"],input[value="'+(prio_count + 2)+'"]');
+        same_prio = day_table.find('.input-wrapper[exclusive=true] input[value="1"], .input-wrapper[exclusive=true] input[value="'+(prio_count + 2)+'"]');
       }
-      
+ 
       // Don't count the one we clicked
       same_prio = same_prio.not('input#'+input.attr('id').replaceAll(':', '\\:'));
 
