@@ -101,7 +101,8 @@ div#load-signup-wrapper :nth-child(5) {
 
 #signup-navigation div.disabled,
 #signup-navigation div.disabled:hover {
-  background-color: lightgray;
+  opacity: 50%;
+  background-color: darkgray;
   cursor: not-allowed;
 }
 
