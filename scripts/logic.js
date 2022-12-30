@@ -402,8 +402,8 @@ class FVSignupLogic {
 
       // Position and display the list
       list_element.css({
-        top: text_input.offset().top + text_input.outerHeight(),
-        left: text_input.offset().left,
+        top: text_input.position().top + text_input.outerHeight(),
+        left: text_input.position().left,
       })
       list_element.show();
     })
