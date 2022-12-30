@@ -354,6 +354,10 @@ div#activities_module table .time-label {
   display: inline-block;
 }
 
+div#activities_module table .activity-row {
+  height: .8rem;
+}
+
 div#activities_module table .sectioning-row.before {
   height: 0.8em;
   border-top: 1px solid lightgray;
@@ -388,16 +392,24 @@ div#activities_module table .activity-row .activity-choice {
   color: black;
   min-width: 1em;
   font-size: .8em;
-  height: 2em;
+  height: 100%;
   cursor: pointer;
   display: flex;
   margin: 0px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 div#activities_module table .activity-row td {
-  height: 1em;
+  height: 1px;
   padding: 0;
   min-width: .5em;
+}
+
+@-moz-document url-prefix() {
+  div#activities_module table .activity-row td {
+    height: 100%;
+  }
 }
 
 div#activities_module table .activity-row.magic .activity-choice {
