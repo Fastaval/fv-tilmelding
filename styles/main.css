@@ -400,6 +400,10 @@ div#activities_module table .activity-row .activity-choice {
   white-space: nowrap;
 }
 
+div#activities_module table .activity-row .activity-cell[full=true] .activity-choice {
+  background-image: url('../img/stripe.png');
+}
+
 div#activities_module table .activity-row td {
   height: 1px;
   padding: 0;

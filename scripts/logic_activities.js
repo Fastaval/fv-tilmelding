@@ -193,6 +193,15 @@ class FVSignupLogicActivities {
     let prio_count = this.config.choices.prio[lang].length;
     let max = gm ? prio_count + 2 : prio_count;
 
+    // Can't sign up if run is full
+    if (choice.closest('.activity-cell').attr('full') == 'true'){
+      if (gm) { // Let people register as GM even if run is full
+        input.val(value == 0 ? prio_count + 1 : 0);
+        input.change();
+      }
+      return;
+    }
+
     value++
     if(choice.attr('exclusive') == 'true') while (value == 1 || value == 2 || (value == prio_count + 2 && gm)) {
       // Check if we have other runs overlapping
@@ -257,6 +266,8 @@ class FVSignupLogicActivities {
 
       case value <= prio_count:
         label.text(choices.prio[lang][value-1]);
+        // Clear full status for when loading registration
+        input.closest('td.activity-cell').attr('full', false);
         break;
     
       case value == prio_count + 1:
@@ -265,6 +276,8 @@ class FVSignupLogicActivities {
 
       case value == prio_count + 2:
         label.text(gm_text+' - '+choices.prio[lang][0]);
+        // Clear full status for when loading registration
+        input.closest('td.activity-cell').attr('full', false);
         break;
 
       default:

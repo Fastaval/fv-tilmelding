@@ -105,6 +105,15 @@ class FVSignupModuleActivities {
         // Flag & Title cell
         let flag = this.get_flag(activity.lang);
         let title = activity.title[lang] ? activity.title[lang] : activity.title.da;
+        let full = false;
+        if (activity.max_signups) {
+          if (run.signups >= activity.max_signups) {
+            full = true;
+            title += ' ('+this.config.full[lang]+')';
+          } else {
+            title += ' ('+this.config.max_signup[lang].replace('#', activity.max_signups)+')';
+          }
+        }
         row_before.prepend('<td class="activity-title" rowspan="3">'+flag+'<div class="title-wrapper">'+title+'</div></td>');
         
         // calculate cell positions
@@ -123,7 +132,7 @@ class FVSignupModuleActivities {
         }
         
         // Selection cell
-        let select_cell = jQuery('<td class="activity-cell" colspan="'+(end-start)+'"></td>');
+        let select_cell = jQuery(`<td class="activity-cell" full="${full}" colspan="${end-start}"></td>`);
         row_middle.append(select_cell);
 
         // Select input
