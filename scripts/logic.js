@@ -498,6 +498,7 @@ class FVSignupLogic {
           errors.push({
             id: section.section_id,
             type: 'require_one',
+            section: true,
           });
         }
       }

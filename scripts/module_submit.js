@@ -198,7 +198,7 @@ class FVSignupModuleSubmit {
         let msg, label;
         if (error.module) {
           let module = FVSignup.get_module(error.module);
-          if (module.get_error_msg) msg = module.get_error_msg(error);
+          if (module.get_error_msg) [label, msg] = module.get_error_msg(error);
         } else if (error.id) {
           msg = FVSignupLogic.find_error(error.id, error.type).text();
         } 
@@ -206,6 +206,8 @@ class FVSignupModuleSubmit {
         if (error.id) {
           if (this.config.short_text[error.id]) {
             label = this.config.short_text[error.id][lang];
+          } else if(error.section) {
+            label = jQuery('div.section-wrapper#page-section-'+error.id).find('h3').text();
           } else {
             let id = error.id.replaceAll(':', '\\:');
             label = jQuery('label[for='+id+']').text().replace(':','');

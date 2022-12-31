@@ -250,7 +250,7 @@ class FVSignupModuleActivities {
   }
 
   static get_error_msg(error) {
-    if (!this.config.errors[error.type]) return null;
+    if (!this.config.errors[error.type]) return [null, null];
 
     let lang = FVSignup.get_lang();
     let error_text = this.config.errors[error.type];
@@ -258,7 +258,12 @@ class FVSignupModuleActivities {
       error_text = error_text[error.category];
     }
 
-    return error_text[lang] ?? null;
+    let label;
+    if (error.activity) {
+      label = this.info.activities[error.activity].title[lang];
+    }
+
+    return [label, error_text[lang] ?? null];
   }
 }
 
