@@ -178,10 +178,10 @@ class FVSignup {
   }
 
   static get_age(date) {
-    let birthdate = new Date(this.get_input(this.config.birth).val() + " 00:00:00");
+    let birthdate = new Date(this.get_input(this.config.birth).val().replace(/-/g, "/") + " 00:00:00");
     if(birthdate.toString() == 'Invalid Date') return 0;
 
-    date = date ? date : new Date(this.config.con_start);
+    date = date ? date : new Date(this.config.con_start.replace(/-/g, "/"));
 
     // How many years ago?
     let age = date.getFullYear() - birthdate.getFullYear();
