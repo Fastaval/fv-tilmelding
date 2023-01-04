@@ -135,11 +135,25 @@ div#signup-pages div.signup-page::after {
 }
 
 /*----------------------------------------------------------------------------
-    Section Header
+    Section
 ----------------------------------------------------------------------------*/
 div.page-content div#signup-pages div.signup-page h3 {
   font-size: 1.5em;
   margin: 1.5rem 0;
+}
+
+div.page-content div#signup-pages div.signup-page .folding-content {
+  border: 1px solid black;
+  border-bottom: none;
+  padding: .5rem 1rem;
+}
+
+div.page-content div#signup-pages div.signup-page .folding-text {
+  text-align: center;
+  border: 1px solid black;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  user-select: none;
 }
 
 /*----------------------------------------------------------------------------

@@ -29,31 +29,49 @@ class FVSignupRender {
     page.title[lang] && page_div.append("<h2>"+page.title[lang]+"</h2>");
 
     let module = false;
-    page.sections && page.sections.forEach(function(section) {
+    if (page.sections) page.sections.forEach(function(section) {
       let section_wrapper = jQuery('<div class="section-wrapper"></div>');
       page_div.append(section_wrapper);
 
-      if(section.section_id) section_wrapper.attr('id', 'page-section-'+section.section_id);
-      if(section.headline) section_wrapper.append("<h3>"+section.headline[lang]+"</h3>");
+      if (section.section_id) section_wrapper.attr('id', 'page-section-'+section.section_id);
+      if (section.headline) section_wrapper.append("<h3>"+section.headline[lang]+"</h3>");
 
-      if(section.require_one || section.require_one_if) {
+      if (section.folding) {
+        let section_content = jQuery('<div class="folding-content"></div>');
+        section_wrapper.append(section_content);
+        
+        let  toggle = jQuery(`<div class="folding-text show">${section.folding.show[lang]}</div>`);
+        section_wrapper.append(toggle);
+
+        toggle.click(function() {
+          section_content.toggle();
+          toggle.text(section_content.is(":visible") ? section.folding.hide[lang] : section.folding.show[lang])
+        })
+
+        section_wrapper = section_content;
+        section_wrapper.hide();
+      }
+
+      if (section.require_one || section.require_one_if) {
         let error_div = jQuery('<div class="error-text" error-type="require_one"></div>');
         error_div.text(FVSignup.config.errors["require_one"][lang]);
         error_div.hide();
         section_wrapper.append(error_div);
       }
 
-      if(section.module) {
+      if (section.module) {
         section_wrapper.addClass('module-wrapper');
         FVSignup.add_module(section.module, section_wrapper, callback);
         module = true;
       }
-      section.items && section.items.forEach(function(item) {
+
+      if (section.items) section.items.forEach(function(item) {
         if (item.disabled) return;
         FVSignupLogic.require_config(function() {
           section_wrapper.append(InfosysSignupRender.render_element(item, lang, FVSignup.config));
         })
       })
+
     });
 
     if (page.order > 1) {
