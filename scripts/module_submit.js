@@ -100,7 +100,7 @@ class FVSignupModuleSubmit {
       if(errors.total != 0) continue; // No need to collect data if we have errors
 
       // Collect data from inputs
-      let inputs = jQuery('div#'+key+' input, div#'+key+' textarea');
+      let inputs = jQuery('div#'+key).find('input, textarea, select');
       inputs = inputs.not('[type="radio"]'); // Radio buttons are tracked with hidden inputs
 
       // Deal with special modules

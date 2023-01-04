@@ -103,7 +103,7 @@ class FVSignupStorage {
   }
 
   static load_from_server(signup_data) {
-    let inputs = jQuery('#signup-pages').find('input, textarea').not('[type="radio"]');
+    let inputs = jQuery('#signup-pages').find('input, textarea, select').not('[type="radio"]');
 
     // Remove special module inputs
     inputs = inputs.not('.special-submit *');
@@ -111,7 +111,7 @@ class FVSignupStorage {
     for(const input of inputs) {
       if (jQuery(input).attr('no-load') == 'true') continue;
       let value = '';
-      if (signup_data[input.id]) {
+      if (signup_data[input.id] !== undefined) {
         value = signup_data[input.id];
       }
       switch (input.type) {
