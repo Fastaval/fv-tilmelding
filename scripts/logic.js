@@ -255,10 +255,10 @@ class FVSignupLogic {
       }
       
       if (status === "disabled" || status == "hidden") {
-        input.attr('disabled', 'true');
+        input.prop('disabled', true);
         wrapper.addClass('disabled');
       } else {
-        input.removeAttr('disabled');
+        input.prop('disabled', false);
         wrapper.removeClass('disabled');
       }
 
@@ -297,10 +297,10 @@ class FVSignupLogic {
         inputs.each(function() {
           // only enable inputs that haven't been individually disabled
           let wrapper = jQuery(this).closest('.input-wrapper');
-          if (!wrapper.hasClass('disabled')) jQuery(this).removeAttr('disabled');
+          if (!wrapper.hasClass('disabled')) jQuery(this).prop('disabled', false);
         })
       } else {
-        inputs.attr('disabled', 'true');
+        inputs.prop('disabled', true);
       }
       return;
     }
@@ -509,7 +509,7 @@ class FVSignupLogic {
         if(!item.infosys_id) continue;
 
         let input = FVSignup.get_input(item.infosys_id);
-        if (input.attr('disabled')) continue;
+        if (input.prop('disabled')) continue;
 
         // Conditional required - like Alea for organizers
         let con_req = false;

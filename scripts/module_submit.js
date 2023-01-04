@@ -117,7 +117,7 @@ class FVSignupModuleSubmit {
 
       for(const input of inputs) {
         // Ignore "no-submit" and disabled inputs
-        if (input.attributes['no-submit'] || input.attributes['disabled']) continue;
+        if (input.attributes['no-submit'] || input.disabled) continue;
 
         // Submit checkbox
         if (input.type == 'checkbox' ) {
