@@ -435,10 +435,6 @@ div#activities_module table .activity-row td {
   }
 }
 
-div#activities_module table .activity-row.magic .activity-choice {
-  color: white;
-}
-
 div#activities_module table .activity-row .activity-choice * {
   user-select: none;
   margin: auto;
