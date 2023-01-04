@@ -203,10 +203,15 @@ div.input-wrapper.required label::after {
 /*----------------------------------------------------------------------------
     Checkbox
 ----------------------------------------------------------------------------*/
+div.input-wrapper.input-type-checkbox label {
+  flex: 0 1 calc(100% - 26px - .8rem);
+}
+
 input[type='checkbox'] {
+  flex: 0 0 26px;
   height: 26px;
   width: 26px;
-  margin-right: .8em;
+  margin-right: .8rem;
 }
 
 /*----------------------------------------------------------------------------
