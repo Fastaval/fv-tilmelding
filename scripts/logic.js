@@ -625,7 +625,12 @@ class FVSignupLogic {
     // Add error markings
     nav_button.addClass('error');
     for (const error of errors) {
-      this.find_error(error.id, error.type).show();
+      if (error.id) {
+        let error_element, wrapper;
+        [error_element, wrapper] = this.find_error(error.id, error.type);
+        wrapper.addClass('error');
+        error_element.show();
+      } 
     }
   }
 
@@ -636,10 +641,14 @@ class FVSignupLogic {
     } else {
       wrapper = FVSignup.get_input(id).closest('.input-wrapper');
     }
-    
-    wrapper.addClass('error');
+     
     let error = wrapper.find('.error-text[error-type='+type+']');
     if (error.length == 0) console.log('No error text ID: ', id, ' Type: ', type);
-    return error;
+    return [error, wrapper];
+  }
+
+  static get_error_text(id, type) {
+    let [error] = this.find_error(id, type);
+    return error.text();
   }
 }

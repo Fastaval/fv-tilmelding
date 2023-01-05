@@ -200,7 +200,7 @@ class FVSignupModuleSubmit {
           let module = FVSignup.get_module(error.module);
           if (module.get_error_msg) [label, msg] = module.get_error_msg(error);
         } else if (error.id) {
-          msg = FVSignupLogic.find_error(error.id, error.type).text();
+          msg = FVSignupLogic.get_error_text(error.id, error.type);
         } 
 
         if (error.id) {

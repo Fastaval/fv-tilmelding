@@ -261,6 +261,8 @@ class FVSignupModuleActivities {
     let label;
     if (error.activity) {
       label = this.info.activities[error.activity].title[lang];
+    } else if (error_text.label) {
+      label = error_text.label[lang];
     }
 
     return [label, error_text[lang] ?? null];

@@ -286,12 +286,59 @@ class FVSignupLogicActivities {
   }
 
   static check_errors() {
+    let error_div = FVSignupModuleActivities.element.find('#activity-errors');
+    error_div.empty();
+
+    let errors = [];
+    errors = errors.concat(this.check_junior());
+    errors = errors.concat(this.check_duties());
+
+    let lang = FVSignup.get_lang();
+    errors.forEach(function(e) {
+      let errors = FVSignupLogicActivities.config.errors;
+      if (e.categories) {
+        error_div.append(`<p>${errors[e.type][e.category][lang]}</p>`);
+      } else {
+        error_div.append(`<p>${errors[e.type][lang]}</p>`);
+      }
+    })
+
+    return errors;
+  }
+
+  static check_junior() {
+    if (!FVSignup.get_participant_type().includes('junior')) return [];
+
+    let errors = [];
+    let need_junior = true;
+
+    // Check if we have selected any junior activities
+    let choices = jQuery('#activities_module .activity-choice.junior');
+    choices.each(function() {
+      let choice = jQuery(this);
+      let input = choice.find('input');
+
+      // If we have a choice with GM/Rules (where allowed)
+      if (parseInt(input.val()) > 0) need_junior = false;
+
+      return need_junior; // End loop if we have a selection
+    })
+
+    if (need_junior) {
+      errors.push({
+        type: 'missing_junior',
+        module: 'activities',
+      })
+    }
+
+    return errors;
+  }
+
+  static check_duties() {
     let lang = FVSignup.get_lang();
     let prio_count = this.config.choices.prio[lang].length;
 
     let errors = [];
-    let error_div = FVSignupModuleActivities.element.find('#activity-errors');
-    error_div.empty();
     
     // Check if we selected GM or Rules duties on the together page
     let need_gm = FVSignup.get_input("together:gm").prop('checked');
@@ -336,11 +383,6 @@ class FVSignupLogicActivities {
         module: 'activities',
       })
     }
-
-    errors.forEach(function(element) {
-      let errors = FVSignupLogicActivities.config.errors;
-      error_div.append(`<p>${errors.missing_task[element.category][lang]}</p>`);
-    })
 
     return errors;
   }
