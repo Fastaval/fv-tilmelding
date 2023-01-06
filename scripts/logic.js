@@ -40,13 +40,15 @@ class FVSignupLogic {
   static nav_click(key) {
     if (this.is_page_disabled(key)) return;
 
-    // Check for errors before navigating
+    // Check for errors before navigating forward
     let current = this.current_page;
-    let errors = this.check_page(current);
-    if (errors.length != 0) {
-      let lang = FVSignup.get_lang();
-      if (confirm(FVSignup.config.input_error[lang])) {
-        return;
+    if (FVSignup.pages[key].order > FVSignup.pages[current].order) {
+      let errors = this.check_page(current);
+      if (errors.length != 0) {
+        let lang = FVSignup.get_lang();
+        if (confirm(FVSignup.config.input_error[lang])) {
+          return;
+        }
       }
     }
 
