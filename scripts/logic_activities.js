@@ -296,7 +296,7 @@ class FVSignupLogicActivities {
     let lang = FVSignup.get_lang();
     errors.forEach(function(e) {
       let errors = FVSignupLogicActivities.config.errors;
-      if (e.categories) {
+      if (e.category) {
         error_div.append(`<p>${errors[e.type][e.category][lang]}</p>`);
       } else {
         error_div.append(`<p>${errors[e.type][lang]}</p>`);
