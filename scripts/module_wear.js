@@ -167,10 +167,11 @@ class FVSignupModuleWear {
       if (wear.max_order == 1) {
         basket_section.append(`<input class="wear-amount" id="wear-amount-${wear.id}" type="hidden" value="1">`);
       } else {
+        let max = wear.max_order > 0 ? wear.max_order : 10;
         let amount_wrapper = jQuery('<div class="input-wrapper wear-amount"></div>');
         amount_wrapper.append(`<label for="wear-amount-${wear.id}">${this.config.amount[lang]}:</label>`);
         amount_wrapper.append('<button class="wear-amount-button decrease">-</button>');
-        amount_wrapper.append(`<input class="wear-amount" id="wear-amount-${wear.id}" type="number" min="1" max="10" step="1" value="1" size="2">`);
+        amount_wrapper.append(`<input class="wear-amount" id="wear-amount-${wear.id}" type="number" min="1" max="${max}" step="1" value="1" size="2">`);
         amount_wrapper.append('<button class="wear-amount-button increase">+</button>');
         basket_section.append(amount_wrapper);
   
@@ -180,7 +181,7 @@ class FVSignupModuleWear {
           let value = parseInt(amount.val());
           value = isNaN(value) ? 1 : value;
           if (button.hasClass('increase')) {
-            value = Math.min(value + 1, 10);
+            value = Math.min(value + 1, max);
           } else {
             value = Math.max(value - 1, 1);
           }
@@ -421,20 +422,31 @@ class FVSignupModuleWear {
     if (max_order == 1) {
       amount_cell.append(`<input type="number" class="wear-amount" value="${amount}" disabled="true">`);
     } else {
+      let max = max_order > 0 ? max_order : 10;
       let amount_wrapper = jQuery('<div class="input-wrapper wear-order-amount"></div>');
       amount_cell.append(amount_wrapper);
   
       amount_wrapper.append('<button class="wear-amount-button decrease">-</button>');
-      amount_wrapper.append(`<input class="wear-amount" type="number" min="1" max="10" step="1" value="${amount}" size="2">`);
+      amount_wrapper.append(`<input class="wear-amount" type="number" min="1" max="${max}" step="1" value="${amount}" size="2">`);
       amount_wrapper.append('<button class="wear-amount-button increase">+</button>');
   
       let amount_input = amount_cell.find('input');
+      amount_input.change(function() {
+        let amount = parseInt(amount_input.val());
+        
+        // Correct input value
+        if (isNaN(amount) || amount < 1) amount = 1;
+        if (amount > max) amount = max; 
+        amount_input.val(amount);
+      })
+
       amount_cell.find('button').click(function(evt) {
         let button = jQuery(evt.delegateTarget);
         let value = parseInt(amount_input.val());
         value = isNaN(value) ? 1 : value;
+        let max = parseInt(amount_input.attr('max'));
         if (button.hasClass('increase')) {
-          value = Math.min(value + 1, 10);
+          value = Math.min(value + 1, max);
         } else {
           value = Math.max(value - 1, 1);
         }
@@ -458,6 +470,13 @@ class FVSignupModuleWear {
 
       amount_input.change(function() {
         let amount = parseInt(amount_input.val());
+        
+        // Correct input value
+        if (isNaN(amount) || amount < parseInt(amount_input.attr('min'))) amount = 1;
+        let max = parseInt(amount_input.attr('max'));
+        if (amount > max) amount = max; 
+        amount_input.val(amount);
+
         let subtotal = amount * price;
         price_cell.text(`${subtotal} ${FVSignup.config.dkk[lang]}`);
         FVSignupModuleWear.update_total();
