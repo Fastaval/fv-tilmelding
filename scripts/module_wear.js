@@ -570,6 +570,23 @@ class FVSignupModuleWear {
 
     this.update_total();
   }
+
+  static get_error_msg(error) {
+    let lang = FVSignup.get_lang();
+    let label, value;
+    if (error.type == 'wear_order_range') {
+      label = this.config.range_error[lang] + error.max_order;
+      value = this.wear_items[error.wear_id].name[lang];
+      if (error.attributes instanceof Object) {
+        for (const id of Object.values(error.attributes)) {
+          value += " - " + this.attributes[id]
+        }
+      }
+      value += ": " + error.amount + " " + FVSignup.config.pieces[lang];
+    }
+
+    return [label, value];
+  }
 }
 
 FVSignup.register_module('wear', FVSignupModuleWear);
