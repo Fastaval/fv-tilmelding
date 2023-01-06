@@ -627,7 +627,7 @@ class FVSignupLogic {
     // Add error markings
     nav_button.addClass('error');
     for (const error of errors) {
-      if (error.id) {
+      if (error.id && !error.module) {
         let error_element, wrapper;
         [error_element, wrapper] = this.find_error(error.id, error.type);
         wrapper.addClass('error');
