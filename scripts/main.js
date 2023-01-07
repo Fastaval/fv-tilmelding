@@ -144,28 +144,31 @@ class FVSignup {
   }
 
   static days = {
-    en: [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-    ],
-    da: [
-      'mandag',
-      'tirsdag',
-      'onsdag',
-      'tordsag',
-      'fredag',
-      'lørdag',
-      'søndag',
-    ]
+    en: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    da: ['mandag', 'tirsdag', 'onsdag', 'tordsag', 'fredag', 'lørdag', 'søndag']
   };
 
   static get_weekday(day) {
     return this.days[fv_signup_settings.lang][day-1];
+  }
+
+  static months = {
+    en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    da: ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
+  };
+
+  static get_month(month) {
+    return this.months[fv_signup_settings.lang][month];
+  }
+
+  static get_ordinal(number) {
+    if (fv_signup_settings.lang == 'da') return ".";
+
+    if ((number % 100) >= 11 && (number % 100) <= 13) return "th";
+    if (number % 10 == 1) return "st";
+    if (number % 10 == 2) return "nd";
+    if (number % 10 == 3) return "rd";
+    return "th";
   }
 
   static get_input(id) {
