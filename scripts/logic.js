@@ -361,7 +361,6 @@ class FVSignupLogic {
       return a[lang] > b[lang] ? 1 : -1;
     });
 
-
     let text_input = input;
     if (item.autocomplete.mode === 'exhaustive') {
       text_input = wrapper.find('input[type=text]');
@@ -376,9 +375,12 @@ class FVSignupLogic {
       
       let value = text_input.val();
       for(const option of list) {
-        let text = option[lang].toLowerCase();
-        if (text.includes(value.toLowerCase())) {
-          let option_element = jQuery(`<p class="auto-option">${option[lang]}</p>`);
+        let text;
+        if (option[lang]) text = option[lang];
+        else if (option.da) text = option.da; // Fallback on Danish text
+    
+        if (text.toLowerCase().includes(value.toLowerCase())) {
+          let option_element = jQuery(`<p class="auto-option">${text}</p>`);
           if (option_value) option_element.attr('value', option[option_value]);
           list_element.append(option_element);
         }
@@ -588,7 +590,9 @@ class FVSignupLogic {
 
           let match = false;
           for(const option of Object.values(list)) {
-            let text = option[lang].toLowerCase();
+            let text;
+            if (option[lang]) text = option[lang].toLowerCase();
+            else if (option.da) text = option.da.toLowerCase(); // Fallback on Danish text
             if (text == input_text.val().toLowerCase()) {
               match = true;
               input.val(option[item.autocomplete.value]);
