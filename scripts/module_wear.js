@@ -175,17 +175,26 @@ class FVSignupModuleWear {
         amount_wrapper.append('<button class="wear-amount-button increase">+</button>');
         basket_section.append(amount_wrapper);
   
-        let amount = amount_wrapper.find('input');
+        let amount_input = amount_wrapper.find('input');
+        amount_input.change(function() {
+          let amount = parseInt(amount_input.val());
+          
+          // Correct input value
+          if (isNaN(amount) || amount < 1) amount = 1;
+          if (amount > max) amount = max; 
+          amount_input.val(amount);
+        })
+
         amount_wrapper.find('button').click(function(evt) {
           let button = jQuery(evt.delegateTarget);
-          let value = parseInt(amount.val());
+          let value = parseInt(amount_input.val());
           value = isNaN(value) ? 1 : value;
           if (button.hasClass('increase')) {
             value = Math.min(value + 1, max);
           } else {
             value = Math.max(value - 1, 1);
           }
-          amount.val(value);
+          amount_input.val(value);
         })
       }
 
@@ -431,14 +440,6 @@ class FVSignupModuleWear {
       amount_wrapper.append('<button class="wear-amount-button increase">+</button>');
   
       let amount_input = amount_cell.find('input');
-      amount_input.change(function() {
-        let amount = parseInt(amount_input.val());
-        
-        // Correct input value
-        if (isNaN(amount) || amount < 1) amount = 1;
-        if (amount > max) amount = max; 
-        amount_input.val(amount);
-      })
 
       amount_cell.find('button').click(function(evt) {
         let button = jQuery(evt.delegateTarget);
