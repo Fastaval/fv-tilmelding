@@ -42,6 +42,7 @@ class FVSignupModuleSubmit {
     let text = this.config.confirmationpage[lang];
     text = text.replaceAll('[ID]', '<span id="display-id"></span>');
     text = text.replaceAll('[TOTAL]', '<span id="display-total"></span>');
+    text = text.replaceAll('[PAYDAY]', '<span id="display-payday"></span>');
     this.confirm_page.append('<p>'+text+'</p>');
   }
 
@@ -210,6 +211,7 @@ class FVSignupModuleSubmit {
             label = jQuery('div.section-wrapper#page-section-'+error.id).find('h3').text();
           } else {
             let id = error.id.replaceAll(':', '\\:');
+            if (error.type == 'not_on_list') id += "-display";
             label = jQuery('label[for='+id+']').text().replace(':','');
           }
         }
@@ -406,6 +408,13 @@ class FVSignupModuleSubmit {
     pass.change();
     this.confirm_page.find('#display-id').text(response.info.id);
     this.confirm_page.find('#display-total').text(response.result.total);
+    
+    // Calculate last payment
+    let signup_end = new Date(FVSignup.config.signup_end.replace(/-/g, "/"));
+    let tomorrow = new Date(Date.now() + 24*60*60);
+    let payday = new Date(Math.max(signup_end.getTime(), tomorrow.getTime()));
+    let payday_text = payday.getDate() + FVSignup.get_ordinal(payday.getDate()) + " " + FVSignup.get_month(payday.getMonth());
+    this.confirm_page.find('#display-payday').text(payday_text);
     this.confirm_page.show();
     this.page_header.hide();
   }
