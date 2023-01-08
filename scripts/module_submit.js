@@ -256,48 +256,53 @@ class FVSignupModuleSubmit {
         let text;
         let value = entry.value
 
-        if (entry.special_module) {
+        if (entry.special_module) { // Module entries
           [text, value] = FVSignup.get_module(entry.special_module).get_confirm(entry);
-        } else if (input.attr('type') == 'hidden') {
+        } else if (input.attr('type') == 'hidden') { // Hidden inputs
           let wrapper = input.closest('.input-wrapper');
-          if(wrapper.hasClass('activity-choice')) {
-            let activity_row = wrapper.closest('.activity-row').prev();
-            text = activity_row.find('.title-wrapper').text();
-            let day = activity_row.closest('table').attr('activity-day');
-            text += " - "+FVSignup.uc_first(FVSignup.get_weekday(day))+" ";
-            let time = new Date(parseInt(wrapper.attr('run-start'))*1000);
-            text += (time.getHours()+"").padStart(2, '0')+":"+(time.getMinutes()+"").padStart(2, '0');
-            let choices = FVSignupLogicActivities.config.choices;
-            if (entry.value <= choices.prio[lang].length) {
-              value = choices.prio[lang][entry.value-1];
-            } else {
-              let type = wrapper.attr('activity-type');
-              value = choices.gm[type] ? choices.gm[type][lang] : choices.gm.default[lang];
+          switch (true) {
+            case wrapper.hasClass('activity-choice'): // Activity selection
+              let activity_row = wrapper.closest('.activity-row').prev();
+              text = activity_row.find('.title-wrapper').text();
+              let day = activity_row.closest('table').attr('activity-day');
+              text += " - "+FVSignup.uc_first(FVSignup.get_weekday(day))+" ";
+              let time = new Date(parseInt(wrapper.attr('run-start'))*1000);
+              text += (time.getHours()+"").padStart(2, '0')+":"+(time.getMinutes()+"").padStart(2, '0');
+              let choices = FVSignupLogicActivities.config.choices;
+              if (entry.value <= choices.prio[lang].length) {
+                value = choices.prio[lang][entry.value-1];
+              } else {
+                let type = wrapper.attr('activity-type');
+                value = choices.gm[type] ? choices.gm[type][lang] : choices.gm.default[lang];
 
-              let index = entry.value - choices.prio[lang].length;
-              if (index > 1) {
-                value += " "+choices.prio[lang][index-2];
+                let index = entry.value - choices.prio[lang].length;
+                if (index > 1) {
+                  value += " "+choices.prio[lang][index-2];
+                }
               }
-            }
-          } else if(wrapper.hasClass('input-type-hidden')){
-            text = input.attr('text');
-          } else if (wrapper.hasClass('autocomplete')) {
-            text = wrapper.find('label').text();
-            value = wrapper.find('input[type=text]').val();
-          } else { // Radio buttons
-            text = wrapper.find('p').text();
-            let option = wrapper.find('input[value='+value+'][name="'+entry.key+'"]');
-            value = jQuery('label[for='+option.attr('id').replaceAll(':', '\\:')+']').text();
+              break;
+          
+            case wrapper.hasClass('input-type-hidden'): // Hidden automaic entries like ticket fee
+              text = input.attr('text');
+              break;
+
+            case wrapper.hasClass('autocomplete'): // Autocomplete inputs
+              text = wrapper.find('label').text().replace(':','');
+              value = wrapper.find('input[type=text]').val();
+              break;
+              
+            default: // Radio buttons
+              text = wrapper.find('p').text();
+              let option = wrapper.find('input[value='+value+'][name="'+entry.key+'"]');
+              value = jQuery('label[for='+option.attr('id').replaceAll(':', '\\:')+']').text();
           }
-        } else if (input.attr('submit-text')) {
+        } else if (input.attr('submit-text')) { // Input has special submit text instead of label
           text = input.attr('submit-text');
-        }else {
-          if (this.config.short_text[entry.key]) {
-            text = this.config.short_text[entry.key][lang];
-          } else {
-            let id = entry.key.replaceAll(':', '\\:');
-            text = jQuery('label[for='+id+']').text().replace(':','');
-          }
+        } else if (this.config.short_text[entry.key]) { // Config has special submit text for input (should probably be combined with above case)
+          text = this.config.short_text[entry.key][lang];
+        } else { // Default behavior is to get text from input label
+          let id = entry.key.replaceAll(':', '\\:');
+          text = jQuery('label[for='+id+']').text().replace(':','');
         }
 
         // Extra stuff for special values and summing totals
@@ -312,6 +317,11 @@ class FVSignupModuleSubmit {
             }
           }
         }
+
+        if (input.attr('submit-value')) { // Input has special submit text instead of value
+          value = input.attr('submit-value');
+        }
+
         if (value == 'on') {
           let value_text = {
             en: 'Yes',
