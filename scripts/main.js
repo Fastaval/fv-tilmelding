@@ -145,7 +145,7 @@ class FVSignup {
 
   static days = {
     en: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-    da: ['mandag', 'tirsdag', 'onsdag', 'tordsag', 'fredag', 'lørdag', 'søndag']
+    da: ['mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag', 'lørdag', 'søndag']
   };
 
   static get_weekday(day) {
