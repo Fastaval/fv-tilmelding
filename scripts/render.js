@@ -36,6 +36,7 @@ class FVSignupRender {
       if (section.section_id) section_wrapper.attr('id', 'page-section-'+section.section_id);
       if (section.headline) section_wrapper.append("<h3>"+section.headline[lang]+"</h3>");
 
+      // Folding logic
       if (section.folding) {
         let section_content = jQuery('<div class="folding-content"></div>');
         section_wrapper.append(section_content);
@@ -52,6 +53,7 @@ class FVSignupRender {
         section_wrapper.hide();
       }
 
+      // Required selection logic
       if (section.require_one || section.require_one_if) {
         let error_div = jQuery('<div class="error-text" error-type="require_one"></div>');
         error_div.text(FVSignup.config.errors["require_one"][lang]);
@@ -59,12 +61,14 @@ class FVSignupRender {
         section_wrapper.append(error_div);
       }
 
+      // Insert module for section
       if (section.module) {
         section_wrapper.addClass('module-wrapper');
         FVSignup.add_module(section.module, section_wrapper, callback);
         module = true;
       }
 
+      // Render section items
       if (section.items) section.items.forEach(function(item) {
         if (item.disabled) return;
         FVSignupLogic.require_config(function() {
