@@ -78,7 +78,16 @@ class FVSignupLogicActivities {
     this.participant_filter();
     this.age_filter();
     this.day_filter();
-    this.category_filter();
+    
+    // Disable all filtered inputs for submit
+    let runs = jQuery('#activities_module table .activity-row');
+    runs.find('input').prop('disabled', true);
+    runs = runs.not('[participant-filtered=true]');
+    runs = runs.filter('[age-appropriate=true]');
+    runs = runs.not('[day-filtered=true]');
+    runs.find('input').prop('disabled', false);
+
+    this.category_reset();
   }
 
   static participant_filter() {
@@ -129,6 +138,7 @@ class FVSignupLogicActivities {
 
   static day_filter() {
     let current = null;
+    jQuery('#activities_module table .activity-row').attr('day-filtered', true);
 
     // Hide days not attending
     for(let i = 1; i <= 5; i++) {
@@ -137,6 +147,7 @@ class FVSignupLogicActivities {
       let day_button = jQuery('#activities_module #day-button-'+weekday);
       if(FVSignup.attending_day(i)) {
         day_button.show();
+        jQuery(`#activities_module table#activities-day-${weekday} .activity-row`).attr('day-filtered', false);
         // Set current to first visible day unless another vissible day is selected
         current = current ?? weekday;
         if(day_button.hasClass('selected')) current = weekday;
@@ -145,7 +156,7 @@ class FVSignupLogicActivities {
       }
     }
 
-    // Select first day attending
+    // Make current day visible
     if (current) {
       this.select_day(current);
     } else {
@@ -162,7 +173,7 @@ class FVSignupLogicActivities {
     jQuery('#activities_module #activities-day-'+weekday).show();
   }
 
-  static category_filter() {
+  static category_reset() {
     let button = jQuery('#activities_module .filter .filter-button.selected');
     let categories = button.attr('filter-category').split(' ');
     this.select_category(categories)

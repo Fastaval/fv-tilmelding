@@ -47,7 +47,8 @@ class FVSignupModuleWear {
           '<tr class="no-orders"><td>' + this.config.no_orders[lang] + '</td></tr>'+
           '<tr class="orders-total"><td class="total-text-cell">Total:</td><td class="total-cell"> 0 ' + FVSignup.config.dkk[lang] + '</td></tr>'+
         '</tbody>' +
-      '</table>'
+      '</table>' +
+      '<div id="wear-errors" class="error"></div>'
     );
 
     for(const wear of this.wear_info.wear) {
@@ -59,13 +60,18 @@ class FVSignupModuleWear {
       wear_div.attr('wear-id', wear.id);
       this.element.append(wear_div);
 
-      let wear_header = jQuery('<h3 class="foldout">'+wear.name[lang]+' <span class="wear-price"></span> '+FVSignup.config.dkk[lang]+'</h3>');
+      let wear_header = jQuery(`<h3 class="foldout">${wear.name[lang]} <span class="wear-price"></span> ${FVSignup.config.dkk[lang]}</h3>`);
       wear_div.append(wear_header);
 
       if (wear.max_order) {
         wear_header.append(` (Max ${wear.max_order})`);
         wear_div.attr('max-order', wear.max_order);
       }
+
+      if (wear.required) {
+        wear_header.append(` (${this.config.required[lang]})`);
+        wear_div.attr('required', true);
+      };
 
       let wear_content = jQuery('<div class="wear-item-content"></div>');
       wear_content.hide();
@@ -204,6 +210,8 @@ class FVSignupModuleWear {
         FVSignupModuleWear.add_wear_order(wear_div);
       })
     }
+
+    this.update_prices();
   }
 
   static render_attribute_select(wear, type, attributes) {
@@ -263,6 +271,7 @@ class FVSignupModuleWear {
         wear_element.show();
       } else {
         wear_element.hide();
+        wear_element.attr('price-category', 'none');
       }
     })
   }
@@ -486,7 +495,7 @@ class FVSignupModuleWear {
 
     // Price cell
     let subtotal = parseInt(amount) * price;
-    let price_cell = jQuery(`<td class="price-cell" price-category="${price_category}">${subtotal} ${FVSignup.config.dkk[lang]}</td>`);
+    let price_cell = jQuery(`<td class="price-cell" price-category="${price_category}">${subtotal}&nbsp;${FVSignup.config.dkk[lang]}</td>`);
     new_row.append(price_cell)
 
     // Delete button
@@ -509,6 +518,39 @@ class FVSignupModuleWear {
     })
     let lang = FVSignup.get_lang();
     this.element.find('table#wear-orders .total-cell').text(`${total} ${FVSignup.config.dkk[lang]}`);
+  }
+
+  static check_errors() {
+    let lang = FVSignup.get_lang();
+    let errors = [];
+    let error_div = this.element.find('#wear-errors');
+    error_div.empty();
+
+    this.element.find('.wear-item').each(function() {
+      let wear_element = jQuery(this);
+      
+      // Check if wear is available and required
+      if (wear_element.attr('price-category') == 'none') return;
+      if (!wear_element.attr('required')) return;
+
+      // Check if we have any orders
+      let id = wear_element.attr('wear-id');
+      let orders = FVSignupModuleWear.element.find(`table#wear-orders tr[wear-id=${id}]`);
+      if (orders.length != 0) return; // We have at least one order
+
+      // We're missing some required wear
+      errors.push({
+        type: "required_wear",
+        module: 'wear',
+        wear_id: id,
+      });
+
+      let wear = FVSignupModuleWear.wear_items[id];
+      let error = FVSignupModuleWear.config.missing_error;
+      error_div.append(`<div class="error-text">${error[lang]} ${wear.name[lang]}</div>`);
+    })
+
+    return errors;
   }
 
   static get_submission() {
@@ -575,15 +617,29 @@ class FVSignupModuleWear {
   static get_error_msg(error) {
     let lang = FVSignup.get_lang();
     let label, value;
-    if (error.type == 'wear_order_range') {
-      label = this.config.range_error[lang] + error.max_order;
-      value = this.wear_items[error.wear_id].name[lang];
-      if (error.attributes instanceof Object) {
-        for (const id of Object.values(error.attributes)) {
-          value += " - " + this.attributes[id]
+    switch (error.type) {
+      case 'wear_order_range':
+        label = this.config.range_error[lang] + error.max_order;
+        value = this.wear_items[error.wear_id].name[lang];
+        if (error.attributes instanceof Object) {
+          for (const id of Object.values(error.attributes)) {
+            value += " - " + this.attributes[id]
+          }
         }
-      }
-      value += ": " + error.amount + " " + FVSignup.config.pieces[lang];
+        value += ": " + error.amount + " " + FVSignup.config.pieces[lang];
+        break;
+
+      case 'required_wear':
+        label = this.config.missing_error[lang];
+        value = this.wear_items[error.wear_id].name[lang];
+        break;
+
+      case 'no_wear_price':
+        label = this.wear_items[error.wear_id].name[lang];
+        value = this.config.no_wear_price[lang];
+        break;
+
+      default:
     }
 
     return [label, value];

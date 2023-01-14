@@ -368,6 +368,8 @@ class FVSignupLogic {
 
     text_input.focusout(function(evt) {
       list_element.hide();
+      let selected = list_element.find('.selected');
+      if (selected.length == 1) FVSignupLogic.select_auto_option(selected);
     });
 
     text_input.on('input', function() {
