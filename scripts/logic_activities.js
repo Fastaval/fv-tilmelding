@@ -74,7 +74,6 @@ class FVSignupLogicActivities {
   }
 
   static on_page() {
-    FVSignupModuleActivities.day_error.hide();
     this.participant_filter();
     this.age_filter();
     this.day_filter();
@@ -145,20 +144,27 @@ class FVSignupLogicActivities {
       // Day 1 of con = day 3 of week
       let weekday = i+2;
       let day_button = jQuery('#activities_module #day-button-'+weekday);
-      if(FVSignup.attending_day(i)) {
-        day_button.show();
-        jQuery(`#activities_module table#activities-day-${weekday} .activity-row`).attr('day-filtered', false);
-        // Set current to first visible day unless another vissible day is selected
-        current = current ?? weekday;
-        if(day_button.hasClass('selected')) current = weekday;
-      } else {
-        day_button.hide();
+      let activity_rows = jQuery(`#activities_module table#activities-day-${weekday} .activity-row`);
+      let filtered_runs = activity_rows.not('[participant-filtered=true]');
+      filtered_runs = filtered_runs.not('[category-filtered=true]');
+      filtered_runs = filtered_runs.filter('[age-appropriate=true]');
+      
+      day_button.hide();
+      if (FVSignup.attending_day(i)) {
+        activity_rows.attr('day-filtered', false);
+        if (filtered_runs.length != 0) {
+          day_button.show();
+          // Set current to first visible day unless another vissible day is selected
+          current = current ?? weekday;
+          if(day_button.hasClass('selected')) current = weekday;
+        }
       }
     }
 
     // Make current day visible
     if (current) {
       this.select_day(current);
+      FVSignupModuleActivities.day_error.hide();
     } else {
       // There are no vissible days
       FVSignupModuleActivities.day_error.show();
@@ -181,17 +187,19 @@ class FVSignupLogicActivities {
 
   static select_category(categories) {
     // Hide all activity and description rows
-    let rows = jQuery('#activities_module tr').not('.header-row');
-    rows.hide();
+    let rows = jQuery('#activities_module .activity-row');
+    rows.hide().attr('category-filtered', true);
 
     // Filter out the rows we need to show and make them visible
-    rows = rows.filter('.activity-row')
     if (categories[0] != 'all') {
       rows = rows.filter('.'+categories.join(', .'));
     }
     rows = rows.filter('[age-appropriate="true"]');
     rows = rows.filter('[participant-filtered="false"]');
-    rows.show();
+    rows.show().attr('category-filtered', false);
+    
+    // Reset day filter so we don't have day buttons without any activities
+    this.day_filter();
   }
 
   static choice_click(choice) {
