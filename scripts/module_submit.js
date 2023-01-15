@@ -344,8 +344,8 @@ class FVSignupModuleSubmit {
               text += ` (${entry.price} ${FVSignup.config.dkk[lang]})`
             }
           }
-        } else if (input.attr('type') === 'select') { // Select input without price
-          text = input.find('option:selected').text();
+        } else if (input.prop('tagName') === 'SELECT') { // Select input without price
+          value = input.find('option:selected').text();
         }
 
         // Change value 'on' to affirmative
