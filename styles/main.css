@@ -68,6 +68,11 @@ div#load-signup-wrapper :nth-child(5) {
   flex-wrap: wrap;
   justify-content: center;
   margin-bottom: 1em;
+  width: max-content;
+  max-width: calc(100vw - 1rem);
+  position: relative;
+  margin-left: 50%;
+  transform: translateX(-50%);
 }
 
 #signup-navigation div {
