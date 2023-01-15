@@ -181,13 +181,21 @@ class FVSignupModuleSubmit {
 
   static render_errors(errors) {
     let lang = FVSignup.get_lang();
+    
+    // Clear and show error section
     this.errors.empty();
     this.errors.show();
+
+    // Add error subtext
     let text = this.config.error_text;
     this.errors.append('<p>'+text[lang]+'</p>');
     
+    // Create error section for each page
     for (const page_key of FVSignup.page_keys) {
+      // Skip empty sections
       if (!errors[page_key] || errors[page_key].length == 0) continue;
+      
+      // Create header and table for the section
       let page = FVSignup.get_page(page_key);
       let page_header = jQuery('<h3 class="category-header">'+page.title[lang]+'</h3>');
       this.errors.append(page_header);
@@ -195,15 +203,20 @@ class FVSignupModuleSubmit {
       this.errors.append(table);
       let tbody = jQuery('<tbody></tbody>');
       table.append(tbody);
+      
+      // Get message and label for each error
       for(const error of errors[page_key]) {
         let msg, label;
-        if (error.module) {
+        
+        // Get message for the error
+        if (error.module) { // Let modules handle special module errors
           let module = FVSignup.get_module(error.module);
           if (module.get_error_msg) [label, msg] = module.get_error_msg(error);
-        } else if (error.id) {
+        } else if (error.id) { // Get error text from input wrapper
           msg = FVSignupLogic.get_error_text(error.id, error.type);
         } 
 
+        // Get error label from input/section id
         if (error.id) {
           if (this.config.short_text[error.id]) {
             label = this.config.short_text[error.id][lang];
@@ -211,26 +224,34 @@ class FVSignupModuleSubmit {
             label = jQuery('div.section-wrapper#page-section-'+error.id).find('h3').text();
           } else {
             let id = error.id.replaceAll(':', '\\:');
-            if (error.type == 'not_on_list') id += "-display";
-            label = jQuery('label[for='+id+']').text().replace(':','');
+
+            let label_element = jQuery(`label[for=${id}]`);
+            if (label_element.length === 0) { // If input doesn't have a label it's probably a special hidden input
+              label_element = jQuery(`label[for=${id}-display]`);
+            }
+
+            label = label_element.text().replace(':','');
           }
         }
 
+        // Insert error row if we have both message and label
         if(msg && label) {
           tbody.append('<tr><td>'+label+'</td><td>'+msg+'</td></tr>');
+          continue;
+        } 
+
+        // Add text for unknown label or message
+        let text = this.config.unknown[lang];
+        let col="";
+        if (label) {
+          text = label+'</td><td>'+text;
+        } else if (msg) {
+          text += '</td><td>'+msg;
         } else {
-          let text = this.config.unknown[lang];
-          let col="";
-          if (label) {
-            text = label+'</td><td>'+text;
-          } else if (msg) {
-            text += '</td><td>'+msg;
-          } else {
-            col = 'colspan="2"';
-          }
-          tbody.append(`<tr><td ${col}>${text}</td></tr>`);
-          console.log(error);
+          col = 'colspan="2"';
         }
+        tbody.append(`<tr><td ${col}>${text}</td></tr>`);
+        console.log(error);
       }
     }
   }
@@ -243,7 +264,10 @@ class FVSignupModuleSubmit {
     let totals = [];
 
     for (const page_key of FVSignup.page_keys) {
+      // Skip empty sections
       if (!categories[page_key] || categories[page_key].length == 0) continue;
+
+      // Create section header and table
       let page = FVSignup.get_page(page_key);
       let page_header = jQuery('<h3 class="category-header">'+page.title[lang]+'</h3>');
       this.signup_data.append(page_header);
@@ -251,6 +275,8 @@ class FVSignupModuleSubmit {
       this.signup_data.append(table);
       let tbody = jQuery('<tbody></tbody>');
       table.append(tbody);
+
+      // Get text and values for entries
       for(const entry of categories[page_key]) {
         let input = FVSignup.get_input(entry.key);
         let text;
@@ -305,8 +331,10 @@ class FVSignupModuleSubmit {
           text = jQuery('label[for='+id+']').text().replace(':','');
         }
 
-        // Extra stuff for special values and summing totals
-        if (entry.price) {
+        // Extra stuff for special values
+        if (input.attr('submit-value')) { // Input has special submit text instead of value
+          value = input.attr('submit-value');
+        } else if (entry.price) { // Some special cases for price display
           if(entry.value == 'on') {
             value = entry.price+" "+FVSignup.config.dkk[lang];
           } else {
@@ -316,12 +344,11 @@ class FVSignupModuleSubmit {
               text += ` (${entry.price} ${FVSignup.config.dkk[lang]})`
             }
           }
+        } else if (input.attr('type') === 'select') { // Select input without price
+          text = input.find('option:selected').text();
         }
 
-        if (input.attr('submit-value')) { // Input has special submit text instead of value
-          value = input.attr('submit-value');
-        }
-
+        // Change value 'on' to affirmative
         if (value == 'on') {
           let value_text = {
             en: 'Yes',
@@ -329,6 +356,8 @@ class FVSignupModuleSubmit {
           }
           value = value_text[lang];
         }
+
+        // Section sub total
         if (entry.key == 'sub_total') {
           if (entry.value == 0) continue;
           value = entry.value + " "+FVSignup.config.dkk[lang];
