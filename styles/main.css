@@ -109,14 +109,15 @@ div#load-signup-wrapper :nth-child(5) {
 /*----------------------------------------------------------------------------
     Footer
 ----------------------------------------------------------------------------*/
-button.previous-button,
-button.next-button {
-  margin-top: 1em;
+div.signup-page-footer {
+  display: grid;
+  grid-template-columns: 7rem auto 7rem;
+  width: 100%;
+  margin-top: 2rem;
 }
 
 button.next-button {
-  position: absolute;
-  right: 0;
+  grid-column-start: 3;
 }
 
 /*----------------------------------------------------------------------------

@@ -78,13 +78,16 @@ class FVSignupRender {
 
     });
 
+    let footer = jQuery('<div class="signup-page-footer"></div>');
+    page_div.append(footer);
+
     if (page.order > 1) {
       let text = lang == 'da' ? 'Forrige' : 'Previous';
       let prev_button = jQuery('<button></button>');
       prev_button.addClass('previous-button');
       prev_button.text(text);
       prev_button.click(function() { FVSignupLogic.prev(); });
-      page_div.append(prev_button);
+      footer.append(prev_button);
     }
     if (page.order < FVSignup.page_keys.length) {
       let text = lang == 'da' ? 'Næste' : 'Next';
@@ -92,10 +95,8 @@ class FVSignupRender {
       next_button.addClass('next-button');
       next_button.text(text);
       next_button.click(function() {FVSignupLogic.next(); });
-      page_div.append(next_button);
+      footer.append(next_button);
     }
-
-    page_div.append('<div class="bottom-page-spacer"></div>');
 
     let nav_button = jQuery("nav div[page-id='"+key+"']");
     if (disabled) nav_button.addClass('disabled');
