@@ -23,8 +23,9 @@ div.page-content {
     Header
 ----------------------------------------------------------------------------*/
 h1.entry-title {
-  text-align: center;
-  font-size: 3em;
+  /*text-align: center;
+  font-size: 3em;*/
+  display: none;
 }
 
 /*----------------------------------------------------------------------------
