@@ -258,6 +258,10 @@ class FVSignupModuleActivities {
       error_text = error_text[error.category];
     }
 
+    if (error.type === 'missing_junior') {
+      error_text[lang] = error_text[lang].replace("#", this.config.junior_min);
+    }
+
     let label;
     if (error.activity) {
       label = this.info.activities[error.activity].title[lang];

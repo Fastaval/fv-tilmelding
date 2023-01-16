@@ -312,14 +312,9 @@ class FVSignupLogicActivities {
     errors = errors.concat(this.check_junior());
     errors = errors.concat(this.check_duties());
 
-    let lang = FVSignup.get_lang();
     errors.forEach(function(e) {
-      let errors = FVSignupLogicActivities.config.errors;
-      if (e.category) {
-        error_div.append(`<p>${errors[e.type][e.category][lang]}</p>`);
-      } else {
-        error_div.append(`<p>${errors[e.type][lang]}</p>`);
-      }
+      let [label, text] = FVSignupModuleActivities.get_error_msg(e);
+      error_div.append(`<p>${text}</p>`);
     })
 
     return errors;
@@ -329,7 +324,7 @@ class FVSignupLogicActivities {
     if (!FVSignup.get_participant_type().includes('junior')) return [];
 
     let errors = [];
-    let need_junior = true;
+    let need_junior = this.config.junior_min;
 
     // Check if we have selected any junior activities
     let choices = jQuery('#activities_module .activity-choice.junior');
@@ -338,12 +333,12 @@ class FVSignupLogicActivities {
       let input = choice.find('input');
 
       // If we have a choice with GM/Rules (where allowed)
-      if (parseInt(input.val()) > 0) need_junior = false;
+      if (parseInt(input.val()) > 0) need_junior--;
 
-      return need_junior; // End loop if we have a selection
+      return need_junior > 0; // End loop if we have a selection
     })
 
-    if (need_junior) {
+    if (need_junior > 0) {
       errors.push({
         type: 'missing_junior',
         module: 'activities',
