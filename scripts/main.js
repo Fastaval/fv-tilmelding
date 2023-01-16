@@ -225,10 +225,11 @@ class FVSignup {
       case 'Deltager':
         return 'deltager';
 
-      case 'Organizer':
+      case 'Arrangør':
         return 'organizer';
 
       default:
+        console.error('Unknown participant type');
         return 'unknown';
     }
   }
