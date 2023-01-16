@@ -517,10 +517,12 @@ class FVSignupModuleWear {
       total += parseInt(jQuery(this).find('td.price-cell').text());
     })
     let lang = FVSignup.get_lang();
-    this.element.find('table#wear-orders .total-cell').text(`${total} ${FVSignup.config.dkk[lang]}`);
+    this.element.find('table#wear-orders .total-cell').text(`${total}&nbsp;${FVSignup.config.dkk[lang]}`);
   }
 
   static check_errors() {
+    this.update_prices(); // Update prices before checking for errors
+
     let lang = FVSignup.get_lang();
     let errors = [];
     let error_div = this.element.find('#wear-errors');
