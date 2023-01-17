@@ -488,7 +488,7 @@ class FVSignupModuleWear {
         amount_input.val(amount);
 
         let subtotal = amount * price;
-        price_cell.text(`${subtotal} ${FVSignup.config.dkk[lang]}`);
+        price_cell.html(`${subtotal}&nbsp;${FVSignup.config.dkk[lang]}`);
         FVSignupModuleWear.update_total();
       })
     }
@@ -517,7 +517,7 @@ class FVSignupModuleWear {
       total += parseInt(jQuery(this).find('td.price-cell').text());
     })
     let lang = FVSignup.get_lang();
-    this.element.find('table#wear-orders .total-cell').text(`${total}&nbsp;${FVSignup.config.dkk[lang]}`);
+    this.element.find('table#wear-orders .total-cell').html(`${total}&nbsp;${FVSignup.config.dkk[lang]}`);
   }
 
   static check_errors() {
