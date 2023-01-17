@@ -186,7 +186,7 @@ class FVSignupStorage {
       let text_input = wrapper.find('input[type=text]');
       let list = FVSignup.config.autocomplete[wrapper.attr('autocomplete-list')];
       let lang = FVSignup.get_lang();
-      text_input.val(list[value][lang]);
+      list[value] ? text_input.val(list[value][lang]) : text_input.val('');
     }
   }
 
