@@ -323,10 +323,6 @@ div#activities_module {
   left: 50%;
 }
 
-div#activities_module #activity-errors {
-  color: red;
-}
-
 div#activities_module #activities-content,
 div#activities_module #activity-errors {
   max-width: 1200px;

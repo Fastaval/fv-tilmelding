@@ -36,7 +36,7 @@ class FVSignupModuleActivities {
     let activities_info = this.info;
 
     this.element.empty();
-    this.element.append('<div id="activity-errors"></div>');
+    this.element.append('<div id="activity-errors" class="error-text"></div>');
 
     let content_wrapper = jQuery('<div id="activities-content"></div>');
     this.element.append(content_wrapper);
