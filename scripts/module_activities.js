@@ -190,6 +190,7 @@ class FVSignupModuleActivities {
       let filter_button = jQuery('<div class="filter-button '+category+'"></div>');
       filter_button.attr('filter-category', category)
       filter_button.text(cat[lang]);
+      if(cat.color) filter_button.css('background-color', cat.color);
       if(id == 'all') filter_button.addClass('selected');
       filter.append(filter_button);
     }
