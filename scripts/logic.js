@@ -530,6 +530,12 @@ class FVSignupLogic {
         // Required input
         if (item.required || con_req) {
           let status = item.type == 'checkbox' ? input.prop('checked') : input.val();
+
+          if (item.autocomplete && item.autocomplete.mode == "exhaustive") {
+            let text_input = FVSignup.get_input(item.infosys_id + "-display");
+            status = text_input.val();
+          }
+
           if (!status) {
             errors.push({
               id: item.infosys_id,
