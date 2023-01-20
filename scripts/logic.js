@@ -290,7 +290,7 @@ class FVSignupLogic {
     }
 
     // Check if we have a section
-    if (item_id.section) {
+    if (item_id.section !== undefined) {
       let section_div = jQuery(page_div.find('.section-wrapper')[item_id.section]);
       section_div.attr('status', status);
   
