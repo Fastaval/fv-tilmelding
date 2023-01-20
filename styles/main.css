@@ -340,7 +340,7 @@ div#activities_module #activity-day-selection .day-button {
   border: 1px black solid;
   padding: .5em 1em;
   cursor: pointer;
-  background-color: darkgray;
+  background-color: lightgray;
   user-select: none;
 }
 
@@ -348,6 +348,7 @@ div#activities_module div.filter div.selected,
 div#activities_module #activity-day-selection .day-button.selected {
   text-decoration: underline;
   font-weight: bold;
+  border-bottom: 0px;
 }
 
 div#activities_module table {
