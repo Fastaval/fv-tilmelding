@@ -217,6 +217,10 @@ class FVSignupLogic {
         compare_value = FVSignup.get_age();
         break;
 
+      case 'config':
+        compare_value = FVSignup.config[rule.config];
+        break;
+
       default:
         console.error("Rule Logic, Unknown rule type", "Rule:", rule);
     }
