@@ -87,7 +87,8 @@ class FVSignupModuleWear {
         }
       });
       
-      if(wear.desc) wear_content.append('<p>'+wear.desc[lang]+'</p>');
+      let desc_processed = InfosysTextPreprocessor.process_text(wear.desc[lang]);
+      if(wear.desc) wear_content.append(`<p>${desc_processed}</p>`);
       
       //------------------------------------------------------------------------------
       // Image section
