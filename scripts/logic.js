@@ -285,6 +285,7 @@ class FVSignupLogic {
     // Check if we have a section
     if (item_id.section) {
       let section_div = jQuery(page_div.find('.section-wrapper')[item_id.section]);
+      section_div.attr('status', status);
   
       status === "hidden" ? section_div.hide() : section_div.show();
   

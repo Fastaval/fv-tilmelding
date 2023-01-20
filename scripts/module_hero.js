@@ -1,10 +1,13 @@
 "using strict";
 
 class FVSignupModuleHero {
+  static wrapper;
   static element;
   static config;
+  static error_div;
 
   static init(element, callback) {
+    this.wrapper = element;
     this.element = jQuery('<div id="hero_module"></div>');
     element.append(this.element);
 
@@ -17,7 +20,12 @@ class FVSignupModuleHero {
 
   static render_hero() {
     let lang = FVSignup.get_lang();
-    this.element.append('<p>'+this.config.table_header[lang]+'</p>');
+    let minimum = this.config.min_select;
+    let pre_table = this.config.pre_table[lang];
+    this.element.append(`<p>${pre_table.replace("#", minimum)}</p>`);
+
+    this.error_div = jQuery('<div id="activity-errors" class="error-text"></div>');
+    this.element.append(this.error_div);
 
     let table = jQuery('<table class="hero-table"></table>');
     this.element.append(table);
@@ -52,6 +60,43 @@ class FVSignupModuleHero {
       table_body.append(time_row);
     }
 
+  }
+
+  static check_errors() {
+    this.error_div.empty();
+
+    if (this.wrapper.attr('status') == 'hidden') return [];
+
+    let lang = FVSignup.get_lang();
+
+    // Check if we have minimum selections
+    let min = this.config.min_select;
+    if(this.element.find(':checked').length < min) {
+      let error_text = this.config.min_error[lang];
+      this.error_div.append(`<p>${error_text.replace("#", min)}</p>`);
+      
+      return [{
+        type: 'min_selection',
+        module: 'hero',
+      }]
+    }
+    
+    // No errors
+    return [];
+  }
+
+  static get_error_msg(error) {
+    if (error.type != 'min_selection') return [null, null];
+
+    let lang = FVSignup.get_lang();
+    let count = this.element.find(':checked').length;
+    let min = this.config.min_select;
+
+    return [
+      this.wrapper.find('h3').text(),
+      this.config.min_error[lang].replace('#', min) +
+      ` (${this.config.selected[lang]}: ${count})`,
+    ]
   }
 }
 
