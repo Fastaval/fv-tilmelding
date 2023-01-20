@@ -257,11 +257,14 @@ class FVSignupLogic {
       }
       
       if (status === "disabled" || status == "hidden") {
-        input.prop('disabled', true);
         wrapper.addClass('disabled');
+        input.prop('disabled', true);
+        if (input.attr('type') == 'radio' && input.prop('checked')) {
+          this.reset_radio_default(input);
+        }
       } else {
-        input.prop('disabled', false);
         wrapper.removeClass('disabled');
+        input.prop('disabled', false);
       }
 
       if (status === "required") {
@@ -319,6 +322,21 @@ class FVSignupLogic {
       page_div.addClass('disabled');
       this.page_status[item_id.page] = 'disabled';
     }
+  }
+
+  static reset_radio_default(input) {
+    let wrapper = input.closest('.input-wrapper.input-type-radio');
+    let hidden = wrapper.find('input[type=hidden]');
+    
+    // Find the default option
+    let default_option = wrapper.find('input[type=radio][checked]');
+    
+    // Select default option
+    default_option.prop('checked', true);
+
+    // Update hidden
+    hidden.val(default_option.val());
+    hidden.change();
   }
 
   /**
@@ -460,7 +478,6 @@ class FVSignupLogic {
   }
 
   // TODO
-  // Wear for junior
   // Mobil must be number
   static check_page(page_id) {
     let page = FVSignup.get_page(page_id);
@@ -592,7 +609,11 @@ class FVSignupLogic {
             }
           }
         }
-        if (item.autocomplete && item.autocomplete.mode == "exhaustive") {
+        if (
+          item.autocomplete &&
+          item.autocomplete.mode == "exhaustive" &&
+          FVSignup.get_input(item.infosys_id + "-display").val() != ""
+        ) {
           let list = FVSignup.config.autocomplete[item.autocomplete.list];
           let lang = FVSignup.get_lang();
           let input_text = input.closest('.input-wrapper').find('input[type=text]');
