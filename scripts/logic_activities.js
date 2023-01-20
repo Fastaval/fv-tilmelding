@@ -41,7 +41,7 @@ class FVSignupLogicActivities {
         description = description.next()
         if (description.length == 0) return;
       }
-      if (description.css('display') == 'none') {
+      if (!description.is(":visible")) {
         jQuery('#activities_module .description-row').hide();
         description.show();
       } else {
@@ -176,6 +176,7 @@ class FVSignupLogicActivities {
     jQuery('#activities_module .day-button.selected').removeClass('selected');
     jQuery('#activities_module #day-button-'+weekday).addClass('selected');
     jQuery('#activities_module #activity-tables-wrapper table').hide();
+    jQuery('#activities_module .description-row').hide();
     jQuery('#activities_module #activities-day-'+weekday).show();
   }
 
@@ -186,7 +187,10 @@ class FVSignupLogicActivities {
   }
 
   static select_category(categories) {
-    // Hide all activity and description rows
+    // Hide all description rows
+    jQuery('#activities_module .description-row').hide();
+
+    // Hide all activity rows
     let rows = jQuery('#activities_module .activity-row');
     rows.hide().attr('category-filtered', true);
 
