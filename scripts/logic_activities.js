@@ -95,19 +95,41 @@ class FVSignupLogicActivities {
     let hide, show;
     if (participant == 'Juniordeltager') {
       if (FVSignup.get_input('junior:plus').prop('checked')) {
+        // Show all filter buttons
         jQuery('#activities_module .filter *').show();
         jQuery('#activities_module .filter').show();
-        show = jQuery('.activity-row');
+
+        // Hide activities that collide with junior activities
+        let junior_activities = jQuery('.activity-row.junior .activity-choice');
+        let day_table = junior_activities.closest('table');
+        let choices = day_table.find('.activity-row').not('.junior').find('.activity-choice');
         hide = jQuery();
+        choices.each(function() {
+          let choice = jQuery(this);
+          if (FVSignupLogicActivities.check_overlap(choice, junior_activities)) {
+            let row = choice.closest('.activity-row');
+            hide = hide.add(row);
+            hide = hide.add(row.next());
+            hide = hide.add(row.prev());
+          }
+        })
+
+        show = jQuery('.activity-row').not(hide);
       } else {
+        // Hide filter buttons
         jQuery('#activities_module .filter').hide();
+        
+        // Show only junior activities
         hide = jQuery('.activity-row').not('.junior');
-        show = jQuery('.activity-row').filter('.junior');
+        show = jQuery('.activity-row.junior');
       }
     } else {
+      // Show filter without junior button
       jQuery('#activities_module .filter .junior').hide();
       jQuery('#activities_module .filter').show();
-      hide = jQuery('.activity-row').filter('.junior');
+      
+      // Show all non-junior activities
+      hide = jQuery('.activity-row.junior');
       show = jQuery('.activity-row').not('.junior');
     }
     hide.hide();
@@ -336,6 +358,7 @@ class FVSignupLogicActivities {
   }
 
   static check_errors() {
+    this.on_page()
     let error_div = FVSignupModuleActivities.element.find('#activity-errors');
     error_div.empty();
 
