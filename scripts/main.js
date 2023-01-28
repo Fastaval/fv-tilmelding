@@ -173,7 +173,7 @@ class FVSignup {
 
   static get_input(id) {
     id = id.replaceAll(':','\\:');
-    return jQuery(`input#${id}, select#${id}`);
+    return jQuery(`input#${id}, textarea#${id}, select#${id}`);
   }
 
   static get_base_url() {

@@ -296,13 +296,13 @@ class FVSignupLogic {
   
       status === "hidden" ? section_div.hide() : section_div.show();
   
-      let inputs = section_div.find('input');
       if (status === "disabled") {
         section_div.addClass('disabled');
       } else {
         section_div.removeClass('disabled');
       }
 
+      let inputs = section_div.find('input, textarea, select');
       if (status == "normal") {
         inputs.each(function() {
           // only enable inputs that haven't been individually disabled
@@ -688,6 +688,13 @@ class FVSignupLogic {
   }
 
   static get_error_text(id, type) {
+    if (type === 'sleeping_too_young') {
+      let lang = FVSignup.get_lang();
+      let error = FVSignup.config.errors.sleeping_too_young[lang];
+      let age = FVSignup.get_age();
+      return age + error;
+    }
+
     let [error] = this.find_error(id, type);
     return error.text();
   }
