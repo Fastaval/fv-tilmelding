@@ -4,7 +4,6 @@ class FVSignupLogicActivities {
   static activity_info;
   static config;
 
-  // TODO Multiblok
   static init(info, config) {
     this.activity_info = info;
     this.config = config;
@@ -208,6 +207,11 @@ class FVSignupLogicActivities {
 
   static choice_click(choice) {
     let input = choice.find('input');
+    if (choice.attr('multiblock')) {
+      let run_id = choice.attr('run-id');
+      input = FVSignupModuleActivities.element.find(`input#activity\\:${run_id}`);
+    }
+
     let value = parseInt(input.val());
     if (isNaN(value)) (value = 0);
 
@@ -226,8 +230,13 @@ class FVSignupLogicActivities {
     }
 
     value++
+    // Check if we have other runs overlapping
     if(choice.attr('exclusive') == 'true') while (value == 1 || value == 2 || (value == prio_count + 2 && gm)) {
-      // Check if we have other runs overlapping
+      // Add multiblock runs if we have any
+      if (choice.attr('multiblock')) {
+        let run_id = choice.attr('run-id');
+        choice = FVSignupModuleActivities.element.find(`.activity-choice[run-id=${run_id}]`);
+      }
 
       // Find all the time exclusive runs with same priority within the same day
       let day_table = choice.closest('table')
@@ -239,32 +248,19 @@ class FVSignupLogicActivities {
       }
  
       // Don't count the one we clicked
-      same_prio = same_prio.not('input#'+input.attr('id').replaceAll(':', '\\:'));
+      same_prio = same_prio.not(input);
 
       // If we have no other runs with same priority, we're done
       if(same_prio.length == 0) break;
 
-      let run_start = parseInt(choice.attr('run-start'));
-      let run_end = parseInt(choice.attr('run-end'));
-      // Does any of the same prio overlap?
+      // If there is no overlap, we keep the current value
       let overlap = false;
-      for (const other of same_prio) {
-        let other_choice = jQuery(other).closest('.activity-choice');
-
-        let other_start = parseInt(other_choice.attr('run-start'));
-        let other_end = parseInt(other_choice.attr('run-end'));
-
-        // If other run is before this one
-        if (other_start < run_start && other_end <= run_start) continue;
-
-        // If other run is after this one
-        if (other_start >= run_end && other_end > run_end) continue;
-
-        overlap = true;
-        break;
+      for(const element of choice) {
+        if (this.check_overlap(choice, same_prio)) {
+          overlap = true;
+        }
       }
-
-      if (!overlap) break; // There was no overlap and we keep the current value
+      if (!overlap) break;
       
       value++; // There was overlap and we go with next priority
     }
@@ -273,9 +269,40 @@ class FVSignupLogicActivities {
     input.change();
   }
 
+  static check_overlap(choice, others) {
+    let run_start = parseInt(choice.attr('run-start'));
+    let run_end = parseInt(choice.attr('run-end'));
+    
+    // Does any of the other runs overlap?
+    for (const other of others) {
+      let other_choice = jQuery(other).closest('.activity-choice');
+
+      let other_start = parseInt(other_choice.attr('run-start'));
+      let other_end = parseInt(other_choice.attr('run-end'));
+
+      // If other run is before this one
+      if (other_start < run_start && other_end <= run_start) continue;
+
+      // If other run is after this one
+      if (other_start >= run_end && other_end > run_end) continue;
+
+      return true; // We found an overlap
+    }
+    return false; // We didn't find any overlap
+  }
+
   static choice_change(input) {
-    let lang = fv_signup_settings.lang;
-    let label = input.next();
+    let lang = FVSignup.get_lang();
+
+    let wrapper = input.closest('.activity-choice');
+    let label = wrapper.find('.choice-text');
+
+    // Change text of all labels for multiblock run
+    if (wrapper.attr('multiblock')) {
+      let run_id = wrapper.attr('run-id');
+      label = FVSignupModuleActivities.element.find(`.activity-choice[run-id=${run_id}] .choice-text`);
+    }
+
     let value = input.val();
     let choices = this.config.choices;
     let type = input.closest('.activity-choice').attr('activity-type');

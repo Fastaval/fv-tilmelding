@@ -288,12 +288,29 @@ class FVSignupModuleSubmit {
           let wrapper = input.closest('.input-wrapper');
           switch (true) {
             case wrapper.hasClass('activity-choice'): // Activity selection
-              let activity_row = wrapper.closest('.activity-row').prev();
-              text = activity_row.find('.title-wrapper').text();
-              let day = activity_row.closest('table').attr('activity-day');
-              text += " - "+FVSignup.uc_first(FVSignup.get_weekday(day))+" ";
-              let time = new Date(parseInt(wrapper.attr('run-start'))*1000);
-              text += (time.getHours()+"").padStart(2, '0')+":"+(time.getMinutes()+"").padStart(2, '0');
+              // Activity title
+              let top_row = wrapper.closest('.activity-row').prev();
+              text = top_row.find('.title-wrapper').text() + " - ";
+
+              // Get times from all parts
+              if (wrapper.attr('multiblock')) {
+                let run_id = wrapper.attr('run-id');
+                wrapper = jQuery(`.activity-choice[run-id=${run_id}]`);
+              } 
+
+              // Activity time text
+              let times = [];
+              wrapper.each(function () {
+                let element = jQuery(this);
+                let day = element.closest('table').attr('activity-day');
+                let time_text = FVSignup.uc_first(FVSignup.get_weekday(day))+" ";
+                let time = new Date(parseInt(element.attr('run-start'))*1000);
+                time_text += (time.getHours()+"").padStart(2, '0')+":"+(time.getMinutes()+"").padStart(2, '0');
+                times.push(time_text);
+              });
+              text += times.join(', ');
+
+              // Activity priority value
               let choices = FVSignupLogicActivities.config.choices;
               if (entry.value <= choices.prio[lang].length) {
                 value = choices.prio[lang][entry.value-1];

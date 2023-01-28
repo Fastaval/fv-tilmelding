@@ -218,8 +218,18 @@ class FVSignupModuleActivities {
     choice.attr('run-start', run.start.stamp);
     choice.attr('run-end', run.end.stamp);
     choice.attr('exclusive', activity.exclusive);
-    choice.append('<input type="hidden" id="activity:'+run.id+'" no-submit-empty="true" value="0">');
     choice.append('<div class="choice-text"></div>');
+
+    let id = 'activity:'+run.id;
+    if (run.multi) {
+      choice.attr('multiblock', true);
+      choice.attr('run-id', run.id);
+      
+      // If the hidden input for the run already exist, don't add more
+      if(FVSignup.get_input(id).length !== 0) return choice;
+    }
+
+    choice.append(`<input type="hidden" id="${id}" no-submit-empty="true" value="0">`);
     return choice;
   }
 
