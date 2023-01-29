@@ -351,8 +351,11 @@ class FVSignupModuleSubmit {
         // Extra stuff for special values
         if (input.attr('submit-value')) { // Input has special submit text instead of value
           value = input.attr('submit-value');
+          if (value.includes('{price}')) {
+            value = value.replace("{price}", entry.price);
+          }
         } else if (entry.price) { // Some special cases for price display
-          if(entry.value == 'on') {
+          if (entry.value == 'on') {
             value = entry.price+" "+FVSignup.config.dkk[lang];
           } else {
             if (entry.single_price) {

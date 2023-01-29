@@ -54,11 +54,11 @@ class FVSignupModuleFood {
         
         let checkbox = checkbox_wrapper.find('input');
         checkbox.attr('submit-text', `${day_text}: ${cat_text}`)
-        checkbox.attr('submit-value', `${food.text[lang]} (${food_cat.price} ${FVSignup.config.dkk[lang]})`)
+        checkbox.attr('submit-value', `${food.text[lang]} ({price} ${FVSignup.config.dkk[lang]})`)
         checkbox.attr('food-category', cat_id);
 
         if (food_cat.exclude) checkbox.change(function() {
-          if (!checkbox.prop('checked')) return; // Only do something if we enabled the heckbox
+          if (!checkbox.prop('checked')) return; // Only do something if we enabled the checkbox
 
           let row = checkbox.closest('tr');
           let other = row.find(`input[food-category=${food_cat.exclude}]`);
