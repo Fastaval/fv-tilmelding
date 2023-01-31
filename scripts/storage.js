@@ -186,7 +186,11 @@ class FVSignupStorage {
       let text_input = wrapper.find('input[type=text]');
       let list = FVSignup.config.autocomplete[wrapper.attr('autocomplete-list')];
       let lang = FVSignup.get_lang();
-      list[value] ? text_input.val(list[value][lang]) : text_input.val('');
+      let input_text = ''
+      if (list[value]) {
+        input_text = list[value][lang] ?? list[value]['da'] // Fallback to danish
+      }
+      text_input.val(input_text)
     }
   }
 
