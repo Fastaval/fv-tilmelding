@@ -2,6 +2,8 @@
 
 class FVSignupModuleFood {
   static div;
+  static info;
+  static config;
 
   static init(element, callback) {
     this.div = jQuery('<div id="food_module" class="module-div" module="food"></div>');
@@ -10,17 +12,24 @@ class FVSignupModuleFood {
 
     jQuery.getJSON({
       url: fv_signup_settings.infosys_url+"/api/signup/food",
-      success: function (food) {
-        FVSignupModuleFood.render_food(food);
+      success: function (info) {
+        FVSignupModuleFood.info = info;
+        if (FVSignupModuleFood.config) FVSignupModuleFood.render_food();
       }
     }).fail(function () {
       FVSignup.com_error();
     }).always(function (){
       callback();
     });
+
+    FVSignup.load_config('food', function (config) {
+      FVSignupModuleFood.config = config;
+      if (FVSignupModuleFood.info) FVSignupModuleFood.render_food();
+    });
   }
 
-  static render_food(food_info) {
+  static render_food() {
+    let food_info = this.info;
     let lang = fv_signup_settings.lang;
     this.div.empty();
 
@@ -68,6 +77,45 @@ class FVSignupModuleFood {
         cell.append(checkbox_wrapper);
       }
     }
+  }
+
+  static get_error_msg(error) {
+    let label, msg;
+    let lang = FVSignup.get_lang();
+
+    if (this.config.errors[error.type]) {
+      msg = this.config.errors[error.type][lang];
+    }
+
+    return [label, msg];
+  }
+
+  static get_confirm(entry) {
+    let text, value;
+
+    if (entry.warning) {
+      // Warning text
+      let lang = FVSignup.get_lang();
+      let warn = this.config.warning[lang];
+      let warn_text = this.config.warnings[entry.warning][lang];
+      text = `<strong>${warn}! ${warn_text}</strong>`;
+
+      // Warning value
+      if (entry.warning == 'unused_food_credits') {
+        let breakfast_text = this.config.breakfast[lang];
+        let dinner_text = this.config.dinner[lang];
+        let remaining_text = this.config.remaining[lang];
+        
+        value = `${breakfast_text} ${remaining_text}: ${entry.breakfast_remaining}<br>${dinner_text} ${remaining_text}: ${entry.dinner_remaining}`;
+      } else {
+        value = entry.value;
+      }
+    } else {
+      let id = entry.key.replaceAll(':', '\\:');
+      text = jQuery('label[for='+id+']').text().replace(':','');
+    }
+
+    return [text, value];
   }
 }
 
