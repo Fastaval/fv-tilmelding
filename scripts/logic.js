@@ -200,7 +200,7 @@ class FVSignupLogic {
   static check_rule(rule, status = false) {
     rule.status = rule.status ?? true;
     let input = rule.input ? FVSignup.get_input(rule.input) : undefined;
-    let compare_value;
+    let compare_value, check_value;
 
     switch(rule.type) {
       case 'default':
@@ -225,19 +225,33 @@ class FVSignupLogic {
         console.error("Rule Logic, Unknown rule type", "Rule:", rule);
     }
 
+    check_value = rule.value;
+    if (rule.value.match) {
+      let match = rule.value.match(/config.(.+)/);
+      if (match && match[1]) {
+        check_value = FVSignup.config[match[1]];
+      }
+    }
+
     if (rule.compare) {
       switch (rule.compare) {
         case 'equals':
-          return compare_value == rule.value ? rule.status : status;
+          return compare_value == check_value ? rule.status : status;
 
         case 'not_equals':
-          return compare_value != rule.value ? rule.status : status;
+          return compare_value != check_value ? rule.status : status;
 
         case 'greater': 
-          return compare_value > rule.value ? rule.status : status;
+          return compare_value > check_value ? rule.status : status;
+
+        case 'greater_equal': 
+          return compare_value >= check_value ? rule.status : status;
 
         case 'less': 
-          return compare_value < rule.value ? rule.status : status;
+          return compare_value < check_value ? rule.status : status;
+
+        case 'less_equal': 
+          return compare_value <= check_value ? rule.status : status;
 
         default:
           console.error("Rule Logic, Unknown comparisson", "Rule:", rule);
@@ -688,9 +702,9 @@ class FVSignupLogic {
   }
 
   static get_error_text(id, type) {
-    if (type === 'sleeping_too_young') {
+    if (type === 'sleeping_too_young' || type == 'wine_too_young') {
       let lang = FVSignup.get_lang();
-      let error = FVSignup.config.errors.sleeping_too_young[lang];
+      let error = FVSignup.config.errors[type][lang];
       let age = FVSignup.get_age();
       return age + error;
     }
