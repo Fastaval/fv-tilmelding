@@ -102,11 +102,19 @@ class FVSignupModuleFood {
 
       // Warning value
       if (entry.warning == 'unused_food_credits') {
-        let breakfast_text = this.config.breakfast[lang];
-        let dinner_text = this.config.dinner[lang];
-        let remaining_text = this.config.remaining[lang];
+        let breakfast = this.config.breakfast[lang];
+        let dinner = this.config.dinner[lang];
+        let remaining = this.config.remaining[lang];
         
-        value = `${breakfast_text} ${remaining_text}: ${entry.breakfast_remaining}<br>${dinner_text} ${remaining_text}: ${entry.dinner_remaining}`;
+        let breakfast_remaining = `${breakfast} ${remaining}: ${entry.breakfast_remaining}`;
+        let dinner_remaining = `${dinner} ${remaining}: ${entry.dinner_remaining}`;
+
+        value = "";
+        if (entry.breakfast_remaining > 0) value = breakfast_remaining;
+        if (entry.dinner_remaining > 0) {
+          if (value !== "") value += '<br>';
+          value += dinner_remaining;
+        }
       } else {
         value = entry.value;
       }
