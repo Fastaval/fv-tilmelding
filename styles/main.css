@@ -29,6 +29,15 @@ h1.entry-title {
 }
 
 /*----------------------------------------------------------------------------
+    Existing signup
+----------------------------------------------------------------------------*/
+div#existing-controls button {
+  padding: .5rem;
+  line-height: 1rem;
+  margin-left: 1rem;  
+}
+
+/*----------------------------------------------------------------------------
     Storage
 ----------------------------------------------------------------------------*/
 div#storage-controls {
@@ -592,7 +601,8 @@ div#submit_module td:nth-child(2) {
   text-align: right;
 }
 
-div#submit_module .signup-data button {
+div#submit_module .signup-data button,
+div#submit_module .confirm-page button {
   margin: 2rem auto 0 auto;
   display: block;
   font-size: 1.5rem;

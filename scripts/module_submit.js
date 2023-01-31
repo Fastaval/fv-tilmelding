@@ -28,9 +28,28 @@ class FVSignupModuleSubmit {
     FVSignup.load_config('submit', function (config) {
       FVSignupModuleSubmit.config = config;
       FVSignupModuleSubmit.config.loaded = true;
+      FVSignupModuleSubmit.render_existing();
       FVSignupModuleSubmit.render_confirm();
       callback();
     });
+  }
+
+  static render_existing() {
+    let lang = FVSignup.get_lang();
+
+    FVSignup.existing_controls.hide();
+
+    let text = jQuery(`<span>${this.config.existing[lang]} <span>`);
+    FVSignup.existing_controls.append(text);
+    
+    this.display_id = jQuery(`<span id="display-id"><span>`);
+    FVSignup.existing_controls.append(this.display_id);
+
+    let button = jQuery(`<button>${this.config.reset[lang]}</button>`)
+    FVSignup.existing_controls.append(button);
+    button.click(function() {
+      FVSignupLogic.reset_signup();
+    })
   }
 
   static render_confirm() {
@@ -44,6 +63,14 @@ class FVSignupModuleSubmit {
     text = text.replaceAll('[TOTAL]', '<span id="display-total"></span>');
     text = text.replaceAll('[PAYDAY]', '<span id="display-payday"></span>');
     this.confirm_page.append('<p>'+text+'</p>');
+
+    this.confirm_page.append('<p>'+this.config.create_new[lang]+'</p>');
+
+    let new_button = jQuery('<button id="confirm-reset-button">'+this.config.reset[lang]+'</button>');
+    this.confirm_page.append(new_button);
+    new_button.click(function() {
+      FVSignupLogic.reset_signup();
+    })
   }
 
   static get_info() {
@@ -62,6 +89,13 @@ class FVSignupModuleSubmit {
   static set_info(id, pass) {
     this.element.find('input#id').val(id);
     this.element.find('input#pass').val(pass);
+    this.display_id.text(id);
+
+    if (id) {
+      FVSignup.existing_controls.show();
+    } else {
+      FVSignup.existing_controls.hide();
+    }
   }
 
   static on_page() {
@@ -459,12 +493,7 @@ class FVSignupModuleSubmit {
       this.errors.empty();
     }
     this.signup_data.hide();
-    let id = this.element.find('input#id');
-    id.val(response.info.id);
-    id.change();
-    let pass = this.element.find('input#pass');
-    pass.val(response.info.pass);
-    pass.change();
+    this.set_info(response.info.id, response.info.pass)
     this.confirm_page.find('#display-id').text(response.info.id);
     this.confirm_page.find('#display-total').text(response.result.total);
     

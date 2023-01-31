@@ -712,4 +712,10 @@ class FVSignupLogic {
     let [error] = this.find_error(id, type);
     return error.text();
   }
+
+  static reset_signup() {
+    this.nav_click('welcome');
+    FVSignupStorage.load_from_server([]);
+    FVSignupModuleSubmit.set_info("", "");
+  }
 }

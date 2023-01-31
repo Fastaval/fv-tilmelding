@@ -26,6 +26,9 @@ class FVSignup {
     this.navigation = jQuery("<nav id='signup-navigation'></nav>");
     this.main_content.append(this.navigation);
     
+    this.existing_controls = jQuery('<div id="existing-controls"></div>');
+    this.main_content.append(this.existing_controls);
+
     this.storage_controls = jQuery('<div id="storage-controls"></div>');
     this.main_content.append(this.storage_controls);
 
