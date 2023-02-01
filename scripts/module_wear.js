@@ -95,6 +95,9 @@ class FVSignupModuleWear {
       //------------------------------------------------------------------------------
       let image_wrapper = jQuery('<div class="wear-item-image-wrapper"></div>');
       wear_content.append(image_wrapper);
+      image_wrapper.click(function(evt) {
+        jQuery(evt.delegateTarget).toggleClass('light-box');
+      })
 
       image_wrapper.append('<img>');
       //------------------------------------------------------------------------------
