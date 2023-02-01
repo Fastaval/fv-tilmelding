@@ -56,7 +56,11 @@ class FVSignupRender {
       // Required selection logic
       if (section.require_one || section.require_one_if) {
         let error_div = jQuery('<div class="error-text" error-type="require_one"></div>');
-        error_div.text(FVSignup.config.errors["require_one"][lang]);
+        if (section.special_require_error) {
+          error_div.text(FVSignup.config.errors[section.special_require_error][lang]);
+        } else {
+          error_div.text(FVSignup.config.errors["require_one"][lang]);
+        }
         error_div.hide();
         section_wrapper.append(error_div);
       }
