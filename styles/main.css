@@ -12,11 +12,15 @@ div.page-content {
 }
 
 .foldout::after {
-  content: " \2B9F";
+  content: "\27A4";
+  transform: rotate(90deg);
+  display: inline-block;
+  margin-left: .5rem;
+  transition-duration: .5s;
 }
 
 .foldout.open::after {
-  content: " \2B9D";
+  transform: rotate(270deg);
 }
 
 /*----------------------------------------------------------------------------
