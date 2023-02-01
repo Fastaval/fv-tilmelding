@@ -474,6 +474,11 @@ div#activities_module table .activity-row .activity-cell.no-select {
   background-image: url('../img/stripe.png');
 }
 
+div#activities_module table td.spacing-cell {
+  padding: 0;
+  min-width: .5rem;
+}
+
 /*----------------------------------------------------------------------------
     Wear
 ----------------------------------------------------------------------------*/

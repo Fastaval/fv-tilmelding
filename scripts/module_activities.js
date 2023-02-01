@@ -70,6 +70,11 @@ class FVSignupModuleActivities {
       parity = parity == 'odd' ? 'even' : 'odd';
     }
 
+    let spacing_row = jQuery('<tr class="spacing-row"></tr>') ;
+    for(let i = 0; i <= 36; i++) {
+      spacing_row.append('<td class="spacing-cell"></td>');
+    }
+
     for(const day in activities_info.runs){
       // Day button
       let day_text = FVSignup.get_weekday(day);
@@ -172,6 +177,7 @@ class FVSignupModuleActivities {
 
         table_body.append(desc_row);
       }
+      table_body.append(spacing_row.clone());
     }
     this.logic = FVSignupLogicActivities;
     this.logic.init(activities_info, this.config);
