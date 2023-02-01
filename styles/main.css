@@ -55,23 +55,22 @@ div#storage-controls h3 {
 div#load-signup-wrapper {
   display: flex;
   gap: 1em;
+  flex-wrap: wrap;
+}
+
+div#load-signup-id-wrapper,
+div#load-signup-pass-wrapper {
+  display: flex;
   align-items: baseline;
+  gap: .5rem;
 }
 
-div#load-signup-wrapper label {
-  flex-basis: content;
+#load-signup-id {
+  width: 14rem;
 }
 
-div#load-signup-wrapper :nth-child(2) {
-  flex-basis: 30%;
-}
-
-div#load-signup-wrapper :nth-child(4) {
-  flex-basis: 20%;
-}
-
-div#load-signup-wrapper :nth-child(5) {
-  flex: 0 0 8%;
+#load-signup-pass {
+  width: 8rem;
 }
 
 /*----------------------------------------------------------------------------

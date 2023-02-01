@@ -35,11 +35,14 @@ class FVSignupStorage {
     controls_content.append('<p>'+this.config.from_server[lang]+':</p>');
     let load_wrapper = jQuery('<div id="load-signup-wrapper"></div>');
     load_wrapper.append(`
-      <label for="load-signup-id">${this.config.signup_id[lang]}:</label>
-      <input type="text" id="load-signup-id">
-      <label for="load-signup-pass">${this.config.signup_pass[lang]}:</label>
-      <input type="password" id="load-signup-pass">
-      
+      <div id="load-signup-id-wrapper">
+        <label for="load-signup-id">${this.config.signup_id[lang]}:</label>
+        <input type="text" id="load-signup-id">
+      </div>
+      <div id="load-signup-pass-wrapper">
+        <label for="load-signup-pass">${this.config.signup_pass[lang]}:</label>
+        <input type="password" id="load-signup-pass">
+      </div>
     `)
     controls_content.append(load_wrapper);
 
