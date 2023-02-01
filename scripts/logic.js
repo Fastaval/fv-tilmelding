@@ -514,7 +514,11 @@ class FVSignupLogic {
       // Check section errors
       let con_req_one = false; // Condinitional require one
       if (section.require_one_if) {
-        con_req_one = this.check_rule(section.require_one_if)
+        let status = false;
+        for(const rule of section.require_one_if.rules) {
+          status = this.check_rule(rule, status);
+        }
+        con_req_one = status;
       }
 
       if (section.require_one || con_req_one) {
