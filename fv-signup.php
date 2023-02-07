@@ -29,7 +29,9 @@ class FVSignup {
     //error_log("Query:".print_r($query, true), 3, plugin_dir_path(__FILE__)."/debug.log");
 
     // Check if we're trying to access an enabled signup page
-    if (!isset($query->query['name'])) {
+    if (isset($query->query['pagename'])) {
+      self::$base_path = $query->query['pagename'];
+    } elseif (!isset($query->query['name'])) {
       if (!isset($query->query['attachment'])) {
         return;
       }
@@ -89,8 +91,8 @@ class FVSignup {
       wp_enqueue_script('fv-signup-script-module-hero', plugin_dir_url(__FILE__)."scripts/module_hero.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/module_hero.js"));
 
       // Render scripts from Infosys
-      wp_enqueue_script('fv-signup-script-infosys-render', $settings['infosys_url']."/js/signup/render.js?", array( 'jquery' ), rand());
-      wp_enqueue_script('fv-signup-script-infosys-process', $settings['infosys_url']."/js/signup/preprocess.js", array( 'jquery' ), rand());
+      wp_enqueue_script('fv-signup-script-infosys-render', $settings['infosys_url']."/js/signup/render.js?", array( 'jquery' ), 10);
+      wp_enqueue_script('fv-signup-script-infosys-process', $settings['infosys_url']."/js/signup/preprocess.js", array( 'jquery' ), 3);
 
       // Styles
       wp_enqueue_style( 'fv-signup-styles-main', plugin_dir_url(__FILE__)."styles/main.css",'', filemtime(plugin_dir_path(__FILE__)."styles/main.css"));
