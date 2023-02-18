@@ -144,7 +144,11 @@ class FVSignupLogic {
       for (const [index, section] of page.sections.entries()) {
         this.init_display_logic( { page: page_id, section: index}, section);
         for (const item of section.items ?? []) {
-          this.init_item_logic(item);
+          if (page.disabled_items && page.disabled_items.includes(item.infosys_id)) {
+            this.set_display_status({input: item.infosys_id}, 'disabled');
+          } else {
+            this.init_item_logic(item);
+          }
 
           if (!Array.isArray(item.options)) continue;
           for (const [index, option] of item.options.entries()) {
