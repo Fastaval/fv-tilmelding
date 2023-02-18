@@ -516,6 +516,12 @@ class FVSignupModuleSubmit {
     } else {
       text = this.config.unknown[lang];
     }
+
+    if (entry.id) {
+      value = text;
+      let id = entry.id.replaceAll(':', '\\:');
+      text = jQuery('label[for='+id+']').text().replace(':','');
+    }
     
     return [text, value];
   }
