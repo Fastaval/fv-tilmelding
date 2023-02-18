@@ -175,6 +175,8 @@ class FVSignup {
   }
 
   static get_input(id) {
+    if (typeof id !== 'string') return jQuery('');
+
     id = id.replaceAll(':','\\:');
     return jQuery(`input#${id}, textarea#${id}, select#${id}`);
   }
