@@ -506,6 +506,19 @@ class FVSignupModuleSubmit {
     this.confirm_page.show();
     this.page_header.hide();
   }
+
+  static get_confirm(entry) {
+    let text, value = '';
+    let lang = FVSignup.get_lang();
+    
+    if (this.config.warnings[entry.warning]) {
+      text = `<strong>${this.config.warnings[entry.warning][lang]}</strong>`;
+    } else {
+      text = this.config.unknown[lang];
+    }
+    
+    return [text, value];
+  }
 }
 
 FVSignup.register_module('submit', FVSignupModuleSubmit);
