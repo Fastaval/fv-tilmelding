@@ -152,7 +152,11 @@ class FVSignupLogic {
 
           if (!Array.isArray(item.options)) continue;
           for (const [index, option] of item.options.entries()) {
-            this.init_display_logic({input: `${item.infosys_id}-${index}`}, option);
+            if (page.disabled_options && page.disabled_options[item.infosys_id] && page.disabled_options[item.infosys_id].includes(option.value)) {
+              this.set_display_status({input: `${item.infosys_id}-${index}`}, 'disabled');
+            } else {
+              this.init_display_logic({input: `${item.infosys_id}-${index}`}, option);
+            }
           }
         }
       }
