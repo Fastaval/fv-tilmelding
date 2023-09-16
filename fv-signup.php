@@ -92,7 +92,7 @@ class FVSignup {
 
       // Render scripts from Infosys
       wp_enqueue_script('fv-signup-script-infosys-render', $settings['infosys_url']."/js/signup/render.js?", array( 'jquery' ), 10);
-      wp_enqueue_script('fv-signup-script-infosys-process', $settings['infosys_url']."/js/signup/preprocess.js", array( 'jquery' ), 3);
+      wp_enqueue_script('fv-signup-script-infosys-process', $settings['infosys_url']."/js/signup/preprocess.js", array( 'jquery' ), 6);
 
       // Styles
       wp_enqueue_style( 'fv-signup-styles-main', plugin_dir_url(__FILE__)."styles/main.css",'', filemtime(plugin_dir_path(__FILE__)."styles/main.css"));

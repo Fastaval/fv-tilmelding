@@ -11,6 +11,7 @@ class FVSignup {
   static page_keys;
   static pages = {};
   static modules = {};
+  static last_page;
   
   static main_content;
   static navigation;
@@ -84,6 +85,15 @@ class FVSignup {
     })
 
     FVSignupLogic.page_list(pages);
+
+    // Mark the last 
+    let max_order = 0;
+    for (const key in pages) {
+      if (pages[key].order > max_order) {
+        max_order = pages[key].order;
+        this.last_page = key;
+      }
+    }
 
     // Render navigation
     FVSignupRender.navigation(pages, this.page_keys, this.navigation);

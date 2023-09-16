@@ -93,7 +93,7 @@ class FVSignupRender {
       prev_button.click(function() { FVSignupLogic.prev(); });
       footer.append(prev_button);
     }
-    if (page.order < FVSignup.page_keys.length) {
+    if (key != FVSignup.last_page) {
       let text = lang == 'da' ? 'Næste' : 'Next';
       let next_button = jQuery('<button></button>');
       next_button.addClass('next-button');
