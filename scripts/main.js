@@ -13,38 +13,80 @@ class FVSignup {
   static modules = {};
   static last_page;
   
-  static main_content;
+  static page_content;
+  static signup_content;
   static navigation;
   static storage_controls;
   static page_wrapper;
+
+  static show_signup() {
+    let key = FVSignupLogic.current_page;
+    window.history.pushState({page:key},"", FVSignup.get_base_url()+key+"/");
+
+    this.page_content.children().each(function() {
+      jQuery(this).hide();
+    })
+
+    if (this.signup_content == undefined) {
+      this.load_signup();
+    }
+
+    this.signup_content.show();
+  }
+
+  static hide_all() {
+    this.page_content.children().each(function () {
+      jQuery(this).hide();
+    })
+  }
 
   static init () {
     let placeholder = jQuery(".signup-placeholder");
     placeholder.remove();
 
-    this.main_content = jQuery(".page-content");
-
-    this.navigation = jQuery("<nav id='signup-navigation'></nav>");
-    this.main_content.append(this.navigation);
+    this.page_content = jQuery(".page-content");
     
-    this.existing_controls = jQuery('<div id="existing-controls"></div>');
-    this.main_content.append(this.existing_controls);
-
-    this.storage_controls = jQuery('<div id="storage-controls"></div>');
-    this.main_content.append(this.storage_controls);
-
-    this.page_wrapper = jQuery("<div id='signup-pages'></div>");
-    this.main_content.append(this.page_wrapper);
-
     jQuery(window).on('popstate', function(evt) {
-      FVSignupLogic.nav_click(evt.originalEvent.state.page);
+      let page = evt.originalEvent.state.page;
+      if (page == 'payment') {
+        FVSignupPayment.show_payment();
+        return;  
+      }
+
+      FVSignupLogic.nav_click(page);
     });
 
+    // Add get method for all settings
     for (const key in fv_signup_settings) {
       this['get_'+ key] = function() {
         return fv_signup_settings[key];
       }
     }
+
+    if (fv_signup_settings.start_page == 'payment') {
+      fv_signup_settings.start_page = null;
+      FVSignupPayment.show_payment();
+      return;
+    }
+
+    this.load_signup();
+  }
+
+  static load_signup() {
+    this.signup_content = jQuery("<div id='signup-content'></div>");
+    this.page_content.append(this.signup_content);
+
+    this.navigation = jQuery("<nav id='signup-navigation'></nav>");
+    this.signup_content.append(this.navigation);
+    
+    this.existing_controls = jQuery('<div id="existing-controls"></div>');
+    this.signup_content.append(this.existing_controls);
+
+    this.storage_controls = jQuery('<div id="storage-controls"></div>');
+    this.signup_content.append(this.storage_controls);
+
+    this.page_wrapper = jQuery("<div id='signup-pages'></div>");
+    this.signup_content.append(this.page_wrapper);
 
     this.load_config('main', function (config) {
       FVSignup.config = config;
@@ -98,7 +140,7 @@ class FVSignup {
     // Render navigation
     FVSignupRender.navigation(pages, this.page_keys, this.navigation);
     // Setup navigation functionality
-    this.main_content.find("nav div").click((evt) => {
+    this.signup_content.find("nav div").click((evt) => {
       let key = evt.target.getAttribute("page-id");
       FVSignupLogic.nav_click(key);
     })

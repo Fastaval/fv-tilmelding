@@ -19,6 +19,13 @@ class FVSignup {
   static function init() {
     FVSignupOptions::init();
     add_action('pre_get_posts', 'FVSignup::pre_get_posts');
+    add_filter( 'query_vars', 'FVSignup::query_vars' );
+  }
+
+  static function query_vars($var_list) {
+    $var_list[] = 'status';
+    $var_list[] = 'token';
+    return $var_list;
   }
 
   static function pre_get_posts(&$query) {
@@ -46,7 +53,7 @@ class FVSignup {
       $query->is_attachment = "";
     }
 
-    // Save page adress for later
+    // Save page address for later
     self::$current_path = $wp->request;
     // Go to the signup page
     $query->query_vars['name'] = FVSignupOptions::default_page();
@@ -74,6 +81,8 @@ class FVSignup {
       $settings['plugin_root'] = plugin_dir_url(__FILE__);
       $settings['base'] = "/".FVSignup::$base_path."/";
       $settings['start_page'] = FVSignup::$page;
+      $settings['status'] = get_query_var('status');
+      $settings['token'] = get_query_var('token');
 
       // General Scripts
       wp_enqueue_script('fv-signup-script-main', plugin_dir_url(__FILE__)."scripts/main.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/main.js"));
@@ -81,7 +90,8 @@ class FVSignup {
       wp_enqueue_script('fv-signup-script-render', plugin_dir_url(__FILE__)."scripts/render.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/render.js"));
       wp_enqueue_script('fv-signup-script-logic', plugin_dir_url(__FILE__)."scripts/logic.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/logic.js"));
       wp_enqueue_script('fv-signup-script-storage', plugin_dir_url(__FILE__)."scripts/storage.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/storage.js"));
-      
+      wp_enqueue_script('fv-signup-script-payment', plugin_dir_url(__FILE__)."scripts/payment.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/payment.js"));
+
       // Module scripts
       wp_enqueue_script('fv-signup-script-module-food', plugin_dir_url(__FILE__)."scripts/module_food.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/module_food.js"));
       wp_enqueue_script('fv-signup-script-module-activities', plugin_dir_url(__FILE__)."scripts/module_activities.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/module_activities.js"));

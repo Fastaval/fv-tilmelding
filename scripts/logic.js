@@ -53,8 +53,8 @@ class FVSignupLogic {
     }
 
     // Move selection
-    FVSignup.main_content.find('nav div.selected').removeClass('selected');
-    FVSignup.main_content.find('nav div[page-id="'+key+'"]').addClass('selected');
+    FVSignup.signup_content.find('nav div.selected').removeClass('selected');
+    FVSignup.signup_content.find('nav div[page-id="'+key+'"]').addClass('selected');
 
     // Hide all pages
     FVSignup.page_wrapper.find('div.signup-page').hide();
@@ -78,7 +78,7 @@ class FVSignupLogic {
   static prev() { this.navigate('prev'); }
 
   static navigate(direction) {
-    let navto = FVSignup.main_content.find('nav div.selected');
+    let navto = FVSignup.signup_content.find('nav div.selected');
     
     do {
       if (direction == 'prev') {
@@ -104,9 +104,14 @@ class FVSignupLogic {
 
     // Open the first page when it's ready (unless we seleted another already)
     if (this.current_page == null && (key == FVSignup.get_start_page() || ( FVSignup.get_start_page() == null && page.order == 1))) {
-      FVSignup.main_content.find('nav div[page-id="'+key+'"]').addClass('selected');
+      FVSignup.signup_content.find('nav div[page-id="'+key+'"]').addClass('selected');
       FVSignup.page_wrapper.find('div#'+key).show();
       this.current_page = key;
+
+      if (FVSignup.get_start_page() == null) {
+        // Set addressbar to start page
+        window.history.pushState({page:key},"", FVSignup.get_base_url()+key+"/");
+      }
 
       // Fire listeners
       this.fire('page_'+key);
@@ -674,7 +679,7 @@ class FVSignupLogic {
   }
 
   static mark_errors(page_id, errors) {
-    let nav_button = FVSignup.main_content.find('nav div[page-id="'+page_id+'"]');
+    let nav_button = FVSignup.signup_content.find('nav div[page-id="'+page_id+'"]');
     let page_div = FVSignup.get_page_div(page_id);
 
     // Remove existing error markings
@@ -703,7 +708,7 @@ class FVSignupLogic {
   static find_error(id, type) {
     let wrapper;
     if (type == 'require_one') {
-      wrapper = FVSignup.main_content.find('.section-wrapper#page-section-'+id);
+      wrapper = FVSignup.signup_content.find('.section-wrapper#page-section-'+id);
     } else {
       wrapper = FVSignup.get_input(id).closest('.input-wrapper');
     }

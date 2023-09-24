@@ -58,11 +58,38 @@ class FVSignupModuleSubmit {
     this.confirm_page = jQuery('<div class="confirm-page"></div>');
     this.element.append(this.confirm_page);
 
-    let text = this.config.confirmationpage[lang];
-    text = text.replaceAll('[ID]', '<span id="display-id"></span>');
-    text = text.replaceAll('[TOTAL]', '<span id="display-total"></span>');
-    text = text.replaceAll('[PAYDAY]', '<span id="display-payday"></span>');
-    this.confirm_page.append('<p>'+text+'</p>');
+    let button_id = 'pay-now-button';
+    let pay_button = jQuery(`<button id="${button_id}">${this.config.pay_button[lang]}</button>`);
+
+    let confirm_text = this.config.confirmation[lang];
+    confirm_text = confirm_text.replaceAll('[ID]', '<span class="display-id"></span>');
+    this.confirm_page.append(confirm_text);
+
+    this.extra_payment_div = jQuery('<div></div>');
+    this.confirm_page.append(this.extra_payment_div);
+    
+    let extra_payment_text = this.config.extra_payment[lang];
+    extra_payment_text = extra_payment_text.replaceAll('[DUETOTAL]', '<span class="display-due-total"></span>');
+    extra_payment_text = extra_payment_text.replaceAll('[PAIDTOTAL]', '<span class="display-paid-total"></span>');
+    this.extra_payment_div.append(extra_payment_text);
+    
+    this.payment_div = jQuery('<div></div>');
+    this.confirm_page.append(this.payment_div);
+    
+    let payment_text = this.config.payment_info[lang];
+    payment_text = payment_text.replaceAll('[ID]', '<span class="display-id"></span>');
+    payment_text = payment_text.replaceAll('[DUETOTAL]', '<span class="display-due-total"></span>');
+    payment_text = payment_text.replaceAll('[PAYDAY]', '<span class="display-payday"></span>');
+    payment_text = payment_text.replaceAll('[PAYBUTTON]', pay_button[0].outerHTML);
+    this.payment_div.append(payment_text);
+
+    let greetings_text = this.config.greetings[lang];
+    this.confirm_page.append(greetings_text);
+
+    pay_button = this.confirm_page.find(`#${button_id}`);
+    pay_button.click(function() {
+      FVSignupPayment.goto_payment();
+    })
 
     this.confirm_page.append('<p>'+this.config.create_new[lang]+'</p>');
 
@@ -74,7 +101,9 @@ class FVSignupModuleSubmit {
   }
 
   static get_info() {
-    // Set id and pass if we have them
+    if (this.element == undefined) return undefined;
+
+    // Get id and pass if we have them
     let id = parseInt(this.element.find('input#id').val());
     let pass = this.element.find('input#pass').val();
     if (id && !isNaN(id) && pass) {
@@ -494,17 +523,40 @@ class FVSignupModuleSubmit {
     }
     this.signup_data.hide();
     this.set_info(response.info.id, response.info.pass)
-    this.confirm_page.find('#display-id').text(response.info.id);
-    this.confirm_page.find('#display-total').text(response.result.total);
+
+    // Set participant ID
+    this.confirm_page.find('.display-id').text(response.info.id);
+
+    // Calculate and set totals
+    let due_total = response.result.total - response.result.paid;
+    if (due_total == 0) {
+      this.payment_div.hide();
+      this.extra_payment_div.hide();
+    } else {
+      this.payment_div.show();
+      if (response.result.paid > 0) {
+        this.extra_payment_div.show();
+      } else {
+        this.extra_payment_div.hide();
+      }
+    }
+    this.confirm_page.find('.display-due-total').text(due_total);
+    this.confirm_page.find('.display-paid-total').text(response.result.paid);
     
-    // Calculate last payment
+    // Calculate and set last payment
     let signup_end = new Date(FVSignup.config.signup_end.replace(/-/g, "/"));
     let tomorrow = new Date(Date.now() + 24*60*60);
     let payday = new Date(Math.max(signup_end.getTime(), tomorrow.getTime()));
     let payday_text = payday.getDate() + FVSignup.get_ordinal(payday.getDate()) + " " + FVSignup.get_month(payday.getMonth());
-    this.confirm_page.find('#display-payday').text(payday_text);
+    this.confirm_page.find('.display-payday').text(payday_text);
+    
+    // Show the confirmation page
     this.confirm_page.show();
     this.page_header.hide();
+
+    // Scroll to top
+    window.scrollTo(0, 0);
+    window.dispatchEvent(new CustomEvent('scroll')) // Reset top menu    
   }
 
   static get_confirm(entry) {
