@@ -502,6 +502,7 @@ class FVSignupLogic {
     text_input.val(option.text());
     if (hidden.length > 0) {
       hidden.val(option.attr('value'))
+      hidden.change()
     }
 
     // Clear the selection list
