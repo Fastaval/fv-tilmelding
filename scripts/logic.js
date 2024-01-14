@@ -307,6 +307,16 @@ class FVSignupLogic {
       return;
     }
 
+    if (item_id.text) {
+      let text = FVSignup.page_wrapper.find('#'+item_id.text)
+
+      if (status === "hidden") {
+        text.hide();
+      } else {
+        text.show();
+      }
+    }
+
     // If item isn't an input, we need a page
     if (!item_id.page) return;
     
@@ -374,14 +384,18 @@ class FVSignupLogic {
    * Logic for excluding other choices
    */
   static init_item_logic(item) {
-    if (!item.infosys_id) return;
-
-    this.init_display_logic({input: item.infosys_id}, item);
-
-    let input = FVSignup.get_input(item.infosys_id);
-    if (item.excludes) this.init_exclude_item(item, input);
-
-    if (item.autocomplete) this.init_autocomplete(item, input);
+    if (item.infosys_id) { 
+      // Display logic for inputs
+      this.init_display_logic({input: item.infosys_id}, item);
+      
+      // Special logic for inputs
+      let input = FVSignup.get_input(item.infosys_id);
+      if (item.excludes) this.init_exclude_item(item, input);
+      if (item.autocomplete) this.init_autocomplete(item, input);
+    } else if (item.text_id) {
+      // Display logic for text items
+      this.init_display_logic({text: item.text_id}, item);
+    }
   }
 
   static init_exclude_item(item, input) {
@@ -725,6 +739,12 @@ class FVSignupLogic {
       let error = FVSignup.config.errors[type][lang];
       let age = FVSignup.get_age();
       return age + error;
+    }
+
+    if (type === 'unknown_sleeping_area' || type == 'unknown_language') {
+      let lang = FVSignup.get_lang();
+      let error = FVSignup.config.errors[type][lang];
+      return error;
     }
 
     let [error] = this.find_error(id, type);
