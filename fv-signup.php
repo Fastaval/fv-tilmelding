@@ -84,6 +84,14 @@ class FVSignup {
       $settings['status'] = get_query_var('status');
       $settings['token'] = get_query_var('token');
 
+      // Get url for each logo file
+      $data = get_plugin_data( __FILE__ );
+      $plugin_folder = WP_PLUGIN_DIR.'/'.$data['TextDomain'];
+      $logos = glob($plugin_folder.'/img/logos/*');
+      foreach ($logos as $logo) {
+        $settings['logos'][] = str_replace($plugin_folder, $settings['plugin_root'], $logo);
+      }
+
       // General Scripts
       wp_enqueue_script('fv-signup-script-main', plugin_dir_url(__FILE__)."scripts/main.js", array( 'jquery' ), filemtime(plugin_dir_path(__FILE__)."scripts/main.js"));
       wp_localize_script('fv-signup-script-main', "fv_signup_settings", $settings);

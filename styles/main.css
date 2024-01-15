@@ -139,6 +139,26 @@ button.next-button {
 }
 
 /*----------------------------------------------------------------------------
+    Branding Footer (payment logos)
+----------------------------------------------------------------------------*/
+#signup-footer {
+  margin-top: 2rem;
+}
+
+#branding-section p {
+  margin: 0;
+}
+
+#branding-section img {
+  padding: 5px;
+  border-radius: 10px;
+  border: solid black 1px;
+}
+
+#branding-section img:nth-child(n+2) {
+  margin-left: 5px;
+}
+/*----------------------------------------------------------------------------
     Pages
 ----------------------------------------------------------------------------*/
 div#signup-pages div.signup-page {

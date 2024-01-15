@@ -88,10 +88,14 @@ class FVSignup {
     this.page_wrapper = jQuery("<div id='signup-pages'></div>");
     this.signup_content.append(this.page_wrapper);
 
+    this.signup_footer = jQuery(`<div id="signup-footer"></div>`);
+    this.signup_content.append(this.signup_footer);
+
     this.load_config('main', function (config) {
       FVSignup.config = config;
       FVSignup.config.loaded = true;
       FVSignupLogic.fire('config_ready');
+      FVSignupRender.signup_footer(FVSignup.signup_footer);
     });
     FVSignupStorage.init(this.storage_controls);
     this.load_page_list();

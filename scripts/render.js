@@ -116,4 +116,25 @@ class FVSignupRender {
   static unknown_module(name, element) {
     element.append('<p><strong>Unknown module '+name+'</strong></p>');
   }
+
+  static signup_footer(element) {
+    let lang = FVSignup.get_lang();
+    let text = FVSignup.config.payment_logo_text[lang];
+    //let text = "Du kan betale din tilmelding med"
+    
+    let branding = jQuery(`<div id="branding-section"></div>`);
+    element.append(branding);
+
+    let branding_text = jQuery(`<p id="branding-text">${text}</p>`);
+    branding.append(branding_text);
+
+    let logo_wrapper = jQuery(`<div id="branding-logo-wrapper"></div>`);
+    branding.append(logo_wrapper);
+
+    let logo_paths = FVSignup.get_logos();
+    logo_paths.forEach(function(logo_src){
+      let logo = jQuery(`<img src="${logo_src}"/>`);
+      logo_wrapper.append(logo);
+    });
+  }
 }
