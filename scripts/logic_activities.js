@@ -227,6 +227,22 @@ class FVSignupLogicActivities {
     this.day_filter();
   }
 
+  static check_gm(choice) {
+    if (choice.attr('activity-gm') != 'true') return false;
+
+    let lang_gm = choice.attr('lang-gm');
+    if (lang_gm == 'both') return true;
+
+    let main_lang = FVSignup.get_input('main_lang').val();
+    if (lang_gm == main_lang) return true;
+
+    let input;
+    if (lang_gm == 'da') input = FVSignup.get_input('activity_language:dansk');
+    if (lang_gm == 'en') input = FVSignup.get_input('activity_language:engelsk');
+
+    return input && input.prop('checked');
+  }
+
   static choice_click(choice) {
     let input = choice.find('input');
     if (choice.attr('multiblock')) {
@@ -237,8 +253,10 @@ class FVSignupLogicActivities {
     let value = parseInt(input.val());
     if (isNaN(value)) (value = 0);
 
+    // Check if we can sign up as GM
+    let gm = this.check_gm(choice);
+
     let lang = fv_signup_settings.lang;
-    let gm = choice.attr('activity-gm') == 'true';
     let prio_count = this.config.choices.prio[lang].length;
     let max = gm ? prio_count + 2 : prio_count;
 

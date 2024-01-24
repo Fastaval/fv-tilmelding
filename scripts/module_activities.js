@@ -221,6 +221,7 @@ class FVSignupModuleActivities {
     let choice = jQuery('<div class="input-wrapper activity-choice '+activity.type+'"></div>');
     choice.attr('activity-type', activity.type);
     choice.attr('activity-gm', activity.gm);
+    choice.attr('lang-gm', activity.lang_gm);
     choice.attr('run-start', run.start.stamp);
     choice.attr('run-end', run.end.stamp);
     choice.attr('exclusive', activity.exclusive);
