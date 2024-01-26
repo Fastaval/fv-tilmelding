@@ -2,7 +2,6 @@
 
 class FVSignupModuleActivities {
   static element;
-  static logic;
   static info;
   static config;
 
@@ -179,8 +178,10 @@ class FVSignupModuleActivities {
       }
       table_body.append(spacing_row.clone());
     }
-    this.logic = FVSignupLogicActivities;
-    this.logic.init(activities_info, this.config);
+
+    FVSignupLogic.require_config(function() {
+      FVSignupLogicActivities.init(activities_info, FVSignupModuleActivities.config);
+    })
   }
 
   static render_filter(categories) {
@@ -264,7 +265,7 @@ class FVSignupModuleActivities {
   }
 
   static check_errors() {
-    return this.logic.check_errors();
+    return FVSignupLogicActivities.check_errors();
   }
 
   static get_error_msg(error) {

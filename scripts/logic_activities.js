@@ -86,6 +86,7 @@ class FVSignupLogicActivities {
     runs.find('input').prop('disabled', false);
 
     this.category_reset();
+    this.disable_for_designers();
   }
 
   static participant_filter() {
@@ -193,6 +194,26 @@ class FVSignupLogicActivities {
     }
   }
 
+  static disable_for_designers() {
+    let old_filtered = jQuery(`#activities_module .designer-mandatory`);
+    old_filtered.find('.choice-text').text('');
+    old_filtered.removeClass('designer-mandatory');
+
+    let lang = FVSignup.get_lang();
+    let text = this.config.designer_text[lang];
+
+    let game_id_input = FVSignup.get_input('game_id');
+    let game_id = game_id_input.val();
+
+    if (!game_id_input.prop('disabled') && game_id) {
+      let board_games = jQuery(`#activities_module .activity-row.braet[activity-id=${game_id}]`).not('.sectioning-row');
+      board_games.find('.activity-choice').addClass('designer-mandatory');
+      board_games.find('.choice-text').text(text);
+      board_games.find('input').val(0);
+    }
+    
+  }
+
   static select_day(weekday) {
     jQuery('#activities_module .day-button.selected').removeClass('selected');
     jQuery('#activities_module #day-button-'+weekday).addClass('selected');
@@ -230,6 +251,8 @@ class FVSignupLogicActivities {
   static check_gm(choice) {
     if (choice.attr('activity-gm') != 'true') return false;
 
+    if (FVSignup.get_age() < FVSignup.config.age_kid) return false;
+
     let lang_gm = choice.attr('lang-gm');
     if (lang_gm == 'both') return true;
 
@@ -244,6 +267,8 @@ class FVSignupLogicActivities {
   }
 
   static choice_click(choice) {
+    if (choice.hasClass('designer-mandatory')) return;
+
     let input = choice.find('input');
     if (choice.attr('multiblock')) {
       let run_id = choice.attr('run-id');
