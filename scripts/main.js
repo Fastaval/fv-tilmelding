@@ -48,10 +48,10 @@ class FVSignup {
     
     jQuery(window).on('popstate', function(evt) {
       let page = evt.originalEvent.state.page;
-      if (page == 'payment') {
-        FVSignupPayment.show_payment();
-        return;  
-      }
+      // if (page == 'payment') {
+      //   FVSignupPayment.show_payment();
+      //   return;  
+      // }
 
       FVSignupLogic.nav_click(page);
     });
@@ -63,11 +63,11 @@ class FVSignup {
       }
     }
 
-    if (fv_signup_settings.start_page == 'payment') {
-      fv_signup_settings.start_page = null;
-      FVSignupPayment.show_payment();
-      return;
-    }
+    // if (fv_signup_settings.start_page == 'payment') {
+    //   fv_signup_settings.start_page = null;
+    //   FVSignupPayment.show_payment();
+    //   return;
+    // }
 
     this.load_signup();
   }
@@ -88,14 +88,14 @@ class FVSignup {
     this.page_wrapper = jQuery("<div id='signup-pages'></div>");
     this.signup_content.append(this.page_wrapper);
 
-    this.signup_footer = jQuery(`<div id="signup-footer"></div>`);
-    this.signup_content.append(this.signup_footer);
+    // this.signup_footer = jQuery(`<div id="signup-footer"></div>`);
+    // this.signup_content.append(this.signup_footer);
 
     this.load_config('main', function (config) {
       FVSignup.config = config;
       FVSignup.config.loaded = true;
       FVSignupLogic.fire('config_ready');
-      FVSignupRender.signup_footer(FVSignup.signup_footer);
+      // FVSignupRender.signup_footer(FVSignup.signup_footer);
     });
     FVSignupStorage.init(this.storage_controls);
     this.load_page_list();

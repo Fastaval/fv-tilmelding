@@ -59,7 +59,7 @@ class FVSignupModuleSubmit {
     this.element.append(this.confirm_page);
 
     let button_id = 'pay-now-button';
-    let pay_button = jQuery(`<button id="${button_id}">${this.config.pay_button[lang]}</button>`);
+    // let pay_button = jQuery(`<button id="${button_id}">${this.config.pay_button[lang]}</button>`);
 
     let confirm_text = this.config.confirmation[lang];
     confirm_text = confirm_text.replaceAll('[ID]', '<span class="display-id"></span>');
@@ -80,16 +80,16 @@ class FVSignupModuleSubmit {
     payment_text = payment_text.replaceAll('[ID]', '<span class="display-id"></span>');
     payment_text = payment_text.replaceAll('[DUETOTAL]', '<span class="display-due-total"></span>');
     payment_text = payment_text.replaceAll('[PAYDAY]', '<span class="display-payday"></span>');
-    payment_text = payment_text.replaceAll('[PAYBUTTON]', pay_button[0].outerHTML);
+    // payment_text = payment_text.replaceAll('[PAYBUTTON]', pay_button[0].outerHTML);
     this.payment_div.append(payment_text);
 
     let greetings_text = this.config.greetings[lang];
     this.confirm_page.append(greetings_text);
 
-    pay_button = this.confirm_page.find(`#${button_id}`);
-    pay_button.click(function() {
-      FVSignupPayment.goto_payment();
-    })
+    // pay_button = this.confirm_page.find(`#${button_id}`);
+    // pay_button.click(function() {
+    //   FVSignupPayment.goto_payment();
+    // })
 
     this.confirm_page.append('<p>'+this.config.create_new[lang]+'</p>');
 
