@@ -592,10 +592,14 @@ class FVSignupModuleWear {
   }
 
   static load_from_server(signup_data) {
-    if (!(signup_data.wear_orders instanceof Object)) return;
-
     let order_list = this.element.find('table#wear-orders tbody');
     order_list.find('tr.wear-order').remove();
+
+    if (!(signup_data.wear_orders instanceof Object)) {
+      order_list.find('.no-orders').show();
+      this.update_total();
+      return;
+    }
 
     for(const [id, order] of Object.entries(signup_data.wear_orders)) {
       let name = this.wear_items[order.wear_id].name[FVSignup.get_lang()];
