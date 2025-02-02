@@ -41,20 +41,32 @@ class FVSignupModuleFood {
     for (const [day, foods] of Object.entries(food_info.days)) {
       let day_text = FVSignup.get_weekday(day);
       day_text = FVSignup.uc_first(day_text);
-      tbody.append(`<tr><td colspan="3"><h3>${day_text}</h3></td></tr>`);
+      tbody.append(`<tr><td colspan="10"><h3>${day_text}</h3></td></tr>`);
       let selection_row = jQuery('<tr></tr>');
       tbody.append(selection_row);
 
       for (const [cat_id, food_cat] of Object.entries(food_info.categories)) {
-        let cat_text = food_cat[lang];
+        let cat_split = food_cat[lang].split(':');
+        
+        let cat_text = cat_split[0];
 
-        let cell = jQuery('<td></td>');
-        selection_row.append(cell);
+        let cell = selection_row.find(`td[cat="${cat_text}"]`)
+        let new_cell = false;
+        if (cell.length == 0) {
+          cell = jQuery(`<td cat="${cat_text}"></td>`);
+          selection_row.append(cell);
+          new_cell = true;
+          if (cat_split.length > 1) {
+            cell.css('white-space', 'nowrap');
+          }
+        }
         
         let food = foods[cat_id];
         if (food === undefined) continue;
 
-        cell.append(`<div><strong>${cat_text} (${food_cat.price} ${FVSignup.config.dkk[lang]})</strong></div>`);
+        if (new_cell) {
+          cell.append(`<div><strong>${cat_text} (${food_cat.price} ${FVSignup.config.dkk[lang]})</strong></div>`);
+        }
 
         let checkbox_wrapper = InfosysSignupRender.render_checkbox({
           infosys_id: "food:"+food.id, 
