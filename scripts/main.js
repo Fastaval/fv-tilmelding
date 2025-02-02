@@ -53,6 +53,11 @@ class FVSignup {
       //   return;  
       // }
 
+      if (page == 'paynow') {
+        FVSignupPayment.payment_redirect();
+        return;
+      }
+
       FVSignupLogic.nav_click(page);
     });
 
@@ -68,6 +73,14 @@ class FVSignup {
     //   FVSignupPayment.show_payment();
     //   return;
     // }
+
+    if (fv_signup_settings.start_page == 'paynow') {
+      fv_signup_settings.start_page = null;
+      FVSignupPayment.init(function() {
+        FVSignupPayment.payment_redirect();
+      })
+      return;
+    }
 
     this.load_signup();
   }
