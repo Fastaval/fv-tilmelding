@@ -223,7 +223,7 @@ class FVSignupModuleWear {
     let input_wrapper = jQuery('<div class="input-wrapper wear-attribute"></div>');
     input_wrapper.append(`<label for="wear-attribute-${wear.id}-${type}">${this.config.attribute_type[type][lang]}:</label>`);
 
-    let select = jQuery(`<select id="wear-attribute-${wear.id}-${type}" wear-attribute="${type}" class="wear-attribue-select"><select>`);
+    let select = jQuery(`<select id="wear-attribute-${wear.id}-${type}" wear-attribute="${type}" class="wear-attribue-select"></select>`);
     for (const [key, attribute] of Object.entries(attributes)) {
       let variants = attribute.variants.join();
       select.append(`<option variants="${variants}" value="${attribute.value}">${attribute.text}</option>`);
