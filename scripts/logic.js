@@ -164,7 +164,11 @@ class FVSignupLogic {
             if (page.disabled_options && page.disabled_options[item.infosys_id] && page.disabled_options[item.infosys_id].includes(option.value)) {
               this.set_display_status({ input: `${item.infosys_id}-${index}` }, 'disabled');
             } else {
-              this.init_display_logic({ input: `${item.infosys_id}-${index}` }, option);
+              if (item.type == 'select') {
+                this.init_display_logic({ option: `${item.infosys_id}-${index}` }, option);
+              } else {
+                this.init_display_logic({ input: `${item.infosys_id}-${index}` }, option);
+              }
             }
           }
         }
@@ -183,7 +187,7 @@ class FVSignupLogic {
     });
   }
 
-  static init_display_logic(item_id, item) {
+  static init_display_logic(item_info, item) {
     let logic = item.display_logic;
     if (!logic) return;
 
@@ -197,20 +201,20 @@ class FVSignupLogic {
 
       // Update page status when an input that's part of the rule changes
       FVSignup.get_input(input).change(function () {
-        FVSignupLogic.update_display_status(item_id, logic);
+        FVSignupLogic.update_display_status(item_info, logic);
       });
     }
 
-    this.update_display_status(item_id, logic);
+    this.update_display_status(item_info, logic);
   }
 
-  static update_display_status(item_id, logic) {
+  static update_display_status(item_info, logic) {
     let status = 'normal';
     for (const rule of logic) {
       status = this.check_rule(rule, status);
     }
 
-    this.set_display_status(item_id, status);
+    this.set_display_status(item_info, status);
   }
 
   static check_rule(rule, status = false) {
@@ -276,10 +280,10 @@ class FVSignupLogic {
     return null;
   }
 
-  static set_display_status(item_id, status) {
+  static set_display_status(item_info, status) {
     // Check if item is an input
-    if (item_id.input) {
-      let input = FVSignup.get_input(item_id.input);
+    if (item_info.input) {
+      let input = FVSignup.get_input(item_info.input);
       let wrapper = input.closest('.input-wrapper');
 
       if (status === 'hidden') {
@@ -310,8 +314,28 @@ class FVSignupLogic {
       return;
     }
 
-    if (item_id.text) {
-      let text = FVSignup.page_wrapper.find('#' + item_id.text);
+    if (item_info.option) {
+      let option = FVSignup.page_wrapper.find('#' + item_info.option);
+
+      if (status === 'hidden') {
+        option.hide();
+      } else {
+        option.show();
+      }
+
+      if (status === 'disabled' || status == 'hidden') {
+        option.prop('disabled', true);
+        // If option is seletec, switch to first available option
+        if (option.prop('selected')) {
+          option.closest('select').find('option:not([disabled])').first().prop('selected', true);
+        }
+      } else {
+        option.prop('disabled', false);
+      }
+    }
+
+    if (item_info.text) {
+      let text = FVSignup.page_wrapper.find('#' + item_info.text);
 
       if (status === 'hidden') {
         text.hide();
@@ -320,18 +344,18 @@ class FVSignupLogic {
       }
     }
 
-    // If item isn't an input, we need a page
-    if (!item_id.page) return;
+    // If item doesn't have an id, we need a page
+    if (!item_info.page) return;
 
-    let page_div = FVSignup.page_wrapper.find('#' + item_id.page);
+    let page_div = FVSignup.page_wrapper.find('#' + item_info.page);
     if (page_div.length !== 1) {
-      console.error('Display status, wrong or ambiguous page ID', 'ID:', item_id, 'Status:', status);
+      console.error('Display status, wrong or ambiguous page ID', 'ID:', item_info, 'Status:', status);
       return;
     }
 
     // Check if we have a section
-    if (item_id.section !== undefined) {
-      let section_div = jQuery(page_div.find('.section-wrapper')[item_id.section]);
+    if (item_info.section !== undefined) {
+      let section_div = jQuery(page_div.find('.section-wrapper')[item_info.section]);
       section_div.attr('status', status);
 
       status === 'hidden' ? section_div.hide() : section_div.show();
@@ -356,15 +380,15 @@ class FVSignupLogic {
     }
 
     // There was no section specified, so status relates to whole page
-    let nav_button = FVSignup.navigation.find('[page-id="' + item_id.page + '"]');
+    let nav_button = FVSignup.navigation.find('[page-id="' + item_info.page + '"]');
     if (status == 'normal') {
       nav_button.removeClass('disabled');
       page_div.removeClass('disabled');
-      this.page_status[item_id.page] = 'ready';
+      this.page_status[item_info.page] = 'ready';
     } else {
       nav_button.addClass('disabled');
       page_div.addClass('disabled');
-      this.page_status[item_id.page] = 'disabled';
+      this.page_status[item_info.page] = 'disabled';
     }
   }
 

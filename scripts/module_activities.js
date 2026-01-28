@@ -109,10 +109,9 @@ class FVSignupModuleActivities {
         let row_after = section_row.clone().addClass('after');
         row_after.addClass(activity.type).addClass(category).attr('activity-id', run.activity);
 
-        // Flag & Title cell with fallback logic
+        // Flag & Title cell
         let flag = this.get_flag(activity.lang);
-        let title = activity.title[lang] || activity.title.da || activity.title.en || '';
-
+        let title = activity.title[lang] ? activity.title[lang] : activity.title.da;
         let full = false;
         if (activity.max_signups) {
           if (run.signups >= activity.max_signups) {
@@ -168,12 +167,10 @@ class FVSignupModuleActivities {
         table_body.append(row_middle);
         table_body.append(row_after);
 
-        // Description row with fallback logic
+        // Description row
         let desc_row = jQuery('<tr class="description-row"></tr>');
         let desc_cell = jQuery('<td colspan="60" class="description-cell"></td>');
-        let description = activity.desc[lang] || activity.desc.da || activity.desc.en || '';
-
-        desc_cell.append('<p>' + description + '</p>');
+        desc_cell.append('<p>' + activity.desc[lang] + '</p>');
         if (activity.wp_id != 0) {
           desc_cell.append('<a href="/index.php?p=' + activity.wp_id + '&lang=' + lang + '" target="_blank">' + this.config.link_text[lang] + '</a>');
         }
@@ -289,8 +286,7 @@ class FVSignupModuleActivities {
 
     let label;
     if (error.activity) {
-      let activity = this.info.activities[error.activity];
-      label = activity.title[lang] || activity.title.da || activity.title.en || '';
+      label = this.info.activities[error.activity].title[lang];
     } else if (error_text.label) {
       label = error_text.label[lang];
     }

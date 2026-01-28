@@ -48,10 +48,15 @@ class FVSignup {
 
     jQuery(window).on('popstate', function (evt) {
       let page = evt.originalEvent.state.page;
-      // if (page == 'payment') {
-      //   FVSignupPayment.show_payment();
-      //   return;
-      // }
+      if (page == 'payment') {
+        FVSignupPayment.show_payment();
+        return;
+      }
+
+      if (page == 'paynow') {
+        FVSignupPayment.payment_redirect();
+        return;
+      }
 
       FVSignupLogic.nav_click(page);
     });
@@ -63,11 +68,19 @@ class FVSignup {
       };
     }
 
-    // if (fv_signup_settings.start_page == 'payment') {
-    //   fv_signup_settings.start_page = null;
-    //   FVSignupPayment.show_payment();
-    //   return;
-    // }
+    if (fv_signup_settings.start_page == 'payment') {
+      fv_signup_settings.start_page = null;
+      FVSignupPayment.show_payment();
+      return;
+    }
+
+    if (fv_signup_settings.start_page == 'paynow') {
+      fv_signup_settings.start_page = null;
+      FVSignupPayment.init(function () {
+        FVSignupPayment.payment_redirect();
+      });
+      return;
+    }
 
     this.load_signup();
   }
@@ -287,10 +300,9 @@ class FVSignup {
 
   static get_participant_type() {
     switch (this.get_input('participant').val()) {
-      case 'Juniordeltager': {
+      case 'Juniordeltager':
         let plus = this.get_input('junior:plus').prop('checked');
         return plus ? 'junior-plus' : 'junior';
-      }
 
       case 'Deltager':
         return 'deltager';

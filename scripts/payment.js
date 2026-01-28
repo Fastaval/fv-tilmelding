@@ -4,6 +4,7 @@ class FVSignupPayment {
   static payment_page;
   static explanation_div;
   static spinner;
+  static config;
 
   static token;
   static status;
@@ -28,8 +29,17 @@ class FVSignupPayment {
 
     FVSignup.load_config('payment', function (config) {
       FVSignupPayment.config = config;
+      FVSignupPayment.config.loaded = true;
       FVSignupPayment.render_payment();
       FVSignupPayment.page_ready();
+    });
+  }
+
+  static init(callback) {
+    FVSignup.load_config('payment', function (config) {
+      FVSignupPayment.config = config;
+      FVSignupPayment.config.loaded = true;
+      callback();
     });
   }
 
@@ -160,10 +170,67 @@ class FVSignupPayment {
     );
   }
 
-  static goto_payment() {
-    this.post('/payment/createurl', this.get_info(), function (response) {
-      window.location.href = response.url;
-    });
+  static goto_payment(button) {
+    let lang = FVSignup.get_lang();
+
+    this.post(
+      '/payment/create',
+      this.get_info(),
+      function (response) {
+        button.prop('disabled', false);
+        button.prop('vlaue', FVSignupPayment.config.pay_button[lang]);
+
+        window.open(response.url, '_blank').focus();
+      },
+      function (response) {
+        button.prop('disabled', false);
+        button.prop('vlaue', FVSignupPayment.config.pay_button[lang]);
+
+        if (response.message == 'no payment needed') {
+          alert(FVSignupPayment.config.already_paid[FVSignup.get_lang()]);
+          return;
+        }
+        if (response.message == 'unconfirmed payments') {
+          alert(FVSignupPayment.config.pending_payment[FVSignup.get_lang()]);
+          return;
+        }
+        console.log(response);
+        FVSignup.com_error();
+      },
+    );
+  }
+
+  static payment_redirect() {
+    let params = new URLSearchParams(window.location.search);
+    if (!params.has('hash')) {
+      FVSignup.load_signup();
+      return;
+    }
+
+    let hash = params.get('hash');
+
+    this.post(
+      '/payment/create',
+      {
+        hash: hash,
+      },
+      function (response) {
+        window.location.href = response.url;
+      },
+      function (response) {
+        if (response.message == 'no payment needed') {
+          alert(FVSignupPayment.config.already_paid[FVSignup.get_lang()]);
+        } else if (response.message == 'unconfirmed payments') {
+          alert(FVSignupPayment.config.pending_payment[FVSignup.get_lang()]);
+        } else if (response.message == 'Incorrect credentials') {
+          alert(FVSignupPayment.config.invalid_login[FVSignup.get_lang()]);
+        } else {
+          console.log(response);
+          FVSignup.com_error();
+        }
+        FVSignup.load_signup();
+      },
+    );
   }
 
   static cancel_payment() {
@@ -202,7 +269,10 @@ class FVSignupPayment {
     let pay_button = jQuery(`<button>${this.config.pay_button[lang]}</button>`);
     this.explanation_div.append(pay_button);
     pay_button.on('click', function () {
-      FVSignupPayment.goto_payment();
+      pay_button.prop('disabled', true);
+      pay_button.prop('vlaue', FVSignupPayment.config.wait[lang]);
+
+      FVSignupPayment.goto_payment(pay_button);
     });
   }
 

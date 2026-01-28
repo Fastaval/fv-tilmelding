@@ -232,7 +232,7 @@ class FVSignupModuleWear {
     let input_wrapper = jQuery('<div class="input-wrapper wear-attribute"></div>');
     input_wrapper.append(`<label for="wear-attribute-${wear.id}-${type}">${this.config.attribute_type[type][lang]}:</label>`);
 
-    let select = jQuery(`<select id="wear-attribute-${wear.id}-${type}" wear-attribute="${type}" class="wear-attribue-select"><select>`);
+    let select = jQuery(`<select id="wear-attribute-${wear.id}-${type}" wear-attribute="${type}" class="wear-attribue-select"></select>`);
     for (const [key, attribute] of Object.entries(attributes)) {
       let variants = attribute.variants.join();
       select.append(`<option variants="${variants}" value="${attribute.value}">${attribute.text}</option>`);
@@ -290,30 +290,18 @@ class FVSignupModuleWear {
   }
 
   static select_update(select) {
-    let $selectedOption = jQuery(select.selectedOptions[0]);
-    let variants_attr = $selectedOption.attr('variants');
-
-    // Safety Check: Ensure we have valid variants to work with
-    if (!variants_attr) return;
-
-    let variants = variants_attr.split(',');
+    let option = jQuery(select.selectedOptions[0]);
+    let variants = option.attr('variants').split(',');
 
     // Filter for common variants among previous options
     let wrapper = jQuery(select).closest('.input-wrapper.wear-attribute');
     for (let prev = wrapper.prev(); prev.length > 0; prev = prev.prev()) {
-      let prev_select = prev.find('select')[0];
+      let pre_select = prev.find('select')[0];
+      if (!pre_select || !pre_select.selectedOptions[0]) continue;
 
-      // Safety Check: Ensure previous select exists and has a selection
-      if (prev_select && prev_select.selectedOptions.length > 0) {
-        let $prevOption = jQuery(prev_select.selectedOptions[0]);
-        let prev_variants_attr = $prevOption.attr('variants');
-
-        if (prev_variants_attr) {
-          variants = variants.filter(function (value) {
-            return prev_variants_attr.split(',').includes(value);
-          });
-        }
-      }
+      let pre_option = jQuery(pre_select.selectedOptions[0]);
+      let pre_variants = pre_option.attr('variants').split(',');
+      variants = variants.filter((value) => pre_variants.includes(value));
     }
 
     // Filter out options not available for current variants
@@ -321,26 +309,19 @@ class FVSignupModuleWear {
       let next_select = next.find('select')[0];
       if (!next_select) continue;
 
-      let first_valid;
+      let first_valid = null;
       let invalid_selection = false;
 
       for (const option of next_select.options) {
-        let $opt = jQuery(option);
-        let opt_variants_attr = $opt.attr('variants');
+        let option_variants = jQuery(option).attr('variants').split(',');
+        let is_valid = variants.some((v) => option_variants.includes(v));
 
-        // Skip options without variant data
-        if (!opt_variants_attr) continue;
-
-        let common_variants = variants.filter(function (value) {
-          return opt_variants_attr.split(',').includes(value);
-        });
-
-        if (common_variants.length > 0) {
-          first_valid = first_valid ?? option;
+        if (is_valid) {
+          if (!first_valid) first_valid = option;
           option.disabled = false;
           option.hidden = false;
         } else {
-          if (next_select.selectedOptions[0] == option) {
+          if (next_select.selectedOptions[0] === option) {
             invalid_selection = true;
           }
           option.disabled = true;
@@ -348,12 +329,8 @@ class FVSignupModuleWear {
         }
       }
 
-      if (invalid_selection) {
-        if (first_valid) {
-          next_select.value = first_valid.value;
-        } else {
-          next_select.value = '';
-        }
+      if (invalid_selection && first_valid) {
+        next_select.value = first_valid.value;
       }
     }
 
@@ -634,10 +611,14 @@ class FVSignupModuleWear {
   }
 
   static load_from_server(signup_data) {
-    if (!(signup_data.wear_orders instanceof Object)) return;
-
     let order_list = this.element.find('table#wear-orders tbody');
     order_list.find('tr.wear-order').remove();
+
+    if (!(signup_data.wear_orders instanceof Object)) {
+      order_list.find('.no-orders').show();
+      this.update_total();
+      return;
+    }
 
     for (const [id, order] of Object.entries(signup_data.wear_orders)) {
       let name = this.wear_items[order.wear_id].name[FVSignup.get_lang()];

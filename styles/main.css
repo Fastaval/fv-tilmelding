@@ -319,6 +319,24 @@ div.input-wrapper.input-type-textarea textarea:focus {
 }
 
 /*----------------------------------------------------------------------------
+    Pronouns
+----------------------------------------------------------------------------*/
+#pronouns_module {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+}
+
+#pronouns_module select {
+  width: 8rem;
+}
+
+#pronouns_module p {
+  margin: 0;
+}
+
+/*----------------------------------------------------------------------------
     Food
 ----------------------------------------------------------------------------*/
 #food_module #food-select-table td {
