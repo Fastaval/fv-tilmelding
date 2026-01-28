@@ -40,11 +40,11 @@ class FVSignupLogicActivities {
         description = description.next();
         if (description.length == 0) return;
       }
-      if (!description.is(':visible')) {
+      if (description.is(':visible')) {
+        description.hide();
+      } else {
         jQuery('#activities_module .description-row').hide();
         description.show();
-      } else {
-        description.hide();
       }
       evt.stopPropagation();
     });

@@ -229,7 +229,7 @@ class FVSignupModuleSubmit {
       const response = await fetch(`${FVSignup.get_infosys_url()}/api/signup/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
       const result = await response.json();
       FVSignupModuleSubmit.submit_success(result);
@@ -517,7 +517,7 @@ class FVSignupModuleSubmit {
       const response = await fetch(`${FVSignup.get_infosys_url()}/api/signup/confirm`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
       const result = await response.json();
       FVSignupModuleSubmit.confirm_success(result);
