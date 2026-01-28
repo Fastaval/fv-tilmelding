@@ -156,7 +156,7 @@ class FVSignupModuleSubmit {
     } else {
       let text = this.config.waiting_for_pages;
       this.status.append('<p>' + text[FVSignup.get_lang()] + '</p>');
-      FVSignupLogic.add_listener('all_loaded', () => {
+      FVSignupLogic.add_listener('all_loaded', function () {
         if (FVSignupLogic.current_page == 'confirm') {
           FVSignupModuleSubmit.on_page();
         }
