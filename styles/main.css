@@ -12,11 +12,11 @@ div.page-content {
 }
 
 .foldout::after {
-  content: "\27A4";
+  content: '\27A4';
   transform: rotate(90deg);
   display: inline-block;
-  margin-left: .5rem;
-  transition-duration: .5s;
+  margin-left: 0.5rem;
+  transition-duration: 0.5s;
 }
 
 .foldout.open::after {
@@ -36,9 +36,9 @@ h1.entry-title {
     Existing signup
 ----------------------------------------------------------------------------*/
 div#existing-controls button {
-  padding: .5rem;
+  padding: 0.5rem;
   line-height: 1rem;
-  margin-left: 1rem;  
+  margin-left: 1rem;
 }
 
 /*----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ div#load-signup-id-wrapper,
 div#load-signup-pass-wrapper {
   display: flex;
   align-items: baseline;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 #load-signup-id {
@@ -90,14 +90,14 @@ div#load-signup-pass-wrapper {
 
 #signup-navigation div {
   border: 1px black solid;
-  padding: .5em;
+  padding: 0.5em;
   cursor: pointer;
   flex-grow: 1;
   text-align: center;
 }
 
 #signup-navigation div.loading {
-  opacity: .5;
+  opacity: 0.5;
 }
 
 #signup-navigation div:hover {
@@ -155,7 +155,7 @@ button.next-button {
   border: solid black 1px;
 }
 
-#branding-section img:nth-child(n+2) {
+#branding-section img:nth-child(n + 2) {
   margin-left: 5px;
 }
 /*----------------------------------------------------------------------------
@@ -184,7 +184,7 @@ div.page-content div#signup-pages div.signup-page h3 {
 div.page-content div#signup-pages div.signup-page .folding-content {
   border: 1px solid black;
   border-bottom: none;
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
 }
 
 div.page-content div#signup-pages div.signup-page .folding-text {
@@ -200,7 +200,7 @@ div.page-content div#signup-pages div.signup-page .folding-text {
 ----------------------------------------------------------------------------*/
 div.input-wrapper {
   display: flex;
-  margin: .8em 0px;
+  margin: 0.8em 0px;
   flex-wrap: wrap;
 }
 
@@ -209,11 +209,11 @@ div.input-wrapper label {
 }
 
 div.input-wrapper.disabled label {
-  opacity: .5;
+  opacity: 0.5;
 }
 
 div.input-wrapper.required label::after {
-  content: "*";
+  content: '*';
   color: red;
 }
 
@@ -243,14 +243,14 @@ div.input-wrapper.required label::after {
     Checkbox
 ----------------------------------------------------------------------------*/
 div.input-wrapper.input-type-checkbox label {
-  flex: 0 1 calc(100% - 26px - .8rem);
+  flex: 0 1 calc(100% - 26px - 0.8rem);
 }
 
 input[type='checkbox'] {
   flex: 0 0 26px;
   height: 26px;
   width: 26px;
-  margin-right: .8rem;
+  margin-right: 0.8rem;
 }
 
 /*----------------------------------------------------------------------------
@@ -292,7 +292,7 @@ div.input-wrapper.input-type-text .error-text,
 div.input-wrapper.input-type-date .error-text,
 div.input-wrapper.input-type-tele .error-text,
 div.input-wrapper.input-type-email .error-text {
-  font-size: .8em;
+  font-size: 0.8em;
   text-align: right;
 }
 
@@ -302,7 +302,7 @@ div.input-wrapper.input-type-email .error-text {
 div.input-wrapper.input-type-radio-option,
 div.input-wrapper.input-type-textarea textarea {
   flex-basis: 100%;
-  margin: .3em 0px;
+  margin: 0.3em 0px;
 }
 
 div.input-wrapper.input-type-radio-option input {
@@ -311,7 +311,7 @@ div.input-wrapper.input-type-radio-option input {
 
 div.input-wrapper.input-type-textarea textarea {
   color: black;
-  padding: .5em 15px;
+  padding: 0.5em 15px;
 }
 
 div.input-wrapper.input-type-textarea textarea:focus {
@@ -322,10 +322,10 @@ div.input-wrapper.input-type-textarea textarea:focus {
     Food
 ----------------------------------------------------------------------------*/
 #food_module #food-select-table td {
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
 }
 
-#food_module #food-select-table td h3{
+#food_module #food-select-table td h3 {
   margin: 0;
 }
 
@@ -338,7 +338,7 @@ div#hero_module table.hero-table {
 
 div#hero_module table.hero-table td {
   border: 1px black solid;
-  padding: .4em;
+  padding: 0.4em;
 }
 
 div#hero_module table.hero-table td.hero-time-cell {
@@ -370,7 +370,7 @@ div#activities_module #activity-day-selection {
 div#activities_module div.filter div,
 div#activities_module #activity-day-selection .day-button {
   border: 1px black solid;
-  padding: .5em 1em;
+  padding: 0.5em 1em;
   cursor: pointer;
   background-color: lightgray;
   user-select: none;
@@ -419,7 +419,7 @@ div#activities_module table .time-label {
 }
 
 div#activities_module table .activity-row {
-  height: .8rem;
+  height: 0.8rem;
 }
 
 div#activities_module table .sectioning-row.before {
@@ -436,7 +436,6 @@ div#activities_module table .activity-row td.odd,
 div#activities_module table .sectioning-row td.odd {
   background-color: whitesmoke;
 }
-
 
 div#activities_module table .activity-row td.activity-title {
   cursor: pointer;
@@ -455,7 +454,7 @@ div#activities_module table .activity-row .activity-choice {
   border: 1px solid black;
   color: black;
   min-width: 1em;
-  font-size: .8em;
+  font-size: 0.8em;
   height: 100%;
   cursor: pointer;
   display: flex;
@@ -464,14 +463,14 @@ div#activities_module table .activity-row .activity-choice {
   white-space: nowrap;
 }
 
-div#activities_module table .activity-row .activity-cell[full=true] .activity-choice {
+div#activities_module table .activity-row .activity-cell[full='true'] .activity-choice {
   background-image: url('../img/stripe.png');
 }
 
 div#activities_module table .activity-row td {
   height: 1px;
   padding: 0;
-  min-width: .5em;
+  min-width: 0.5em;
 }
 
 @-moz-document url-prefix() {
@@ -496,7 +495,7 @@ div#activities_module table .activity-row .activity-cell.no-select {
 
 div#activities_module table td.spacing-cell {
   padding: 0;
-  min-width: .5rem;
+  min-width: 0.5rem;
 }
 
 /*----------------------------------------------------------------------------
@@ -512,7 +511,7 @@ div#activities_module table td.spacing-cell {
   font-weight: normal;
   text-align: left;
   border-bottom: 1px solid black;
-  margin-bottom: .5em;
+  margin-bottom: 0.5em;
 }
 
 #wear_module table td.wear-amount {
@@ -580,7 +579,7 @@ div#activities_module table td.spacing-cell {
 
 #wear_module .wear-item-image-wrapper.light-box {
   transition-property: top, left, width;
-  transition-duration: .2s;
+  transition-duration: 0.2s;
   position: fixed;
   top: 0;
   height: 100vh;
@@ -597,7 +596,7 @@ div#activities_module table td.spacing-cell {
 #wear_module .wear-selection-wrapper {
   display: inline-block;
   margin-left: 1rem;
-  margin-bottom: .2rem;
+  margin-bottom: 0.2rem;
 }
 
 #wear_module .wear-item select {
@@ -650,5 +649,5 @@ div#submit_module .confirm-page #confirm-reset-button {
   margin: 2rem auto 0 auto;
   display: block;
   font-size: 1.5rem;
-  padding: .3rem .7rem;
+  padding: 0.3rem 0.7rem;
 }

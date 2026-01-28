@@ -1,4 +1,4 @@
-"using strict";
+'using strict';
 
 class FVSignupModuleFood {
   static div;
@@ -10,17 +10,20 @@ class FVSignupModuleFood {
     this.div.append('<p>Loading food module</p>');
     element.append(this.div);
 
-    jQuery.getJSON({
-      url: fv_signup_settings.infosys_url+"/api/signup/food",
-      success: function (info) {
-        FVSignupModuleFood.info = info;
-        if (FVSignupModuleFood.config) FVSignupModuleFood.render_food();
-      }
-    }).fail(function () {
-      FVSignup.com_error();
-    }).always(function (){
-      callback();
-    });
+    jQuery
+      .getJSON({
+        url: fv_signup_settings.infosys_url + '/api/signup/food',
+        success: function (info) {
+          FVSignupModuleFood.info = info;
+          if (FVSignupModuleFood.config) FVSignupModuleFood.render_food();
+        },
+      })
+      .fail(function () {
+        FVSignup.com_error();
+      })
+      .always(function () {
+        callback();
+      });
 
     FVSignup.load_config('food', function (config) {
       FVSignupModuleFood.config = config;
@@ -50,29 +53,30 @@ class FVSignupModuleFood {
 
         let cell = jQuery('<td></td>');
         selection_row.append(cell);
-        
+
         let food = foods[cat_id];
         if (food === undefined) continue;
 
         cell.append(`<div><strong>${cat_text} (${food_cat.price} ${FVSignup.config.dkk[lang]})</strong></div>`);
 
         let checkbox_wrapper = InfosysSignupRender.render_checkbox({
-          infosys_id: "food:"+food.id, 
-          processed: food.text[lang]
+          infosys_id: 'food:' + food.id,
+          processed: food.text[lang],
         });
-        
+
         let checkbox = checkbox_wrapper.find('input');
-        checkbox.attr('submit-text', `${day_text}: ${cat_text}`)
-        checkbox.attr('submit-value', `${food.text[lang]} ({price} ${FVSignup.config.dkk[lang]})`)
+        checkbox.attr('submit-text', `${day_text}: ${cat_text}`);
+        checkbox.attr('submit-value', `${food.text[lang]} ({price} ${FVSignup.config.dkk[lang]})`);
         checkbox.attr('food-category', cat_id);
 
-        if (food_cat.exclude) checkbox.change(function() {
-          if (!checkbox.prop('checked')) return; // Only do something if we enabled the checkbox
+        if (food_cat.exclude)
+          checkbox.change(function () {
+            if (!checkbox.prop('checked')) return; // Only do something if we enabled the checkbox
 
-          let row = checkbox.closest('tr');
-          let other = row.find(`input[food-category=${food_cat.exclude}]`);
-          other.prop('checked', false);
-        });
+            let row = checkbox.closest('tr');
+            let other = row.find(`input[food-category=${food_cat.exclude}]`);
+            other.prop('checked', false);
+          });
 
         cell.append(checkbox_wrapper);
       }
@@ -105,14 +109,14 @@ class FVSignupModuleFood {
         let breakfast = this.config.breakfast[lang];
         let dinner = this.config.dinner[lang];
         let remaining = this.config.remaining[lang];
-        
+
         let breakfast_remaining = `${breakfast} ${remaining}: ${entry.breakfast_remaining}`;
         let dinner_remaining = `${dinner} ${remaining}: ${entry.dinner_remaining}`;
 
-        value = "";
+        value = '';
         if (entry.breakfast_remaining > 0) value = breakfast_remaining;
         if (entry.dinner_remaining > 0) {
-          if (value !== "") value += '<br>';
+          if (value !== '') value += '<br>';
           value += dinner_remaining;
         }
       } else {
@@ -120,7 +124,9 @@ class FVSignupModuleFood {
       }
     } else {
       let id = entry.key.replaceAll(':', '\\:');
-      text = jQuery('label[for='+id+']').text().replace(':','');
+      text = jQuery('label[for=' + id + ']')
+        .text()
+        .replace(':', '');
     }
 
     return [text, value];

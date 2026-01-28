@@ -1,4 +1,4 @@
-"using strict";
+'using strict';
 
 class FVSignupModuleActivities {
   static element;
@@ -12,17 +12,20 @@ class FVSignupModuleActivities {
 
     this.page_id = element.closest('.signup-page').attr('id');
 
-    jQuery.getJSON({
-      url: fv_signup_settings.infosys_url+"/api/signup/activities",
-      success: function (activities_info) {
-        FVSignupModuleActivities.info = activities_info;
-        if (FVSignupModuleActivities.config) FVSignupModuleActivities.render_activities();
-      }
-    }).fail(function () {
-      FVSignup.com_error();
-    }).always(function (){
-      callback();
-    });
+    jQuery
+      .getJSON({
+        url: fv_signup_settings.infosys_url + '/api/signup/activities',
+        success: function (activities_info) {
+          FVSignupModuleActivities.info = activities_info;
+          if (FVSignupModuleActivities.config) FVSignupModuleActivities.render_activities();
+        },
+      })
+      .fail(function () {
+        FVSignup.com_error();
+      })
+      .always(function () {
+        callback();
+      });
 
     FVSignup.load_config('activities', function (config) {
       FVSignupModuleActivities.config = config;
@@ -62,26 +65,26 @@ class FVSignupModuleActivities {
 
     // Sectioning row
     let gray_width = 4;
-    let section_row = jQuery('<tr class="sectioning-row activity-row"></tr>') ;
+    let section_row = jQuery('<tr class="sectioning-row activity-row"></tr>');
     let parity = 'odd';
-    for(let i = 0; i*gray_width <= 36; i++) {
-      section_row.append('<td class="'+parity+'" colspan="'+gray_width+'"></td>');
+    for (let i = 0; i * gray_width <= 36; i++) {
+      section_row.append('<td class="' + parity + '" colspan="' + gray_width + '"></td>');
       parity = parity == 'odd' ? 'even' : 'odd';
     }
 
-    let spacing_row = jQuery('<tr class="spacing-row"></tr>') ;
-    for(let i = 0; i <= 36; i++) {
+    let spacing_row = jQuery('<tr class="spacing-row"></tr>');
+    for (let i = 0; i <= 36; i++) {
       spacing_row.append('<td class="spacing-cell"></td>');
     }
 
-    for(const day in activities_info.runs){
+    for (const day in activities_info.runs) {
       // Day button
       let day_text = FVSignup.get_weekday(day);
       day_text = FVSignup.uc_first(day_text);
-      day_header.append('<div id="day-button-'+day+'" class="day-button" weekday="'+day+'">'+day_text+'</div>');
+      day_header.append('<div id="day-button-' + day + '" class="day-button" weekday="' + day + '">' + day_text + '</div>');
 
       // Activities table
-      let table = jQuery('<table id="activities-day-'+day+'" activity-day="'+day+'"></table>');
+      let table = jQuery('<table id="activities-day-' + day + '" activity-day="' + day + '"></table>');
       activity_content.append(table);
       let table_body = jQuery('<tbody></tbody>');
       table.append(table_body);
@@ -91,52 +94,53 @@ class FVSignupModuleActivities {
 
       for (const run of activities_info.runs[day]) {
         // normalize times within time table
-        if(run.start.hour < this.config.day_cutoff) run.start.hour += 24;
-        if(run.end.hour < this.config.day_cutoff) run.end.hour += 24;
+        if (run.start.hour < this.config.day_cutoff) run.start.hour += 24;
+        if (run.end.hour < this.config.day_cutoff) run.end.hour += 24;
 
         // Activity row
         let activity = activities_info.activities[run.activity];
         let category = this.config.categories[activity.type] ? activity.type : 'default';
         let row_middle = jQuery('<tr class="activity-row"></tr>');
         row_middle.addClass(activity.type).addClass(category).attr('activity-id', run.activity);
-        
+
         //Sectioning rows
-        let row_before = section_row.clone().addClass('before')
+        let row_before = section_row.clone().addClass('before');
         row_before.addClass(activity.type).addClass(category).attr('activity-id', run.activity);
-        let row_after = section_row.clone().addClass('after')
+        let row_after = section_row.clone().addClass('after');
         row_after.addClass(activity.type).addClass(category).attr('activity-id', run.activity);
 
-        // Flag & Title cell
+        // Flag & Title cell with fallback logic
         let flag = this.get_flag(activity.lang);
-        let title = activity.title[lang] ? activity.title[lang] : activity.title.da;
+        let title = activity.title[lang] || activity.title.da || activity.title.en || '';
+
         let full = false;
         if (activity.max_signups) {
           if (run.signups >= activity.max_signups) {
             full = true;
-            title += ' ('+this.config.full[lang]+')';
+            title += ' (' + this.config.full[lang] + ')';
           } else {
-            title += ' ('+this.config.max_signup[lang].replace('#', activity.max_signups)+')';
+            title += ' (' + this.config.max_signup[lang].replace('#', activity.max_signups) + ')';
           }
         }
-        row_before.prepend('<td class="activity-title" rowspan="3">'+flag+'<div class="title-wrapper">'+title+'</div></td>');
-        
+        row_before.prepend('<td class="activity-title" rowspan="3">' + flag + '<div class="title-wrapper">' + title + '</div></td>');
+
         // calculate cell positions
-        let start = (run.start.hour -8)*2;
-        start += Math.round(run.start.min/30);
-        let end = (run.end.hour -8)*2;
-        end += Math.round(run.end.min/30);
-        
+        let start = (run.start.hour - 8) * 2;
+        start += Math.round(run.start.min / 30);
+        let end = (run.end.hour - 8) * 2;
+        end += Math.round(run.end.min / 30);
+
         // Spacing cells before
         if (start > 0) {
           let parity = 'odd';
-          for(let i = 0; i*gray_width < start; i++) {
-            row_middle.append('<td class="'+parity+'" colspan="'+Math.min(gray_width, start-i*gray_width)+'"></td>');
+          for (let i = 0; i * gray_width < start; i++) {
+            row_middle.append('<td class="' + parity + '" colspan="' + Math.min(gray_width, start - i * gray_width) + '"></td>');
             parity = parity == 'odd' ? 'even' : 'odd';
           }
         }
-        
+
         // Selection cell
-        let select_cell = jQuery(`<td class="activity-cell" full="${full}" colspan="${end-start}"></td>`);
+        let select_cell = jQuery(`<td class="activity-cell" full="${full}" colspan="${end - start}"></td>`);
         row_middle.append(select_cell);
 
         // Select input
@@ -153,9 +157,9 @@ class FVSignupModuleActivities {
         // Spacing cells after (for coloring purpose)
         if (end < 36) {
           let gray_end = Math.floor(end / gray_width) + 1;
-          let parity = (gray_end) % 2 ? 'odd' : 'even';
-          for(let i = gray_end; i*gray_width <= 36; i++) {
-            row_middle.append('<td class="'+parity+'" colspan="'+Math.min(gray_width, i*gray_width-end)+'"></td>');
+          let parity = gray_end % 2 ? 'odd' : 'even';
+          for (let i = gray_end; i * gray_width <= 36; i++) {
+            row_middle.append('<td class="' + parity + '" colspan="' + Math.min(gray_width, i * gray_width - end) + '"></td>');
             parity = parity == 'odd' ? 'even' : 'odd';
           }
         }
@@ -164,12 +168,14 @@ class FVSignupModuleActivities {
         table_body.append(row_middle);
         table_body.append(row_after);
 
-        // Description row
+        // Description row with fallback logic
         let desc_row = jQuery('<tr class="description-row"></tr>');
         let desc_cell = jQuery('<td colspan="60" class="description-cell"></td>');
-        desc_cell.append('<p>'+activity.desc[lang]+'</p>');
+        let description = activity.desc[lang] || activity.desc.da || activity.desc.en || '';
+
+        desc_cell.append('<p>' + description + '</p>');
         if (activity.wp_id != 0) {
-          desc_cell.append('<a href="/index.php?p='+activity.wp_id+'&lang='+lang+'" target="_blank">'+this.config.link_text[lang]+'</a>');
+          desc_cell.append('<a href="/index.php?p=' + activity.wp_id + '&lang=' + lang + '" target="_blank">' + this.config.link_text[lang] + '</a>');
         }
         desc_row.hide();
         desc_row.append(desc_cell);
@@ -179,26 +185,26 @@ class FVSignupModuleActivities {
       table_body.append(spacing_row.clone());
     }
 
-    FVSignupLogic.require_config(function() {
+    FVSignupLogic.require_config(function () {
       FVSignupLogicActivities.init(activities_info, FVSignupModuleActivities.config);
-    })
+    });
   }
 
   static render_filter(categories) {
     let filter = jQuery('<div class="filter"></div>');
     let lang = fv_signup_settings.lang;
 
-    for(const [id, cat] of Object.entries(categories)) {
+    for (const [id, cat] of Object.entries(categories)) {
       if (cat.nobutton) continue;
 
       let category = id;
-      if (cat.include) category += " " + cat.include.join(" ");
+      if (cat.include) category += ' ' + cat.include.join(' ');
 
-      let filter_button = jQuery('<div class="filter-button '+category+'"></div>');
-      filter_button.attr('filter-category', category)
+      let filter_button = jQuery('<div class="filter-button ' + category + '"></div>');
+      filter_button.attr('filter-category', category);
       filter_button.text(cat[lang]);
-      if(cat.color) filter_button.css('background-color', cat.color);
-      if(id == 'all') filter_button.addClass('selected');
+      if (cat.color) filter_button.css('background-color', cat.color);
+      if (id == 'all') filter_button.addClass('selected');
       filter.append(filter_button);
     }
 
@@ -207,19 +213,19 @@ class FVSignupModuleActivities {
 
   static render_time_header(headline) {
     let row = jQuery('<tr class="header-row"></tr>');
-    let activities = jQuery('<td class="table-header">'+headline+'</td>');
+    let activities = jQuery('<td class="table-header">' + headline + '</td>');
     row.append(activities);
 
-    for(let i = 8; i < 27; i++) {
-      let time = (i % 24)
-      row.append('<td colspan="2" class="time-section"><div class="time"><span class="time-label">'+time+'</span></div></td>');
+    for (let i = 8; i < 27; i++) {
+      let time = i % 24;
+      row.append('<td colspan="2" class="time-section"><div class="time"><span class="time-label">' + time + '</span></div></td>');
     }
 
     return row;
   }
 
   static render_choice(activity, run) {
-    let choice = jQuery('<div class="input-wrapper activity-choice '+activity.type+'"></div>');
+    let choice = jQuery('<div class="input-wrapper activity-choice ' + activity.type + '"></div>');
     choice.attr('activity-type', activity.type);
     choice.attr('activity-gm', activity.gm);
     choice.attr('lang-gm', activity.lang_gm);
@@ -228,13 +234,13 @@ class FVSignupModuleActivities {
     choice.attr('exclusive', activity.exclusive);
     choice.append('<div class="choice-text"></div>');
 
-    let id = 'activity:'+run.id;
+    let id = 'activity:' + run.id;
     if (run.multi) {
       choice.attr('multiblock', true);
       choice.attr('run-id', run.id);
-      
+
       // If the hidden input for the run already exist, don't add more
-      if(FVSignup.get_input(id).length !== 0) return choice;
+      if (FVSignup.get_input(id).length !== 0) return choice;
     }
 
     choice.append(`<input type="hidden" id="${id}" no-submit-empty="true" value="0">`);
@@ -245,23 +251,23 @@ class FVSignupModuleActivities {
     let file_name;
     switch (true) {
       case lang.en && lang.da:
-        file_name = "flag-dansk+engelsk.jpg";
+        file_name = 'flag-dansk+engelsk.jpg';
         break;
 
       case lang.en:
-        file_name = "flag-engelsk.jpg";
+        file_name = 'flag-engelsk.jpg';
         break;
 
       case lang.da:
-        file_name = "flag-dansk.jpg";
+        file_name = 'flag-dansk.jpg';
         break;
-    
+
       default:
-        return "";
+        return '';
     }
 
     let root = fv_signup_settings.plugin_root;
-    return '<div class="flag-wrapper" style="width:24px; height:16px"><img src="'+root+'/img/flags/'+file_name+'"></div>';
+    return '<div class="flag-wrapper" style="width:24px; height:16px"><img src="' + root + '/img/flags/' + file_name + '"></div>';
   }
 
   static check_errors() {
@@ -278,12 +284,13 @@ class FVSignupModuleActivities {
     }
 
     if (error.type === 'missing_junior') {
-      error_text[lang] = error_text[lang].replace("#", this.config.junior_min);
+      error_text[lang] = error_text[lang].replace('#', this.config.junior_min);
     }
 
     let label;
     if (error.activity) {
-      label = this.info.activities[error.activity].title[lang];
+      let activity = this.info.activities[error.activity];
+      label = activity.title[lang] || activity.title.da || activity.title.en || '';
     } else if (error_text.label) {
       label = error_text.label[lang];
     }

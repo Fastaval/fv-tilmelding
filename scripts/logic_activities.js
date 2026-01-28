@@ -1,4 +1,4 @@
-"using strict";
+'using strict';
 
 class FVSignupLogicActivities {
   static activity_info;
@@ -13,34 +13,34 @@ class FVSignupLogicActivities {
     this.init_categories();
     this.init_day_select();
 
-    FVSignupLogic.add_listener('page_'+FVSignupModuleActivities.page_id, function(){
+    FVSignupLogic.add_listener('page_' + FVSignupModuleActivities.page_id, function () {
       FVSignupLogicActivities.on_page();
     });
   }
 
   static init_choices() {
     let choices = jQuery('#activities_module .activity-choice');
-    
-    choices.click(function(evt) {
+
+    choices.click(function (evt) {
       FVSignupLogicActivities.choice_click(jQuery(evt.delegateTarget));
       evt.stopPropagation();
     });
 
-    choices.find('input').change(function(evt){
+    choices.find('input').change(function (evt) {
       FVSignupLogicActivities.choice_change(jQuery(evt.target));
-    })
+    });
   }
 
   static init_descriptions() {
     let titles = jQuery('#activities_module td.activity-title');
-    
-    titles.click(function(evt) {
+
+    titles.click(function (evt) {
       let description = jQuery(evt.target).closest('.activity-row');
       while (!description.hasClass('description-row')) {
-        description = description.next()
+        description = description.next();
         if (description.length == 0) return;
       }
-      if (!description.is(":visible")) {
+      if (!description.is(':visible')) {
         jQuery('#activities_module .description-row').hide();
         description.show();
       } else {
@@ -53,20 +53,20 @@ class FVSignupLogicActivities {
   static init_categories() {
     // Activate click on all filter buttons
     let buttons = jQuery('#activities_module .filter .filter-button');
-    buttons.click(function(evt) {
+    buttons.click(function (evt) {
       let button = jQuery(evt.delegateTarget);
       let categories = button.attr('filter-category').split(' ');
 
       // Change selected buttons
       buttons.removeClass('selected');
-      buttons.filter('.'+categories[0]).addClass('selected');
+      buttons.filter('.' + categories[0]).addClass('selected');
 
       FVSignupLogicActivities.select_category(categories);
-    })
+    });
   }
 
   static init_day_select() {
-    jQuery('#activities_module .day-button').click(function(evt) {
+    jQuery('#activities_module .day-button').click(function (evt) {
       let weekday = evt.delegateTarget.attributes.weekday.value;
       FVSignupLogicActivities.select_day(weekday);
     });
@@ -76,7 +76,7 @@ class FVSignupLogicActivities {
     this.participant_filter();
     this.age_filter();
     this.day_filter();
-    
+
     // Disable all filtered inputs for submit
     let runs = jQuery('#activities_module table .activity-row');
     runs.find('input').prop('disabled', true);
@@ -105,7 +105,7 @@ class FVSignupLogicActivities {
         let day_table = junior_activities.closest('table');
         let choices = day_table.find('.activity-row').not('.junior').find('.activity-choice');
         hide = jQuery();
-        choices.each(function() {
+        choices.each(function () {
           let choice = jQuery(this);
           if (FVSignupLogicActivities.check_overlap(choice, junior_activities)) {
             let row = choice.closest('.activity-row');
@@ -113,13 +113,13 @@ class FVSignupLogicActivities {
             hide = hide.add(row.next());
             hide = hide.add(row.prev());
           }
-        })
+        });
 
         show = jQuery('.activity-row').not(hide);
       } else {
         // Hide filter buttons
         jQuery('#activities_module .filter').hide();
-        
+
         // Show only junior activities
         hide = jQuery('.activity-row').not('.junior');
         show = jQuery('.activity-row.junior');
@@ -128,7 +128,7 @@ class FVSignupLogicActivities {
       // Show filter without junior button
       jQuery('#activities_module .filter .junior').hide();
       jQuery('#activities_module .filter').show();
-      
+
       // Show all non-junior activities
       hide = jQuery('.activity-row.junior');
       show = jQuery('.activity-row').not('.junior');
@@ -143,7 +143,7 @@ class FVSignupLogicActivities {
     let age = FVSignup.get_age();
 
     let runs = jQuery('#activities_module table .activity-row');
-    for(const run of runs) {
+    for (const run of runs) {
       let jqrun = jQuery(run);
       let activity_id = jqrun.attr('activity-id');
       let activity = this.activity_info.activities[activity_id];
@@ -162,15 +162,15 @@ class FVSignupLogicActivities {
     jQuery('#activities_module table .activity-row').attr('day-filtered', true);
 
     // Hide days not attending
-    for(let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 5; i++) {
       // Day 1 of con = day 3 of week
-      let weekday = i+2;
-      let day_button = jQuery('#activities_module #day-button-'+weekday);
+      let weekday = i + 2;
+      let day_button = jQuery('#activities_module #day-button-' + weekday);
       let activity_rows = jQuery(`#activities_module table#activities-day-${weekday} .activity-row`);
       let filtered_runs = activity_rows.not('[participant-filtered=true]');
       filtered_runs = filtered_runs.not('[category-filtered=true]');
       filtered_runs = filtered_runs.filter('[age-appropriate=true]');
-      
+
       day_button.hide();
       if (FVSignup.attending_day(i)) {
         activity_rows.attr('day-filtered', false);
@@ -178,7 +178,7 @@ class FVSignupLogicActivities {
           day_button.show();
           // Set current to first visible day unless another vissible day is selected
           current = current ?? weekday;
-          if(day_button.hasClass('selected')) current = weekday;
+          if (day_button.hasClass('selected')) current = weekday;
         }
       }
     }
@@ -211,21 +211,20 @@ class FVSignupLogicActivities {
       board_games.find('.choice-text').text(text);
       board_games.find('input').val(0);
     }
-    
   }
 
   static select_day(weekday) {
     jQuery('#activities_module .day-button.selected').removeClass('selected');
-    jQuery('#activities_module #day-button-'+weekday).addClass('selected');
+    jQuery('#activities_module #day-button-' + weekday).addClass('selected');
     jQuery('#activities_module #activity-tables-wrapper table').hide();
     jQuery('#activities_module .description-row').hide();
-    jQuery('#activities_module #activities-day-'+weekday).show();
+    jQuery('#activities_module #activities-day-' + weekday).show();
   }
 
   static category_reset() {
     let button = jQuery('#activities_module .filter .filter-button.selected');
     let categories = button.attr('filter-category').split(' ');
-    this.select_category(categories)
+    this.select_category(categories);
   }
 
   static select_category(categories) {
@@ -238,12 +237,12 @@ class FVSignupLogicActivities {
 
     // Filter out the rows we need to show and make them visible
     if (categories[0] != 'all') {
-      rows = rows.filter('.'+categories.join(', .'));
+      rows = rows.filter('.' + categories.join(', .'));
     }
     rows = rows.filter('[age-appropriate="true"]');
     rows = rows.filter('[participant-filtered="false"]');
     rows.show().attr('category-filtered', false);
-    
+
     // Reset day filter so we don't have day buttons without any activities
     this.day_filter();
   }
@@ -276,7 +275,7 @@ class FVSignupLogicActivities {
     }
 
     let value = parseInt(input.val());
-    if (isNaN(value)) (value = 0);
+    if (isNaN(value)) value = 0;
 
     // Check if we can sign up as GM
     let gm = this.check_gm(choice);
@@ -286,58 +285,61 @@ class FVSignupLogicActivities {
     let max = gm ? prio_count + 2 : prio_count;
 
     // Can't sign up if run is full
-    if (choice.closest('.activity-cell').attr('full') == 'true'){
-      if (gm) { // Let people register as GM even if run is full
+    if (choice.closest('.activity-cell').attr('full') == 'true') {
+      if (gm) {
+        // Let people register as GM even if run is full
         input.val(value == 0 ? prio_count + 1 : 0);
         input.change();
       }
       return;
     }
 
-    value++
+    value++;
     // Check if we have other runs overlapping
-    if(choice.attr('exclusive') == 'true') while (value == 1 || value == 2 || (value == prio_count + 2 && gm)) {
-      // Add multiblock runs if we have any
-      if (choice.attr('multiblock')) {
-        let run_id = choice.attr('run-id');
-        choice = FVSignupModuleActivities.element.find(`.activity-choice[run-id=${run_id}]`);
-      }
-
-      // Find all the time exclusive runs with same priority within the same day
-      let day_table = choice.closest('table')
-      let same_prio;
-      if (value == 2) { 
-        same_prio = day_table.find('.input-wrapper[exclusive=true] input[value="2"]');
-      } else { // "GM - 1st" count as 1st 
-        same_prio = day_table.find('.input-wrapper[exclusive=true] input[value="1"], .input-wrapper[exclusive=true] input[value="'+(prio_count + 2)+'"]');
-      }
- 
-      // Don't count the one we clicked
-      same_prio = same_prio.not(input);
-
-      // If we have no other runs with same priority, we're done
-      if(same_prio.length == 0) break;
-
-      // If there is no overlap, we keep the current value
-      let overlap = false;
-      for(const element of choice) {
-        if (this.check_overlap(choice, same_prio)) {
-          overlap = true;
+    if (choice.attr('exclusive') == 'true')
+      while (value == 1 || value == 2 || (value == prio_count + 2 && gm)) {
+        // Add multiblock runs if we have any
+        if (choice.attr('multiblock')) {
+          let run_id = choice.attr('run-id');
+          choice = FVSignupModuleActivities.element.find(`.activity-choice[run-id=${run_id}]`);
         }
-      }
-      if (!overlap) break;
-      
-      value++; // There was overlap and we go with next priority
-    }
 
-    input.val((value) % (max + 1));
+        // Find all the time exclusive runs with same priority within the same day
+        let day_table = choice.closest('table');
+        let same_prio;
+        if (value == 2) {
+          same_prio = day_table.find('.input-wrapper[exclusive=true] input[value="2"]');
+        } else {
+          // "GM - 1st" count as 1st
+          same_prio = day_table.find('.input-wrapper[exclusive=true] input[value="1"], .input-wrapper[exclusive=true] input[value="' + (prio_count + 2) + '"]');
+        }
+
+        // Don't count the one we clicked
+        same_prio = same_prio.not(input);
+
+        // If we have no other runs with same priority, we're done
+        if (same_prio.length == 0) break;
+
+        // If there is no overlap, we keep the current value
+        let overlap = false;
+        for (const element of choice) {
+          if (this.check_overlap(choice, same_prio)) {
+            overlap = true;
+          }
+        }
+        if (!overlap) break;
+
+        value++; // There was overlap and we go with next priority
+      }
+
+    input.val(value % (max + 1));
     input.change();
   }
 
   static check_overlap(choice, others) {
     let run_start = parseInt(choice.attr('run-start'));
     let run_end = parseInt(choice.attr('run-end'));
-    
+
     // Does any of the other runs overlap?
     for (const other of others) {
       let other_choice = jQuery(other).closest('.activity-choice');
@@ -373,24 +375,24 @@ class FVSignupLogicActivities {
     let type = input.closest('.activity-choice').attr('activity-type');
     let gm_text = choices.gm[type] ? choices.gm[type][lang] : choices.gm.default[lang];
     let prio_count = choices.prio[lang].length;
-    
+
     switch (true) {
       case value == 0:
         label.text('');
         break;
 
       case value <= prio_count:
-        label.text(choices.prio[lang][value-1]);
+        label.text(choices.prio[lang][value - 1]);
         // Clear full status for when loading registration
         input.closest('td.activity-cell').attr('full', false);
         break;
-    
+
       case value == prio_count + 1:
         label.text(gm_text);
         break;
 
       case value == prio_count + 2:
-        label.text(gm_text+' - '+choices.prio[lang][0]);
+        label.text(gm_text + ' - ' + choices.prio[lang][0]);
         // Clear full status for when loading registration
         input.closest('td.activity-cell').attr('full', false);
         break;
@@ -401,7 +403,7 @@ class FVSignupLogicActivities {
   }
 
   static check_errors() {
-    this.on_page()
+    this.on_page();
     let error_div = FVSignupModuleActivities.element.find('#activity-errors');
     error_div.empty();
 
@@ -409,10 +411,10 @@ class FVSignupLogicActivities {
     errors = errors.concat(this.check_junior());
     errors = errors.concat(this.check_duties());
 
-    errors.forEach(function(e) {
+    errors.forEach(function (e) {
       let [label, text] = FVSignupModuleActivities.get_error_msg(e);
       error_div.append(`<p>${text}</p>`);
-    })
+    });
 
     return errors;
   }
@@ -425,7 +427,7 @@ class FVSignupLogicActivities {
 
     // Check if we have selected any junior activities
     let choices = jQuery('#activities_module .activity-choice.junior');
-    choices.each(function() {
+    choices.each(function () {
       let choice = jQuery(this);
       let input = choice.find('input');
 
@@ -433,13 +435,13 @@ class FVSignupLogicActivities {
       if (parseInt(input.val()) > 0) need_junior--;
 
       return need_junior > 0; // End loop if we have a selection
-    })
+    });
 
     if (need_junior > 0) {
       errors.push({
         type: 'missing_junior',
         module: 'activities',
-      })
+      });
     }
 
     return errors;
@@ -450,17 +452,17 @@ class FVSignupLogicActivities {
     let prio_count = this.config.choices.prio[lang].length;
 
     let errors = [];
-    
+
     // Check if we selected GM or Rules duties on the together page
-    let need_gm = FVSignup.get_input("together:gm").prop('checked');
-    let need_rules = FVSignup.get_input("together:rules").prop('checked');
+    let need_gm = FVSignup.get_input('together:gm').prop('checked');
+    let need_rules = FVSignup.get_input('together:rules').prop('checked');
 
     // Return no errors if we don't need either
     if (!(need_gm || need_rules)) return errors;
 
     // Check if we have selected any GM or Rules duties
     let choices = jQuery('#activities_module .activity-choice');
-    choices.each(function() {
+    choices.each(function () {
       let choice = jQuery(this);
       let input = choice.find('input');
 
@@ -475,7 +477,7 @@ class FVSignupLogicActivities {
       }
 
       return need_gm || need_rules; // End loop if we have both GM and Rules
-    })
+    });
 
     if (need_gm) {
       errors.push({
@@ -483,7 +485,7 @@ class FVSignupLogicActivities {
         type: 'missing_task',
         category: 'gm',
         module: 'activities',
-      })
+      });
     }
 
     if (need_rules) {
@@ -492,7 +494,7 @@ class FVSignupLogicActivities {
         type: 'missing_task',
         category: 'rules',
         module: 'activities',
-      })
+      });
     }
 
     return errors;

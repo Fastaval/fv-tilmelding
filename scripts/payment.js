@@ -1,7 +1,6 @@
-"using strict";
+'using strict';
 
 class FVSignupPayment {
-
   static payment_page;
   static explanation_div;
   static spinner;
@@ -21,7 +20,7 @@ class FVSignupPayment {
     this.status = FVSignup.get_status();
     this.token = FVSignup.get_token();
 
-    let page_content = jQuery(".page-content");
+    let page_content = jQuery('.page-content');
 
     this.payment_page = jQuery("<div id='payment-page'></div>");
     this.payment_page.hide();
@@ -58,17 +57,17 @@ class FVSignupPayment {
 
     let return_button__text = this.config.return_button[lang];
     let return_button = jQuery(`<button>${return_button__text}</button>`);
-    return_button.on('click', function() {
+    return_button.on('click', function () {
       FVSignup.hide_all();
       FVSignup.show_signup();
-    })
+    });
     this.payment_page.append(return_button);
   }
 
   static show_payment() {
     FVSignup.hide_all();
 
-    if(this.payment_page == undefined) {
+    if (this.payment_page == undefined) {
       this.init_payment_page();
     } else {
       this.page_ready();
@@ -76,14 +75,14 @@ class FVSignupPayment {
 
     // Scroll to top
     window.scrollTo(0, 0);
-    window.dispatchEvent(new CustomEvent('scroll')) // Reset top menu
-    
+    window.dispatchEvent(new CustomEvent('scroll')); // Reset top menu
+
     // Set addressbar
-    window.history.pushState({page:"payment"},"", FVSignup.get_base_url()+"payment/");
+    window.history.pushState({ page: 'payment' }, '', FVSignup.get_base_url() + 'payment/');
   }
 
   static page_ready() {
-    let lang = FVSignup.get_lang()
+    let lang = FVSignup.get_lang();
 
     if (this.status == 'cancel') {
       this.explanation_div.html(this.config.cancel_text[lang]);
@@ -98,23 +97,23 @@ class FVSignupPayment {
         `<p>
           <label for="payment-login-id">${this.config.signup_id[lang]}</label>
           <input type="text" id="payment-login-id"></input>
-        </p>`
+        </p>`,
       );
       this.explanation_div.append(
         `<p>
           <label for="payment-login-pass">${this.config.signup_pass[lang]}</label>
           <input type="password" id="payment-login-pass"></input>
-        </p>`
+        </p>`,
       );
       let login_button = jQuery(`<button>${this.config.load[lang]}</button>`);
       this.explanation_div.append(login_button);
-      login_button.on('click', function() {
+      login_button.on('click', function () {
         FVSignupPayment.click_login();
-      })
+      });
 
-      this.explanation_div.find('input').on('keypress', function(evt) {
-        if (evt.originalEvent.key == "Enter") login_button.click();
-      })
+      this.explanation_div.find('input').on('keypress', function (evt) {
+        if (evt.originalEvent.key == 'Enter') login_button.click();
+      });
     }
 
     this.payment_page.show();
@@ -125,24 +124,24 @@ class FVSignupPayment {
       url: FVSignup.get_infosys_url() + path,
       type: 'POST',
       data,
-      success: function(response) {
+      success: function (response) {
         if (response.status == 'success') {
           success_callcack(response);
         } else {
-          error_callback == null ? FVSignup.com_error(): error_callback(response);
+          error_callback == null ? FVSignup.com_error() : error_callback(response);
         }
       },
-      error: function(jqXHR, status, error) {
-        error_callback == null ? FVSignup.com_error(): error_callback(jqXHR.responseJSON);
-      }
-    })
+      error: function (jqXHR, status, error) {
+        error_callback == null ? FVSignup.com_error() : error_callback(jqXHR.responseJSON);
+      },
+    });
   }
 
   static click_login() {
     this.info = {
       id: jQuery('#payment-login-id').val(),
       pass: jQuery('#payment-login-pass').val(),
-    }
+    };
 
     this.post(
       '/payment/participanttotal',
@@ -150,51 +149,39 @@ class FVSignupPayment {
       function (response) {
         FVSignupPayment.login_response(response.totals);
       },
-      function(response) {
+      function (response) {
         if (response.message == 'wrong credentials') {
           alert(FVSignupPayment.config.invalid_login[FVSignup.get_lang()]);
           return;
         }
         console.log(response);
         FVSignup.com_error();
-      }
-    )
+      },
+    );
   }
 
   static goto_payment() {
-    this.post(
-      '/payment/createurl',
-      this.get_info(),
-      function(response) {
-        window.location.href = response.url;
-      }
-    );
+    this.post('/payment/createurl', this.get_info(), function (response) {
+      window.location.href = response.url;
+    });
   }
 
   static cancel_payment() {
-    this.post(
-      '/payment/cancel',
-      { token: this.token },
-      function() {}
-    );
+    this.post('/payment/cancel', { token: this.token }, function () {});
   }
 
   static check_payment_status() {
-    this.post(
-      '/payment/status',
-      { token: this.token },
-      function(response) {
-        FVSignupPayment.payment_status_response(response.payment_status);
-      }
-    )
+    this.post('/payment/status', { token: this.token }, function (response) {
+      FVSignupPayment.payment_status_response(response.payment_status);
+    });
   }
 
   static login_response(totals) {
     let lang = FVSignup.get_lang();
-    
+
     let pay_text = this.config.payment_text[lang].replaceAll('[TOTAL]', totals.signup);
     this.explanation_div.html(`<p>${pay_text}</p>`);
-    
+
     let due_total = totals.signup;
     if (totals.paid > 0) {
       due_total -= totals.paid;
@@ -203,7 +190,7 @@ class FVSignupPayment {
         this.explanation_div.append(`<p>${this.config.already_paid[lang]}</p>`);
         return;
       }
-      
+
       let extra_text = this.config.payment_extra[lang];
       extra_text = extra_text.replaceAll('[PAIDTOTAL]', totals.paid);
       extra_text = extra_text.replaceAll('[DUETOTAL]', due_total);
@@ -214,19 +201,19 @@ class FVSignupPayment {
 
     let pay_button = jQuery(`<button>${this.config.pay_button[lang]}</button>`);
     this.explanation_div.append(pay_button);
-    pay_button.on('click', function() {
+    pay_button.on('click', function () {
       FVSignupPayment.goto_payment();
     });
   }
 
   static payment_status_response(status) {
     let lang = FVSignup.get_lang();
-    
+
     let run_spinner = false;
     switch (status) {
       case 'pending':
-        setTimeout(function() {
-          FVSignupPayment.check_payment_status()
+        setTimeout(function () {
+          FVSignupPayment.check_payment_status();
         }, 2000);
         run_spinner = true;
         break;
@@ -244,8 +231,8 @@ class FVSignupPayment {
     }
 
     if (run_spinner && this.interval_id == undefined) {
-      this.interval_id = setInterval(function() {
-        FVSignupPayment.animate_spinner()          
+      this.interval_id = setInterval(function () {
+        FVSignupPayment.animate_spinner();
       }, 33);
       this.spinner.show();
     }
@@ -262,6 +249,6 @@ class FVSignupPayment {
     this.spinner_position++;
     this.spinner_position %= 30;
 
-    this.spinner.css('transform', `translate(${30*this.spinner_position}%)`);
+    this.spinner.css('transform', `translate(${30 * this.spinner_position}%)`);
   }
 }
