@@ -1,8 +1,18 @@
+:root {
+  --max-content-width: 800px;
+  --primary-color: dodgerblue;
+  --error-color: salmon;
+  --required-color: red;
+  --border-color: black;
+  --bg-whitesmoke: whitesmoke;
+  --transition-speed: 0.5s;
+}
+
 /*----------------------------------------------------------------------------
     Main
 ----------------------------------------------------------------------------*/
 div.page-content {
-  max-width: 800px;
+  max-width: var(--max-content-width);
   margin: auto;
   line-height: 1.7;
 }
@@ -16,7 +26,7 @@ div.page-content {
   transform: rotate(90deg);
   display: inline-block;
   margin-left: 0.5rem;
-  transition-duration: 0.5s;
+  transition-duration: var(--transition-speed);
 }
 
 .foldout.open::after {
@@ -27,8 +37,6 @@ div.page-content {
     Header
 ----------------------------------------------------------------------------*/
 h1.entry-title {
-  /*text-align: center;
-  font-size: 3em;*/
   display: none;
 }
 
@@ -101,7 +109,7 @@ div#load-signup-pass-wrapper {
 }
 
 #signup-navigation div:hover {
-  background-color: dodgerblue;
+  background-color: var(--primary-color);
 }
 
 #signup-navigation div.selected {
@@ -110,7 +118,7 @@ div#load-signup-pass-wrapper {
 }
 
 #signup-navigation div.error {
-  background-color: salmon;
+  background-color: var(--error-color);
 }
 
 #signup-navigation div.error:hover {
@@ -214,11 +222,11 @@ div.input-wrapper.disabled label {
 
 div.input-wrapper.required label::after {
   content: '*';
-  color: red;
+  color: var(--required-color);
 }
 
 .error-text {
-  color: red;
+  color: var(--required-color);
   width: 100%;
 }
 

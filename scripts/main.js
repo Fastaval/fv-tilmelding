@@ -1,6 +1,6 @@
 'using strict';
 
-var fv_signup_settings;
+let fv_signup_settings;
 
 jQuery(function () {
   FVSignup.init();
@@ -21,7 +21,7 @@ class FVSignup {
 
   static show_signup() {
     let key = FVSignupLogic.current_page;
-    window.history.pushState({ page: key }, '', FVSignup.get_base_url() + key + '/');
+    globalThis.history.pushState({ page: key }, '', FVSignup.get_base_url() + key + '/');
 
     this.page_content.children().each(function () {
       jQuery(this).hide();
@@ -46,7 +46,7 @@ class FVSignup {
 
     this.page_content = jQuery('.page-content');
 
-    jQuery(window).on('popstate', function (evt) {
+    jQuery(globalThis).on('popstate', function (evt) {
       let page = evt.originalEvent.state.page;
       if (page == 'payment') {
         FVSignupPayment.show_payment();
@@ -101,49 +101,41 @@ class FVSignup {
     this.page_wrapper = jQuery("<div id='signup-pages'></div>");
     this.signup_content.append(this.page_wrapper);
 
-    // this.signup_footer = jQuery(`<div id="signup-footer"></div>`);
-    // this.signup_content.append(this.signup_footer);
-
-    this.load_config('main', function (config) {
+    this.load_config('main', (config) => {
       FVSignup.config = config;
       FVSignup.config.loaded = true;
       FVSignupLogic.fire('config_ready');
-      // FVSignupRender.signup_footer(FVSignup.signup_footer);
     });
     FVSignupStorage.init(this.storage_controls);
     this.load_page_list();
   }
 
-  static load_config(name, success) {
-    jQuery
-      .getJSON({
-        url: fv_signup_settings.infosys_url + '/api/signup/config/' + name,
-        success: function (config) {
-          success(config);
-        },
-      })
-      .fail(function () {
-        FVSignup.com_error();
-      });
+  static async load_config(name, success) {
+    try {
+      const response = await fetch(`${fv_signup_settings.infosys_url}/api/signup/config/${name}`);
+      if (!response.ok) throw new Error('Network response error');
+      const config = await response.json();
+      success(config);
+    } catch (error) {
+      FVSignup.com_error();
+    }
   }
 
-  static load_page_list() {
-    jQuery
-      .getJSON({
-        url: fv_signup_settings.infosys_url + '/api/signup/pagelist',
-        success: function (pages) {
-          FVSignup.parse_page_list(pages);
-        },
-      })
-      .fail(function () {
-        FVSignup.com_error();
-      });
+  static async load_page_list() {
+    try {
+      const response = await fetch(`${fv_signup_settings.infosys_url}/api/signup/pagelist`);
+      if (!response.ok) throw new Error('Network response error');
+      const pages = await response.json();
+      FVSignup.parse_page_list(pages);
+    } catch (error) {
+      FVSignup.com_error();
+    }
   }
 
   static parse_page_list(pages) {
     // Sort page keys by ordering
     let keys = Object.keys(pages);
-    this.page_keys = keys.sort((a, b) => {
+    this.page_keys = keys.toSorted((a, b) => {
       return pages[a].order - pages[b].order;
     });
 
@@ -162,37 +154,29 @@ class FVSignup {
     FVSignupRender.navigation(pages, this.page_keys, this.navigation);
     // Setup navigation functionality
     this.signup_content.find('nav div').click((evt) => {
-      let key = evt.target.getAttribute('page-id');
+      const key = evt.target.getAttribute('page-id');
       FVSignupLogic.nav_click(key);
     });
     // Fully load pages
-    setTimeout(() => {
-      this.load_pages(keys);
-    });
+    setTimeout(() => this.load_pages(keys));
   }
 
   static load_pages(keys) {
-    keys.forEach((key) => {
-      this.load_page(key);
-    });
+    keys.forEach((key) => this.load_page(key));
   }
 
-  static load_page(key) {
-    let callback = function () {
-      FVSignupLogic.page_ready(key);
-    };
+  static async load_page(key) {
+    const callback = () => FVSignupLogic.page_ready(key);
 
-    jQuery
-      .getJSON({
-        url: fv_signup_settings.infosys_url + '/api/signup/page/' + key,
-        success: function (page) {
-          FVSignup.pages[key] = page;
-          FVSignupRender.page(page, key, FVSignup.page_wrapper, callback);
-        },
-      })
-      .fail(function () {
-        FVSignup.com_error();
-      });
+    try {
+      const response = await fetch(`${fv_signup_settings.infosys_url}/api/signup/page/${key}`);
+      if (!response.ok) throw new Error('Network response error');
+      const page = await response.json();
+      FVSignup.pages[key] = page;
+      FVSignupRender.page(page, key, FVSignup.page_wrapper, callback);
+    } catch (error) {
+      FVSignup.com_error();
+    }
   }
 
   static com_error() {
@@ -264,10 +248,10 @@ class FVSignup {
   }
 
   static get_age(date) {
-    let birthdate = new Date(this.get_input(this.config.birth).val().replace(/-/g, '/') + ' 00:00:00');
+    let birthdate = new Date(this.get_input(this.config.birth).val().replaceAll('-', '/') + ' 00:00:00');
     if (birthdate.toString() == 'Invalid Date') return 0;
 
-    date = date ? date : new Date(this.config.con_start.replace(/-/g, '/'));
+    date = date || new Date(this.config.con_start.replaceAll('-', '/'));
 
     // How many years ago?
     let age = date.getFullYear() - birthdate.getFullYear();
@@ -300,9 +284,10 @@ class FVSignup {
 
   static get_participant_type() {
     switch (this.get_input('participant').val()) {
-      case 'Juniordeltager':
+      case 'Juniordeltager': {
         let plus = this.get_input('junior:plus').prop('checked');
         return plus ? 'junior-plus' : 'junior';
+      }
 
       case 'Deltager':
         return 'deltager';

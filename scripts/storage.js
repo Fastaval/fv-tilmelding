@@ -53,57 +53,34 @@ class FVSignupStorage {
       if (evt.originalEvent.key == 'Enter') load_button.click();
     });
 
-    load_button.click(function () {
-      let id = FVSignupStorage.element.find('#load-signup-id').val();
-      let pass = FVSignupStorage.element.find('#load-signup-pass').val();
+    load_button.click(async () => {
+      const id = FVSignupStorage.element.find('#load-signup-id').val();
+      const pass = FVSignupStorage.element.find('#load-signup-pass').val();
 
-      let data = {
-        id: id,
-        pass: pass,
-      };
-
-      jQuery
-        .ajax({
-          type: 'POST',
-          dataType: 'json',
-          url: FVSignup.get_infosys_url() + '/api/signup/load',
-          data: data,
-          success: function (result) {
-            if (result.errors.length > 0) {
-              FVSignup.com_error();
-              return;
-            }
-            FVSignupStorage.load_from_server(result.signup);
-            FVSignupModuleSubmit.set_info(result.signup.id, pass);
-            alert(FVSignupStorage.config.load_success[lang]);
-            controls_content.hide();
-            controls_header.removeClass('open');
-
-            // Clear possible errors
-            for (const key of FVSignup.page_keys) {
-              if (key == 'confirm') continue;
-              if (FVSignupLogic.is_page_disabled(key)) continue;
-              FVSignupLogic.check_page(key);
-            }
-          },
-        })
-        .fail(function (data) {
-          if (data.responseJSON && data.responseJSON.errors) {
-            let processed = false;
-            data.responseJSON.errors.forEach(function (error) {
-              let msg = FVSignupStorage.config.errors[error.type];
-              if (msg) {
-                alert(msg[lang]);
-                processed = true;
-                return false;
-              }
-            });
-
-            if (processed) return;
-          }
-
-          FVSignup.com_error();
+      try {
+        const response = await fetch(`${FVSignup.get_infosys_url()}/api/signup/load`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ id, pass }),
         });
+
+        const result = await response.json();
+
+        if (result.errors?.length > 0) {
+          FVSignup.com_error();
+          return;
+        }
+
+        FVSignupStorage.load_from_server(result.signup);
+        FVSignupModuleSubmit.set_info(result.signup.id, pass);
+        alert(FVSignupStorage.config.load_success[lang]);
+        controls_content.hide();
+        controls_header.removeClass('open');
+
+        FVSignup.page_keys.filter((key) => key !== 'confirm' && !FVSignupLogic.is_page_disabled(key)).forEach((key) => FVSignupLogic.check_page(key));
+      } catch (error) {
+        FVSignup.com_error();
+      }
     });
   }
 

@@ -84,11 +84,11 @@ class FVSignupPayment {
     }
 
     // Scroll to top
-    window.scrollTo(0, 0);
-    window.dispatchEvent(new CustomEvent('scroll')); // Reset top menu
+    globalThis.scrollTo(0, 0);
+    globalThis.dispatchEvent(new CustomEvent('scroll')); // Reset top menu
 
     // Set addressbar
-    window.history.pushState({ page: 'payment' }, '', FVSignup.get_base_url() + 'payment/');
+    globalThis.history.pushState({ page: 'payment' }, '', FVSignup.get_base_url() + 'payment/');
   }
 
   static page_ready() {
@@ -129,22 +129,22 @@ class FVSignupPayment {
     this.payment_page.show();
   }
 
-  static post(path, data, success_callcack, error_callback = null) {
-    jQuery.ajax({
-      url: FVSignup.get_infosys_url() + path,
-      type: 'POST',
-      data,
-      success: function (response) {
-        if (response.status == 'success') {
-          success_callcack(response);
-        } else {
-          error_callback == null ? FVSignup.com_error() : error_callback(response);
-        }
-      },
-      error: function (jqXHR, status, error) {
-        error_callback == null ? FVSignup.com_error() : error_callback(jqXHR.responseJSON);
-      },
-    });
+  static async post(path, data, success_callback, error_callback = null) {
+    try {
+      const response = await fetch(FVSignup.get_infosys_url() + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(data),
+      });
+      const result = await response.json();
+      if (result.status === 'success') {
+        success_callback(result);
+      } else {
+        error_callback?.(result) ?? FVSignup.com_error();
+      }
+    } catch (error) {
+      error_callback?.({ message: error.message }) ?? FVSignup.com_error();
+    }
   }
 
   static click_login() {
@@ -180,7 +180,7 @@ class FVSignupPayment {
         button.prop('disabled', false);
         button.prop('vlaue', FVSignupPayment.config.pay_button[lang]);
 
-        window.open(response.url, '_blank').focus();
+        globalThis.open(response.url, '_blank').focus();
       },
       function (response) {
         button.prop('disabled', false);
@@ -201,7 +201,7 @@ class FVSignupPayment {
   }
 
   static payment_redirect() {
-    let params = new URLSearchParams(window.location.search);
+    let params = new URLSearchParams(globalThis.location.search);
     if (!params.has('hash')) {
       FVSignup.load_signup();
       return;
@@ -215,7 +215,7 @@ class FVSignupPayment {
         hash: hash,
       },
       function (response) {
-        window.location.href = response.url;
+        globalThis.location.href = response.url;
       },
       function (response) {
         if (response.message == 'no payment needed') {

@@ -20,7 +20,7 @@ class FVSignupLogic {
   }
 
   static require_config(callback) {
-    if (FVSignup.config && FVSignup.config.loaded == true) {
+    if (FVSignup.config?.loaded) {
       callback();
     } else {
       this.add_listener('config_ready', callback);
@@ -64,12 +64,11 @@ class FVSignupLogic {
     this.current_page = key;
 
     // Scroll to top
-    window.scrollTo(0, 0);
-    window.dispatchEvent(new CustomEvent('scroll')); // Reset top menu
+    globalThis.scrollTo(0, 0);
+    globalThis.dispatchEvent(new CustomEvent('scroll')); // Reset top menu
 
     // Set addressbar
-    window.history.pushState({ page: key }, '', FVSignup.get_base_url() + key + '/');
-
+    globalThis.history.pushState({ page: key }, '', FVSignup.get_base_url() + key + '/');
     // Fire listeners
     this.fire('page_' + key);
   }
@@ -114,7 +113,7 @@ class FVSignupLogic {
 
       if (FVSignup.get_start_page() == null) {
         // Set addressbar to start page
-        window.history.pushState({ page: key }, '', FVSignup.get_base_url() + key + '/');
+        globalThis.history.pushState({ page: key }, '', FVSignup.get_base_url() + key + '/');
       }
 
       // Fire listeners
@@ -123,7 +122,7 @@ class FVSignupLogic {
 
     // Mark page status
     let logic = FVSignup.get_page(key).display_logic;
-    if (logic && logic.default == 'disabled') {
+    if (logic?.default == 'disabled') {
       this.page_status[key] = 'disabled';
     } else {
       this.page_status[key] = 'ready';
@@ -153,7 +152,7 @@ class FVSignupLogic {
       for (const [index, section] of page.sections.entries()) {
         this.init_display_logic({ page: page_id, section: index }, section);
         for (const item of section.items ?? []) {
-          if (page.disabled_items && page.disabled_items.includes(item.infosys_id)) {
+          if (page.disabled_items?.includes(item.infosys_id)) {
             this.set_display_status({ input: item.infosys_id }, 'disabled');
           } else {
             this.init_item_logic(item);
@@ -161,14 +160,12 @@ class FVSignupLogic {
 
           if (!Array.isArray(item.options)) continue;
           for (const [index, option] of item.options.entries()) {
-            if (page.disabled_options && page.disabled_options[item.infosys_id] && page.disabled_options[item.infosys_id].includes(option.value)) {
+            if (page.disabled_options?.[item.infosys_id]?.includes(option.value)) {
               this.set_display_status({ input: `${item.infosys_id}-${index}` }, 'disabled');
+            } else if (item.type == 'select') {
+              this.init_display_logic({ option: `${item.infosys_id}-${index}` }, option);
             } else {
-              if (item.type == 'select') {
-                this.init_display_logic({ option: `${item.infosys_id}-${index}` }, option);
-              } else {
-                this.init_display_logic({ input: `${item.infosys_id}-${index}` }, option);
-              }
+              this.init_display_logic({ input: `${item.infosys_id}-${index}` }, option);
             }
           }
         }
@@ -248,7 +245,7 @@ class FVSignupLogic {
     check_value = rule.value;
     if (rule.value.match) {
       let match = rule.value.match(/config.(.+)/);
-      if (match && match[1]) {
+      if (match?.[1]) {
         check_value = FVSignup.config[match[1]];
       }
     }
@@ -259,7 +256,7 @@ class FVSignupLogic {
           return compare_value == check_value ? rule.status : status;
 
         case 'not_equals':
-          return compare_value != check_value ? rule.status : status;
+          return compare_value == check_value ? status : rule.status;
 
         case 'greater':
           return compare_value > check_value ? rule.status : status;
@@ -585,11 +582,9 @@ class FVSignupLogic {
               missing = false;
               return false;
             }
-          } else {
-            if (input.val() !== '') {
-              missing = false;
-              return false;
-            }
+          } else if (input.val() !== '') {
+            missing = false;
+            return false;
           }
           return true;
         });
@@ -625,7 +620,7 @@ class FVSignupLogic {
         if (item.required || con_req) {
           let status = item.type == 'checkbox' ? input.prop('checked') : input.val();
 
-          if (item.autocomplete && item.autocomplete.mode == 'exhaustive') {
+          if (item.autocomplete?.mode == 'exhaustive') {
             let text_input = FVSignup.get_input(item.infosys_id + '-display');
             status = text_input.val();
           }
@@ -650,17 +645,14 @@ class FVSignupLogic {
         // Exclusive picks like entry partout and entry single days
         if (item.excludes) {
           let enabled = false;
-          switch (item.type) {
-            case 'checkbox':
-              enabled = input.prop('checked');
-              break;
-
-            default:
-              errors.push({
-                id: item.infosys_id,
-                type: 'exclude_unsupported_type',
-                input_type: item.type,
-              });
+          if (item.type === 'checkbox') {
+            enabled = input.prop('checked');
+          } else {
+            errors.push({
+              id: item.infosys_id,
+              type: 'exclude_unsupported_type',
+              input_type: item.type,
+            });
           }
           // Only check for exclusive if input is enabled
           if (enabled) {
@@ -685,7 +677,7 @@ class FVSignupLogic {
             }
           }
         }
-        if (item.autocomplete && item.autocomplete.mode == 'exhaustive' && FVSignup.get_input(item.infosys_id + '-display').val() != '') {
+        if (item.autocomplete?.mode == 'exhaustive' && FVSignup.get_input(item.infosys_id + '-display').val() != '') {
           let list = FVSignup.config.autocomplete[item.autocomplete.list];
           let lang = FVSignup.get_lang();
           let input_text = input.closest('.input-wrapper').find('input[type=text]');

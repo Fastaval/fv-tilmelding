@@ -262,7 +262,7 @@ class FVSignupLogicActivities {
     if (lang_gm == 'da') input = FVSignup.get_input('activity_language:dansk');
     if (lang_gm == 'en') input = FVSignup.get_input('activity_language:engelsk');
 
-    return input && input.prop('checked');
+    return input?.prop('checked');
   }
 
   static choice_click(choice) {
@@ -274,8 +274,8 @@ class FVSignupLogicActivities {
       input = FVSignupModuleActivities.element.find(`input#activity\\:${run_id}`);
     }
 
-    let value = parseInt(input.val());
-    if (isNaN(value)) value = 0;
+    let value = Number.parseInt(input.val());
+    if (Number.isNaN(value)) value = 0;
 
     // Check if we can sign up as GM
     let gm = this.check_gm(choice);
@@ -337,15 +337,15 @@ class FVSignupLogicActivities {
   }
 
   static check_overlap(choice, others) {
-    let run_start = parseInt(choice.attr('run-start'));
-    let run_end = parseInt(choice.attr('run-end'));
+    let run_start = Number.parseInt(choice.attr('run-start'));
+    let run_end = Number.parseInt(choice.attr('run-end'));
 
     // Does any of the other runs overlap?
     for (const other of others) {
       let other_choice = jQuery(other).closest('.activity-choice');
 
-      let other_start = parseInt(other_choice.attr('run-start'));
-      let other_end = parseInt(other_choice.attr('run-end'));
+      let other_start = Number.parseInt(other_choice.attr('run-start'));
+      let other_end = Number.parseInt(other_choice.attr('run-end'));
 
       // If other run is before this one
       if (other_start < run_start && other_end <= run_start) continue;
@@ -432,7 +432,7 @@ class FVSignupLogicActivities {
       let input = choice.find('input');
 
       // If we have a choice with GM/Rules (where allowed)
-      if (parseInt(input.val()) > 0) need_junior--;
+      if (Number.parseInt(input.val()) > 0) need_junior--;
 
       return need_junior > 0; // End loop if we have a selection
     });
@@ -467,7 +467,7 @@ class FVSignupLogicActivities {
       let input = choice.find('input');
 
       // If we have a choice with GM/Rules (where allowed)
-      if (parseInt(input.val()) > prio_count && choice.attr('activity-gm') == 'true') {
+      if (Number.parseInt(input.val()) > prio_count && choice.attr('activity-gm') == 'true') {
         // If the activity is board game, then it's rules
         if (choice.attr('activity-type') == 'braet') {
           need_rules = false;

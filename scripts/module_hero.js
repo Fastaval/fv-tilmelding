@@ -44,7 +44,7 @@ class FVSignupModuleHero {
       let time_row = jQuery('<tr></tr>');
       time_row.append('<td>' + time_slot.text[lang] + '</td>');
       let col = 0;
-      if (!isNaN(time_slot.skip)) {
+      if (!Number.isNaN(time_slot.skip)) {
         while (col < time_slot.skip) {
           time_row.append('<td></td>');
           col++;
