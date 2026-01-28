@@ -7,32 +7,29 @@ class FVSignupModuleWear {
   static wear_items = {};
   static attributes = {};
 
-  static init(element, callback) {
+  static async init(element, callback) {
     this.element = jQuery('<div id="wear_module" class="module-div special-submit" module="wear"></div>');
     this.element.append('<p>Loading wear module</p>');
     element.append(this.element);
 
-    jQuery
-      .getJSON({
-        url: fv_signup_settings.infosys_url + '/api/signup/wear',
-        success: function (wear_info) {
-          FVSignupModuleWear.wear_info = wear_info;
-          if (FVSignupModuleWear.config) FVSignupModuleWear.render_wear();
-        },
-      })
-      .fail(function () {
-        FVSignup.com_error();
-      })
-      .always(function () {
-        callback();
-      });
+    try {
+      const response = await fetch(`${fv_signup_settings.infosys_url}/api/signup/wear`);
+      if (!response.ok) throw new Error('Network response error');
+      const wear_info = await response.json();
+      FVSignupModuleWear.wear_info = wear_info;
+      if (FVSignupModuleWear.config) FVSignupModuleWear.render_wear();
+    } catch (error) {
+      FVSignup.com_error();
+    } finally {
+      callback();
+    }
 
-    FVSignup.load_config('wear', function (config) {
+    FVSignup.load_config('wear', (config) => {
       FVSignupModuleWear.config = config;
       if (FVSignupModuleWear.wear_info) FVSignupModuleWear.render_wear();
     });
 
-    FVSignupLogic.add_listener('page_wear', function () {
+    FVSignupLogic.add_listener('page_wear', () => {
       FVSignupModuleWear.update_prices();
     });
   }

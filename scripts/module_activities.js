@@ -5,29 +5,26 @@ class FVSignupModuleActivities {
   static info;
   static config;
 
-  static init(element, callback) {
+  static async init(element, callback) {
     this.element = jQuery('<div id="activities_module" class="special-errors"></div>');
     this.element.append('<p>Loading activities module</p>');
     element.append(this.element);
 
     this.page_id = element.closest('.signup-page').attr('id');
 
-    jQuery
-      .getJSON({
-        url: fv_signup_settings.infosys_url + '/api/signup/activities',
-        success: function (activities_info) {
-          FVSignupModuleActivities.info = activities_info;
-          if (FVSignupModuleActivities.config) FVSignupModuleActivities.render_activities();
-        },
-      })
-      .fail(function () {
-        FVSignup.com_error();
-      })
-      .always(function () {
-        callback();
-      });
+    try {
+      const response = await fetch(`${fv_signup_settings.infosys_url}/api/signup/activities`);
+      if (!response.ok) throw new Error('Network response error');
+      const activities_info = await response.json();
+      FVSignupModuleActivities.info = activities_info;
+      if (FVSignupModuleActivities.config) FVSignupModuleActivities.render_activities();
+    } catch (error) {
+      FVSignup.com_error();
+    } finally {
+      callback();
+    }
 
-    FVSignup.load_config('activities', function (config) {
+    FVSignup.load_config('activities', (config) => {
       FVSignupModuleActivities.config = config;
       if (FVSignupModuleActivities.info) FVSignupModuleActivities.render_activities();
     });

@@ -5,27 +5,24 @@ class FVSignupModuleFood {
   static info;
   static config;
 
-  static init(element, callback) {
+  static async init(element, callback) {
     this.div = jQuery('<div id="food_module" class="module-div" module="food"></div>');
     this.div.append('<p>Loading food module</p>');
     element.append(this.div);
 
-    jQuery
-      .getJSON({
-        url: fv_signup_settings.infosys_url + '/api/signup/food',
-        success: function (info) {
-          FVSignupModuleFood.info = info;
-          if (FVSignupModuleFood.config) FVSignupModuleFood.render_food();
-        },
-      })
-      .fail(function () {
-        FVSignup.com_error();
-      })
-      .always(function () {
-        callback();
-      });
+    try {
+      const response = await fetch(`${fv_signup_settings.infosys_url}/api/signup/food`);
+      if (!response.ok) throw new Error('Network response error');
+      const info = await response.json();
+      FVSignupModuleFood.info = info;
+      if (FVSignupModuleFood.config) FVSignupModuleFood.render_food();
+    } catch (error) {
+      FVSignup.com_error();
+    } finally {
+      callback();
+    }
 
-    FVSignup.load_config('food', function (config) {
+    FVSignup.load_config('food', (config) => {
       FVSignupModuleFood.config = config;
       if (FVSignupModuleFood.info) FVSignupModuleFood.render_food();
     });

@@ -143,7 +143,7 @@ class FVSignupModuleSubmit {
     }
   }
 
-  static on_page() {
+  static async on_page() {
     this.status.empty();
     this.errors.empty();
     this.signup_data.empty();
@@ -156,7 +156,7 @@ class FVSignupModuleSubmit {
     } else {
       let text = this.config.waiting_for_pages;
       this.status.append('<p>' + text[FVSignup.get_lang()] + '</p>');
-      FVSignupLogic.add_listener('all_loaded', function () {
+      FVSignupLogic.add_listener('all_loaded', () => {
         if (FVSignupLogic.current_page == 'confirm') {
           FVSignupModuleSubmit.on_page();
         }
@@ -225,23 +225,17 @@ class FVSignupModuleSubmit {
       lang: FVSignup.get_lang(),
     };
 
-    jQuery.ajax({
-      type: 'POST',
-      dataType: 'json',
-      url: FVSignup.get_infosys_url() + '/api/signup/submit',
-      data: data,
-      success: function (response) {
-        FVSignupModuleSubmit.submit_success(response);
-      },
-      error: function (request, status, error) {
-        if (request.responseJSON) {
-          FVSignupModuleSubmit.render_errors(request.responseJSON.result.errors);
-          FVSignupModuleSubmit.signup_data.empty();
-        } else {
-          FVSignup.com_error();
-        }
-      },
-    });
+    try {
+      const response = await fetch(`${FVSignup.get_infosys_url()}/api/signup/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await response.json();
+      FVSignupModuleSubmit.submit_success(result);
+    } catch (error) {
+      FVSignup.com_error();
+    }
   }
 
   static submit_success(response) {
@@ -506,7 +500,7 @@ class FVSignupModuleSubmit {
     this.signup_data.append(confirm_button);
   }
 
-  static confirm() {
+  static async confirm() {
     let button = jQuery('#confirm-submission-button');
     button.prop('disabled', true);
 
@@ -519,28 +513,19 @@ class FVSignupModuleSubmit {
       lang: FVSignup.get_lang(),
     };
 
-    jQuery
-      .ajax({
-        type: 'POST',
-        dataType: 'json',
-        url: FVSignup.get_infosys_url() + '/api/signup/confirm',
-        data: data,
-        success: function (response) {
-          FVSignupModuleSubmit.confirm_success(response);
-        },
-        error: function (request, status, error) {
-          if (request.responseJSON) {
-            FVSignupModuleSubmit.status.empty();
-            FVSignupModuleSubmit.render_errors(request.responseJSON.result.errors);
-            FVSignupModuleSubmit.signup_data.empty();
-          } else {
-            FVSignup.com_error();
-          }
-        },
-      })
-      .always(function () {
-        button.prop('disabled', false);
+    try {
+      const response = await fetch(`${FVSignup.get_infosys_url()}/api/signup/confirm`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       });
+      const result = await response.json();
+      FVSignupModuleSubmit.confirm_success(result);
+    } catch (error) {
+      FVSignup.com_error();
+    } finally {
+      button.prop('disabled', false);
+    }
 
     this.status.append(text.clone());
     this.signup_data.append(text);
